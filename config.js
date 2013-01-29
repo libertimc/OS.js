@@ -83,7 +83,11 @@ module.exports =
   //
   // Paths
   //
+  PATH_VENDOR         : path.join(__dirname, 'vendor'),
   PATH_LIB            : path.join(__dirname, 'lib'),
+  PATH_LOGS           : path.join(__dirname, 'logs'),
+  PATH_BIN            : path.join(__dirname, 'bin'),
+  PATH_DOC            : path.join(__dirname, 'doc'),
   PATH_SRC            : path.join(__dirname, 'src'),
   PATH_LOCALE         : path.join(__dirname, 'src/locale'),
   PATH_JAVASCRIPT     : path.join(__dirname, 'src/javascript'),
@@ -91,11 +95,8 @@ module.exports =
   PATH_TEMPLATES      : path.join(__dirname, 'src/templates'),
   PATH_PACKAGES       : path.join(__dirname, 'src/packages'),
   PATH_PUBLIC         : path.join(__dirname, 'public_html'),
-  PATH_VENDOR         : path.join(__dirname, 'vendor'),
   PATH_MEDIA          : path.join(__dirname, 'public_html/media'),
-  PATH_LOGS           : path.join(__dirname, 'logs'),
-  PATH_BIN            : path.join(__dirname, 'bin'),
-  PATH_DOC            : path.join(__dirname, 'doc'),
+
   PATH_VFS            : path.join(__dirname, 'VFS'),
   PATH_VFS_USER       : path.join(__dirname, 'VFS/%d'),
   PATH_VFS_PACKAGES   : path.join(__dirname, 'VFS/%d/Packages'),

@@ -8,6 +8,7 @@ doc/
 public_html/.htpasswd
 VFS
 public_html/media/Public/*
+*.php
 
 # Misc
 config.php

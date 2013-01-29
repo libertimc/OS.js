@@ -32,8 +32,15 @@
 
 var fs = require('fs');
 
+function _ls(args, callback) {
+  callback(false, "TODO");
+}
+
 module.exports =
 {
-
+  ls      : _ls,
+  lswrap  : function(args, callback) {
+    _ls.apply(this, arguments);
+  }
 };
 

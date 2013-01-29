@@ -101,6 +101,7 @@ swig.express3 = function (path, options, fn) {
       fn(null, tmpl(options));
     } catch (error) {
       fn(error);
+      console.error(error);
     }
 
     return true;
@@ -401,6 +402,7 @@ app.configure(function() {
                   try {
                     _class = require(_cpath);
                   } catch ( err ) {
+                    console.error(err);
                     res.json(200, { success: false, error: err.message, result: null });
                     return;
                   }
@@ -415,6 +417,7 @@ app.configure(function() {
                         }
                       });
                     } catch ( err ) {
+                      console.error(err);
                       res.json(200, { success: false, error: err.message, result: null });
                     }
                   }
@@ -435,8 +438,26 @@ app.configure(function() {
         break;
 
         case 'call' : // TODO
-          if ( typeof _vfs[jsn.method] === 'function' ) {
-            defaultJSONResponse(req, res); // TODO
+          console.log("API::call()", jsn);
+          if ( (jsn.method && jsn.args) && (typeof _vfs[jsn.method] === 'function') ) {
+            try {
+              var _method = _vfs[jsn.method];
+              var _args   = (jsn.args ? [jsn.args] : [[]]);
+
+              _args.push(function(vfssuccess, vfsresult) {
+                if ( vfssuccess ) {
+                  res.json(200, { success: true, result: vfsresult });
+                } else {
+                  res.json(200, { success: false, error: vfsresult, result: null });
+                }
+              });
+
+              _method.apply(_method, _args);
+              //_method.call(_method, _args);
+            } catch ( err ) {
+              console.error(err);
+              res.json(200, { success: false, error: err.message, result: null });
+            }
           } else {
             res.json(200, { success: false, error: 'Invalid VFS action!', result: null });
           }
