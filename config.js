@@ -80,6 +80,8 @@ module.exports =
   MIME_MAGIC          : path.join(__dirname, "vendor/mime.mgc"),
   VFS_TEMPLATE        : path.join(__dirname, "src/templates/vfs-user"),
 
+  VFS_MKDIR_PERM      : '0777',
+
   //
   // Paths
   //

@@ -38,34 +38,113 @@ var fs        = require('fs'),
     http      = require('http'),
     url       = require('url'),
     walk      = require('walk'),
+    sprintf   = require('sprintf').sprintf,
     sanitize  = require('validator').sanitize;
 
 var _config = require('../config.js');
 
+///////////////////////////////////////////////////////////////////////////////
+// HELPERS
+///////////////////////////////////////////////////////////////////////////////
+
+function mkpath(input) {
+  // FIXME Safe
+  if ( input.match(/^\/User/) ) {
+    var uid = 1; // FIXME
+    return sprintf(_config.PATH_VFS_USER, uid) + input.replace(/^\/User/, '');
+  }
+
+  return (_config.PATH_MEDIA + input);
+}
+
+function is_protected(input) {
+  // TODO: Permissions
+  if ( input.match(/^\/User/) ) {
+    return false;
+  }
+  return true;
+}
+
+function get_icon(filename, mime) {
+  return 'emblems/emblem-unreadable.png'; // FIXME
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// FS WRAPPERS
+///////////////////////////////////////////////////////////////////////////////
+
 function _ls(args, callback) {
-  var path = _config.PATH_MEDIA + args; // FIXME
-  var walker = walk.walk(path, { followLinks: false });
+  var path = mkpath(args);
+
+  console.log("_ls", path);
+
   var files  = {
     ".." : {
       path        : path,
       size        : 0,
       mime        : null,
-      icon        : 'emblems/emblem-unreadable.png', // FIXME
+      icon        : get_icon(null, "dir"),
       type        : 'dir',
-      'protected' : 0 // FIXME
+      'protected' : 1
     }
   };
 
+  var walker = walk.walk(path); //, { followLinks: false });
+
   walker.on('file', function(root, stat, next) {
-    files[stat.name] = {
-      path         : root,
-      size         : stat.size,
-      mime         : "todo/todo", // FIXME
-      icon         : 'emblems/emblem-unreadable.png', // FIXME
-      type         : "file",
-      'protected'  : 0 // FIXME
-    };
+    try {
+      files[stat.name] = {
+        path         : root,
+        size         : stat.size,
+        mime         : "todo/todo", // FIXME
+        icon         : get_icon(stat.name, "todo/todo"), // FIXME
+        type         : "file",
+        'protected'  : is_protected(root) ? 1 : 0
+      };
+    } catch ( e ) {
+      console.error("walker.on(file)", e);
+    }
+
+    next();
   });
+
+  walker.on('symlink', function(symlink, stat, next) {
+    try {
+      files[stat.name] = {
+        path         : symlink,
+        size         : stat.size,
+        mime         : "todo/todo", // FIXME
+        icon         : get_icon(stat.file, "todo/todo"), // FIXME
+        type         : "file",
+        'protected'  : is_protected(symlink) ? 1 : 0
+      };
+    } catch ( e ) {
+      console.error("walker.on(symlink)", e);
+    }
+
+    next();
+  });
+
+  walker.on('dir', function(dir, stat, next) {
+    try {
+      files[stat.name] = {
+        path         : dir,
+        size         : stat.size,
+        mime         : "",
+        icon         : 'status/folder-visiting.png',
+        type         : "dir",
+        'protected'  : is_protected(dir) ? 1 : 0
+      };
+    } catch ( e ) {
+      console.error("walker.on(dir)", e);
+    }
+
+    next();
+  });
+
+  /*walker.on('error', function(er, entry, stat) {
+    console.error("_ls error:", er, entry, stat);
+  });*/
 
   walker.on('end', function() {
     callback(true, files);
@@ -73,8 +152,9 @@ function _ls(args, callback) {
 }
 
 function _cat(filename, callback) {
-  filename = _config.PATH_MEDIA + filename; // FIXME
-  fs.readFile(filename, function(err, data) {
+  var path = mkpath(filename);
+
+  fs.readFile(path, function(err, data) {
     if ( err ) {
       callback(false, err || "File not found or permission denied!");
     } else {
@@ -84,9 +164,9 @@ function _cat(filename, callback) {
 }
 
 function _exists(filename, callback) {
-  filename = _config.PATH_MEDIA + filename; // FIXME
+  var path = mkpath(filename);
 
-  fs.exists(filename, function(ex) {
+  fs.exists(path, function(ex) {
     if ( ex ) {
       callback(true, true);
     } else {
@@ -95,9 +175,10 @@ function _exists(filename, callback) {
   });
 }
 
-function _mkdir(path, callback) {
-  var filename = _config.PATH_MEDIA + path; // FIXME
-  fs.mkdir(filename, '0777', function(err, files) {
+function _mkdir(name, callback) {
+  var path = mkpath(name);
+
+  fs.mkdir(path, _config.VFS_MKDIR_PERM, function(err, files) {
     if ( err ) {
       callback(false, err);
     } else {
@@ -106,13 +187,14 @@ function _mkdir(path, callback) {
   });
 }
 
-function _touch(path, callback) {
-  var filename = _config.PATH_MEDIA + path; // FIXME
-  _exists(filename, function(sucess, result) {
+function _touch(filename, callback) {
+  var path = mkpath(filename);
+
+  _exists(path, function(sucess, result) {
     if ( success ) {
       callback(true, false);
     } else {
-      fs.writeFile(filename, "", function(err) {
+      fs.writeFile(path, "", function(err) {
         if ( err ) {
           callback(false, err);
         } else {
@@ -123,11 +205,12 @@ function _touch(path, callback) {
   });
 }
 
-function _rm(path, callback) {
-  var filename = _config.PATH_MEDIA + path; // FIXME
-  _exists(filename, function(sucess, result) {
+function _rm(name, callback) {
+  var path = mkpath(name);
+
+  _exists(path, function(sucess, result) {
     if ( success ) {
-      fs.unlink(filename, function(err) {
+      fs.unlink(path, function(err) {
         if ( err ) {
           callback(false, err);
         } else {
@@ -139,6 +222,10 @@ function _rm(path, callback) {
     }
   });
 }
+
+///////////////////////////////////////////////////////////////////////////////
+// EXPORTS
+///////////////////////////////////////////////////////////////////////////////
 
 module.exports =
 {
@@ -190,7 +277,7 @@ module.exports =
                 path        : iter.path,
                 size        : iter.size,
                 hsize       : iter.size + "b", // FIXME
-                'protected' : 0 // FIXME
+                'protected' : is_protected(iter.path) ? 1 : 0
             });
           }
         }
