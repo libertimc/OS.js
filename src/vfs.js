@@ -95,19 +95,56 @@ function _touch(path, callback) {
   });
 }
 
+function _rm(path, callback) {
+  var filename = _config.PATH_MEDIA + path; // FIXME
+  _exists(filename, function(sucess, result) {
+    if ( success ) {
+      fs.unlink(filename, function(err) {
+        if ( err ) {
+          callback(false, err);
+        } else {
+          callback(true, true);
+        }
+      });
+    } else {
+      callback(true, false);
+    }
+  });
+}
+
 module.exports =
 {
-  ls      : _ls,
-  cat     : _cat,
-  read    : _cat,
-  exists  : _exists,
-  mkdir   : _mkdir,
-  touch   : _touch,
+  // Base
+  ls        : _ls,
+  readdir   : _ls,
+  cat       : _cat,
+  read      : _cat,
+  exists    : _exists,
+  mkdir     : _mkdir,
+  touch     : _touch,
+  'delete'  : _rm,
+  rm        : _rm,
 
+  // preview
+  // rename
+  // mv
+  // put
+  // write
+  // file_info
+  // fileinfo
+  // readpdf
+  // cp
+  // copy
+  // upload
+  // ls_archive
+  // extract_archive
+
+  // Wrappers
   lswrap  : function(args, callback) {
     _ls.apply(this, arguments);
   },
 
+  // Extern
   readurl : function(args, callback) {
     if ( args !== null ) {
       var qdata   = url.parse(args, true);
