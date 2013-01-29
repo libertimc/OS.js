@@ -147,6 +147,27 @@ function getSystemPackages(language, callback) {
 
 module.exports =
 {
+  getInstalledSystemPackages : function(language, callback) {
+    var _finished = function(packages) {
+      callback(true, packages);
+    };
+    var _failed = function(msg) {
+      callback(false, msg);
+    };
+
+    getSystemPackages(language, function(success, result) {
+      if ( success ) {
+        _finished(result, []);
+      } else {
+        _failed(result);
+      }
+    });
+  },
+
+  getInstalledUserPackages : function() {
+    // TODO
+  },
+
   getInstalledPackages : function(language, user, callback) {
     var _finished = function(sys, usr) {
        callback(true, {
@@ -161,7 +182,7 @@ module.exports =
 
     getSystemPackages(language, function(success, result) {
       if ( success ) {
-        _finished(result, []);
+        _finished(result, []); // FIXME
       } else {
         _failed(result);
       }

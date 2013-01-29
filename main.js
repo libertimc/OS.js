@@ -68,13 +68,17 @@ var _defaultUser = {
   duplicate : false,
   info      : {
     "User ID"       : 1,
-    "Username"      : "test",
-    "Name"          : "Test user",
+    "Username"      : "nodejs",
+    "Name"          : "Node.js user",
     "Groups"        : ["root"],
     "Registered"    : "2013-01-01 00:00:00",
     "Last Modified" : "2013-01-01 00:00:00",
     "Last Login"    : "2013-01-01 00:00:00",
-    "Browser"       : "Some Browser"
+    "Browser"       : {
+      "platform"  : "Platform info",
+      "engine"    : "Engine info",
+      "version"   : "Version info"
+    }
   }
 };
 
@@ -359,7 +363,7 @@ app.configure(function() {
 
             case 'info' :
             default     :
-              res.json(200, {success: true, result: _defaultUser});
+              res.json(200, {success: true, result: _defaultUser.info});
               return;
               break;
           }
@@ -368,7 +372,58 @@ app.configure(function() {
         break;
 
         case 'event' : // TODO
-          defaultJSONResponse(req, res);
+          var ev_instance = jsn.instance || null;
+          var ev_action   = ev_instance.action || null;
+          var ev_args     = ev_instance.args || [];
+          var ev_name     = ev_instance.name ? ev_instance.name.replace(/[^A-z0-9]/, '') : null;
+
+          if ( ev_action === null || ev_instance === null || ev_name === null ) {
+            res.json(200, { success: false, error: "Invalid event!", result: null });
+          } else {
+            _packages.getInstalledSystemPackages(_defaultLang, function(success, result) {
+              if ( success ) {
+                var load_class = false;
+
+                for ( var pn in result ) {
+                  if ( result.hasOwnProperty(pn) ) {
+                    if ( pn == ev_name ) {
+                      load_class = ev_name + ".node.js";
+                      break;
+                    }
+                  }
+                }
+
+                if ( load_class === false ) {
+                  res.json(200, { success: false, error: 'Cannot handle this event!', result: null });
+                } else {
+                  var _cpath = ([config.PATH_PACKAGES, load_class]).join("/");
+                  var _class = null;
+                  try {
+                    _class = require(_cpath);
+                  } catch ( err ) {
+                    res.json(200, { success: false, error: err.message, result: null });
+                    return;
+                  }
+
+                  if ( _class !== null ) {
+                    try {
+                      _class.Event(ev_action, ev_args, function(esuccess, eresult) {
+                        if ( esuccess ) {
+                          res.json(200, { success: true, result: eresult });
+                        } else {
+                          res.json(200, { success: false, error: eresult, result: null });
+                        }
+                      });
+                    } catch ( err ) {
+                      res.json(200, { success: false, error: err.message, result: null });
+                    }
+                  }
+                }
+              } else {
+                res.json(200, { success: false, error: result, result: null });
+              }
+            });
+          }
         break;
 
         case 'package' : // TODO
@@ -438,7 +493,7 @@ app.configure(function() {
     var pkg = req.params['package'];
 
     console.log('/VFS/resource/:package/:filename', pkg, filename);
-    if ( req.params.filename.match(/\.js|\.css$/) ) {
+    if ( req.params.filename.match(/\.js|\.css|\.png|\.jpe?g|\.gif$/) ) { // FIXME
       res.sendfile(sprintf('%s/%s/%s', config.PATH_PACKAGES, pkg, filename));
     } else {
       throw "Invalid file";
