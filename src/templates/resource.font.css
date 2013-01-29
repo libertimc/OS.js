@@ -1,7 +1,7 @@
 @charset "UTF-8";
 /*!
  * @file
- * OS.js - JavaScript Operating System - Font [$font] Stylesheet (CSS)
+ * OS.js - JavaScript Operating System - Font Stylesheet (CSS)
  *
  * Copyright (c) 2011-2012, Anders Evenrud <andersevenrud@gmail.com>
  * All rights reserved.
@@ -34,27 +34,27 @@
 
 @font-face {
   font-family : OSjsFont;
-  src: url("%NORMAL%");
+  src: url("{{ normal }}");
 }
 @font-face {
   font-family : OSjsFont;
   font-weight : bold;
-  src: url("%BOLD%");
+  src: url("{{ bold }}");
 }
 @font-face {
   font-family : OSjsFont;
   font-style : italic;
-  src: url("%ITALIC%");
+  src: url("{{ italic }}");
 }
 
-%START_COMMENT%
+{{ bcstart }}
 @font-face {
   font-family : OSjsFont;
   font-weight : bold;
   font-style : italic;
-  src: url("%BOLD_ITALIC%");
+  src: url("{{ bitalic }}");
 }
-%END_COMMENT%
+{{ bcend }}
 
 body {
   font-family : OSjsFont, Arial;

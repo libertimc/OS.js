@@ -65,8 +65,8 @@
    * @constants URIs
    */
   var WEBSOCKET_URI    = "localhost:8888";          //!< WebSocket URI (Dynamic)
-  var ROOT_URL         = "http://osjs.local";       //!< URL: Dynamic content
-  var STATIC_URL       = "http://osjs.local";       //!< URL: Static content
+  var ROOT_URL         = "http://localhost:3000";       //!< URL: Dynamic content
+  var STATIC_URL       = "http://localhost:3000";       //!< URL: Static content
   var AJAX_URI         = "/";                       //!< AJAX URI (POST)
   var RESOURCE_URI     = "/VFS/resource/";          //!< Resource loading URI (GET)
   var THEME_URI        = "/VFS/theme/";             //!< Themes loading URI (GET)
