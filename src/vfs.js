@@ -30,17 +30,36 @@
  * @created 2013-01-27
  */
 
+/*
+ * TODO: Secure input
+ */
+
 var fs    = require('fs'),
     http  = require('http'),
     url   = require('url');
+
+var _config = require('../config.js');
 
 function _ls(args, callback) {
   callback(false, "TODO");
 }
 
+function _cat(filename, callback) {
+  filename = _config.PATH_MEDIA + filename;
+  fs.readFile(filename, function(err, data) {
+    if ( err ) {
+      callback(false, err || "File not found or permission denied!");
+    } else {
+      callback(true, data.toString());
+    }
+  });
+}
+
 module.exports =
 {
   ls      : _ls,
+  cat     : _cat,
+  read    : _cat,
 
   lswrap  : function(args, callback) {
     _ls.apply(this, arguments);
