@@ -126,10 +126,9 @@ function parseList(language, result, callback) {
   callback(true, packages); // TODO
 }
 
-function getSystemPackages(callback) {
+function getSystemPackages(language, callback) {
   var parser = new xml2js.Parser();
   var filename = config.PACKAGE_BUILD;
-  var language = "en_US"; // FIXME
 
   fs.readFile(filename, function(err, data) {
     if ( err ) {
@@ -148,7 +147,7 @@ function getSystemPackages(callback) {
 
 module.exports =
 {
-  getInstalledPackages : function(user, callback) {
+  getInstalledPackages : function(language, user, callback) {
     var _finished = function(sys, usr) {
        callback(true, {
         System : sys || [],
@@ -160,7 +159,7 @@ module.exports =
       callback(false, msg);
     };
 
-    getSystemPackages(function(success, result) {
+    getSystemPackages(language, function(success, result) {
       if ( success ) {
         _finished(result, []);
       } else {

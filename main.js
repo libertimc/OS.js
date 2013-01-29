@@ -35,6 +35,9 @@
  * TODO: Session
  * TODO: Users
  * TODO: User packages
+ * TODO: Package managment
+ * TODO: WebServices
+ * TODO: Snapshots
  * TODO: Rest of Core API
  * TODO: VFS
  * TODO: Application Events
@@ -50,11 +53,29 @@ var config    = require('./config.js'),
     _registry  = require(config.PATH_SRC + '/registry.js'),
     _settings  = require(config.PATH_SRC + '/settings.js'),
     _preload   = require(config.PATH_SRC + '/preload.js'),
-    _packages  = require(config.PATH_SRC + '/packages.js');
+    _packages  = require(config.PATH_SRC + '/packages.js'),
+    _vfs       = require(config.PATH_SRC + '/vfs.js');
 
 var express = require('express'),
     sprintf = require('sprintf').sprintf,
     swig    = require('swig');
+
+var _defaultLang = "en_US";
+var _defaultUser = {
+  uid       : 1,
+  sid       : '',
+  duplicate : false,
+  info      : {
+    "User ID"       : "",
+    "Username"      : "",
+    "Name"          : "",
+    "Groups"        : [],
+    "Registered"    : "",
+    "Last Modified" : "",
+    "Last Login"    : "",
+    "Browser"       : ""
+  }
+};
 
 ///////////////////////////////////////////////////////////////////////////////
 // APPLICATION
@@ -123,7 +144,7 @@ function defaultJSONResponse(req, res) {
 function generateIndex(req, res) {
   var opts = config;
 
-  opts.locale   = "en_US"; // FIXME
+  opts.locale   = _defaultLang; // FIXME
   opts.preloads = [
     {"script" : 'json.js'},
     {"script" : 'sprintf.js'},
@@ -207,12 +228,13 @@ app.configure(function() {
     if ( action === null  ) {
       defaultJSONResponse(req, res);
     } else {
+      // TODO: Implement array-check for which methods require user/session
       switch ( jsn.action ) {
         case 'boot' :
           // TODO: Session
           response = {
             success : true,
-            result : {
+            result  : {
               environment : {
                 bugreporting : config.BUGREPORT_ENABLE,
                 production   : config.ENV_PRODUCTION,
@@ -221,7 +243,7 @@ app.configure(function() {
                 connection   : config.ENV_PLATFORM,
                 ssl          : config.ENV_SSL,
                 autologin    : config.AUTOLOGIN_ENABLE,
-                restored     : [],
+                restored     : true, // FIXME
                 hosts        : {
                   frontend      : config.HOST_FRONTEND,
                   'static'      : config.HOST_STATIC
@@ -247,22 +269,8 @@ app.configure(function() {
 
         case 'login' :
           var user        = {   // FIXME
-            result : {
-              uid       : 1,
-              sid       : '',
-              duplicate : false,
-              info      : {
-                "User ID"       : "",
-                "Username"      : "",
-                "Name"          : "",
-                "Groups"        : [],
-                "Registered"    : "",
-                "Last Modified" : "",
-                "Last Login"    : "",
-                "Browser"       : ""
-              }
-            },
-            language          : "en_US",
+            result            : _defaultUser,
+            language          : _defaultLang,
             resume_registry   : {},
             resume_session    : {}
           };
@@ -297,10 +305,10 @@ app.configure(function() {
           var _failure = function(msg) {
             console.error(msg);
 
-            res.json(500, {success: false, error: msg});
+            res.json(200, {success: false, error: msg, result: null});
           };
 
-          _packages.getInstalledPackages(user, function(success, result) {
+          _packages.getInstalledPackages(user.language, user.result, function(success, result) {
             if ( success ) {
               _success(result);
             } else {
@@ -321,8 +329,71 @@ app.configure(function() {
           res.json(200, response);
         break;
 
+        case 'updateCache' : // TODO
+          defaultJSONResponse(req, res);
+        break;
+
+        case 'settings' : // TODO
+          defaultJSONResponse(req, res);
+        break;
+
+        case 'user' : // TODO
+          var uid = parseInt(jsn.uid, 10) || 0;
+          switch ( jsn.method ) {
+            case 'list' :
+              break;
+
+            case 'update':
+              break;
+
+            case 'delete':
+              break;
+
+            case 'info' :
+            default     :
+              res.json(200, {success: true, result: _defaultUser});
+              return;
+              break;
+          }
+
+          defaultJSONResponse(req, res);
+        break;
+
+        case 'event' : // TODO
+          defaultJSONResponse(req, res);
+        break;
+
+        case 'package' : // TODO
+          defaultJSONResponse(req, res);
+        break;
+
+        case 'service' : // TODO
+          defaultJSONResponse(req, res);
+        break;
+
+        case 'call' : // TODO
+          if ( typeof _vfs[jsn.method] === 'function' ) {
+            defaultJSONResponse(req, res); // TODO
+          } else {
+            res.json(200, { success: false, error: 'Invalid VFS action!', result: null });
+          }
+          return;
+        break;
+
+        // TODO
+        case 'snapshotList'   :
+        case 'snapshotSave'   :
+        case 'snapshotLoad'   :
+        case 'snapshotDelete' :
+          defaultJSONResponse(req, res);
+        break;
+
+        case 'bug' : // TODO
+          defaultJSONResponse(req, res);
+        break;
+
         default :
-          res.json(200, { success: false, error: 'Invalid action!' });
+          res.json(200, { success: false, error: 'Invalid action!', result: null });
         break;
       }
     }
