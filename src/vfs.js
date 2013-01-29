@@ -67,12 +67,42 @@ function _exists(filename, callback) {
   });
 }
 
+function _mkdir(path, callback) {
+  var filename = _config.PATH_MEDIA + path; // FIXME
+  fs.mkdir(filename, '0777', function(err, files) {
+    if ( err ) {
+      callback(false, err);
+    } else {
+      callback(true, true);
+    }
+  });
+}
+
+function _touch(path, callback) {
+  var filename = _config.PATH_MEDIA + path; // FIXME
+  _exists(filename, function(sucess, result) {
+    if ( success ) {
+      callback(true, false);
+    } else {
+      fs.writeFile(filename, "", function(err) {
+        if ( err ) {
+          callback(false, err);
+        } else {
+          callback(true, true);
+        }
+      });
+    }
+  });
+}
+
 module.exports =
 {
   ls      : _ls,
   cat     : _cat,
   read    : _cat,
   exists  : _exists,
+  mkdir   : _mkdir,
+  touch   : _touch,
 
   lswrap  : function(args, callback) {
     _ls.apply(this, arguments);
