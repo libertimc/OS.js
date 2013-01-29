@@ -45,7 +45,7 @@ function _ls(args, callback) {
 }
 
 function _cat(filename, callback) {
-  filename = _config.PATH_MEDIA + filename;
+  filename = _config.PATH_MEDIA + filename; // FIXME
   fs.readFile(filename, function(err, data) {
     if ( err ) {
       callback(false, err || "File not found or permission denied!");
@@ -55,11 +55,24 @@ function _cat(filename, callback) {
   });
 }
 
+function _exists(filename, callback) {
+  filename = _config.PATH_MEDIA + filename; // FIXME
+
+  fs.exists(filename, function(ex) {
+    if ( ex ) {
+      callback(true, true);
+    } else {
+      callback(true, false);
+    }
+  });
+}
+
 module.exports =
 {
   ls      : _ls,
   cat     : _cat,
   read    : _cat,
+  exists  : _exists,
 
   lswrap  : function(args, callback) {
     _ls.apply(this, arguments);
