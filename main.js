@@ -42,6 +42,7 @@
  * TODO: VFS
  * TODO: Application Events
  * TODO: Locales
+ * FIXME: Safe paths (escaping)
  *
  */
 
@@ -66,14 +67,14 @@ var _defaultUser = {
   sid       : '',
   duplicate : false,
   info      : {
-    "User ID"       : "",
-    "Username"      : "",
-    "Name"          : "",
-    "Groups"        : [],
-    "Registered"    : "",
-    "Last Modified" : "",
-    "Last Login"    : "",
-    "Browser"       : ""
+    "User ID"       : 1,
+    "Username"      : "test",
+    "Name"          : "Test user",
+    "Groups"        : ["root"],
+    "Registered"    : "2013-01-01 00:00:00",
+    "Last Modified" : "2013-01-01 00:00:00",
+    "Last Login"    : "2013-01-01 00:00:00",
+    "Browser"       : "Some Browser"
   }
 };
 
@@ -195,6 +196,7 @@ function generateFontCSS(filename) {
 
 app.configure(function() {
 
+  // Setup
   app.use(express.bodyParser());
 
   app.engine('html', swig.express3);
@@ -205,12 +207,18 @@ app.configure(function() {
 
   app.set('view cache', false);
 
+  //
+  // INDEX
+  //
   app.get('/', function(req, res) {
     console.log('GET /');
 
     generateIndex(req, res);
   });
 
+  //
+  // AJAX
+  //
   app.post('/', function(req, res) {
     console.log('POST /');
 
@@ -231,6 +239,8 @@ app.configure(function() {
       // TODO: Implement array-check for which methods require user/session
       switch ( jsn.action ) {
         case 'boot' :
+          var restored = true; // FIXME
+
           // TODO: Session
           response = {
             success : true,
@@ -243,7 +253,7 @@ app.configure(function() {
                 connection   : config.ENV_PLATFORM,
                 ssl          : config.ENV_SSL,
                 autologin    : config.AUTOLOGIN_ENABLE,
-                restored     : true, // FIXME
+                restored     : restored,
                 hosts        : {
                   frontend      : config.HOST_FRONTEND,
                   'static'      : config.HOST_STATIC
@@ -268,7 +278,7 @@ app.configure(function() {
         break;
 
         case 'login' :
-          var user        = {   // FIXME
+          var user = {   // FIXME
             result            : _defaultUser,
             language          : _defaultLang,
             resume_registry   : {},
@@ -296,8 +306,6 @@ app.configure(function() {
                 }
               }
             };
-
-            // TODO: Update user
 
             res.json(200, response);
           };
@@ -399,6 +407,10 @@ app.configure(function() {
     }
   });
 
+  //
+  // RESOURCES
+  //
+
   //app.get('/UI/:type/:filename', function(req, res) {
   app.get(/^\/UI\/(sound|icon)\/(.*)/, function(req, res) {
     //var type = req.params.type.replace(/[^a-zA-Z0-9]/, '');
@@ -457,34 +469,52 @@ app.configure(function() {
         res.setHeader('Content-Length', css.length);
         res.end(css);
         break;
+
       case 'theme' :
         var theme = filename.replace(/[^a-zA-Z0-9_\-]/, '');
         res.sendfile(sprintf('%s/theme.%s.css', config.PATH_JAVASCRIPT, theme));
         break;
+
       case 'cursor' :
         var cursor = filename.replace(/[^a-zA-Z0-9_\-]/, '');
         res.sendfile(sprintf('%s/cursor.%s.css', config.PATH_JAVASCRIPT, cursor));
         break;
+
       case 'language' :
         var lang = filename.replace(/[^a-zA-Z0-9_\-]/, '');
         res.sendfile(sprintf('%s/%s.js', config.PATH_JSLOCALE, lang));
         break;
+
       default :
         defaultResponse(req, res);
         break;
     }
   });
 
-  app.post('/API/upload', function(req, res) {
+  //
+  // USER MEDIA
+  //
+
+  app.post('/API/upload', function(req, res) { // TODO
     defaultResponse(req, res);
   });
 
   app.get('/media/User:filename', function(req, res) {
-    defaultResponse(req, res);
+    // FIXME: View only [TEST]
+    var user = _defaultUser;
+    var filename = req.params.filename;
+    var path = sprintf(config.PATH_VFS_USER, user.uid) + "/" + filename;
+
+    res.sendfile(path);
   });
 
   app.get('/media-download/User:filename', function(req, res) {
-    defaultResponse(req, res);
+    // FIXME: Download only [TEST]
+    var user = _defaultUser;
+    var filename = req.params.filename;
+    var path = sprintf(config.PATH_VFS_USER, user.uid) + "/" + filename;
+
+    res.download(path);
   });
 
   app.use("/", express['static'](config.PATH_PUBLIC));

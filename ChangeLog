@@ -1,5 +1,9 @@
 ## NEXT RELEASE
 
+Node.js backend
+
+## 0.9.9
+
 NOTICE: Sessions are NOT destroyed on refresh anymore. They will resume if
 possible (settings not saved are lost because localStorage is not implemented in this version)
 
