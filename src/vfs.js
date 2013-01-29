@@ -30,7 +30,9 @@
  * @created 2013-01-27
  */
 
-var fs = require('fs');
+var fs    = require('fs'),
+    http  = require('http'),
+    url   = require('url');
 
 function _ls(args, callback) {
   callback(false, "TODO");
@@ -39,8 +41,35 @@ function _ls(args, callback) {
 module.exports =
 {
   ls      : _ls,
+
   lswrap  : function(args, callback) {
     _ls.apply(this, arguments);
+  },
+
+  readurl : function(args, callback) {
+    if ( args !== null ) {
+      var qdata   = url.parse(args, true);
+      var options = {
+        host    : qdata.host || "http://localhost",
+        port    : qdata.port || 80,
+        path    : qdata.path || "/"
+      };
+
+      http.get(options, function(res) {
+        if ( res.statusCode === 200 ) {
+          res.setEncoding('utf8'); // FIXME !?
+          res.on('data', function (chunk) {
+            callback(true, chunk);
+          });
+        } else {
+          callback(false, "Failed to read URL: HTTP Code " + res.statusCode);
+        }
+      }).on('error', function(e) {
+        callback(false, "Failed to read URL: " + e.message);
+      });
+    } else {
+      callback(false, "Invalid URL!");
+    }
   }
 };
 

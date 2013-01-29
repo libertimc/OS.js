@@ -55,7 +55,7 @@ module.exports =
   // Project
   //
   PROJECT_VERSION     : "1.5-rc1",
-  PROJECT_CODENAME    : "Catwalk",
+  PROJECT_CODENAME    : "NodeElk",
   PROJECT_COPYRIGHT   : "Copyright 2013 Anders Evenrud",
   PROJECT_AUTHOR      : "Anders Evenrud <andersevenrud@gmail.com>",
 
