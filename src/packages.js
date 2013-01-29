@@ -55,7 +55,7 @@ function parseList(language, result, callback) {
         name        : iter['$'].name,
         title       : ptype,
         titles      : {},
-        icon        : "emblems/emblem-unreadable.png",
+        icon        : 'emblems/emblem-unreadable.png',
         resources   : iter.resource
       };
 

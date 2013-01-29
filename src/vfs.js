@@ -34,14 +34,42 @@
  * TODO: Secure input
  */
 
-var fs    = require('fs'),
-    http  = require('http'),
-    url   = require('url');
+var fs        = require('fs'),
+    http      = require('http'),
+    url       = require('url'),
+    walk      = require('walk'),
+    sanitize  = require('validator').sanitize;
 
 var _config = require('../config.js');
 
 function _ls(args, callback) {
-  callback(false, "TODO");
+  var path = _config.PATH_MEDIA + args; // FIXME
+  var walker = walk.walk(path, { followLinks: false });
+  var files  = {
+    ".." : {
+      path        : path,
+      size        : 0,
+      mime        : null,
+      icon        : 'emblems/emblem-unreadable.png', // FIXME
+      type        : 'dir',
+      'protected' : 0 // FIXME
+    }
+  };
+
+  walker.on('file', function(root, stat, next) {
+    files[stat.name] = {
+      path         : root,
+      size         : stat.size,
+      mime         : "todo/todo", // FIXME
+      icon         : 'emblems/emblem-unreadable.png', // FIXME
+      type         : "file",
+      'protected'  : 0 // FIXME
+    };
+  });
+
+  walker.on('end', function() {
+    callback(true, files);
+  });
 }
 
 function _cat(filename, callback) {
@@ -141,7 +169,44 @@ module.exports =
 
   // Wrappers
   lswrap  : function(args, callback) {
-    _ls.apply(this, arguments);
+    _ls(args.path, function(success, result) {
+      if ( success ) {
+        var ls_items = [];
+        var ls_bytes = 0;
+        var ls_path  = args.path; // FIXME
+
+        var iter;
+        for ( var f in result ) {
+          if ( result.hasOwnProperty(f) ) {
+            iter = result[f];
+
+            ls_bytes += iter.size;
+
+            ls_items.push({
+                icon        : iter.icon,
+                type        : iter.type,
+                mime        : sanitize(iter.mime).entityEncode(),
+                name        : sanitize(f).entityEncode(),
+                path        : iter.path,
+                size        : iter.size,
+                hsize       : iter.size + "b", // FIXME
+                'protected' : 0 // FIXME
+            });
+          }
+        }
+
+        var data = {
+          items : ls_items,
+          total : ls_items.length,
+          bytes : ls_bytes,
+          path  : ls_path
+        };
+
+        callback(true, data);
+      } else {
+        callback(false, result);
+      }
+    });
   },
 
   // Extern

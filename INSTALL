@@ -4,7 +4,7 @@ This has only been tested on these Linux distributions:
 
 # Backend Dependencies:
 
-* Node.js with modules `xml2js sprintf express swig`
+* Node.js with modules `xml2js sprintf express swig walk (node-)validator`
 * 'msgfmt' (Optional, Locale generation, for localization and translations)  
   `Included in Linux`
 * 'exiftool'  
