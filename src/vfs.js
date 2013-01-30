@@ -465,6 +465,25 @@ VFS.prototype = {
     });
   },
 
+  mv : function(src, dest, callback) {
+    var psrc = mkpath(this.user, src);
+    var pdest = mkpath(this.user, dest);
+
+    fs.exists(ppath, function(ex) {
+      if ( ex ) {
+        callback(false, "File exists!");
+      } else {
+        fs.rename(psrc, pdest, function(err) {
+          if ( err ) {
+            callback(false, err);
+          } else {
+            callback(true, true);
+          }
+        });
+      }
+    });
+  },
+
   cp : function(src, dst, callback) {
     var u = this.user;
     fs.exists(mkpath(u, dst), function(ex) {
@@ -591,6 +610,32 @@ VFS.prototype = {
     });
   },
 
+  upload : function(ref, path, callback) {
+    if ( (typeof ref == 'object') && (typeof path == 'string') && (ref.path) ) {
+      var psrc = ref.path;
+      var pdest = mkpath(this.user, path + '/' + ref.name);
+
+      console.log("upload src", psrc);
+      console.log("upload dest", pdest);
+
+      fs.exists(pdest, function(ex) {
+        if ( ex ) {
+          callback(false, "File already exists!");
+        } else {
+          fs.rename(psrc, pdest, function(err) {
+            if ( err ) {
+              callback(false, err);
+            } else {
+              callback(true, true);
+            }
+          });
+        }
+      });
+    } else {
+      callback(false, 'Invalid upload!');
+    }
+  },
+
   //
   // Extern
   //
@@ -690,6 +735,10 @@ module.exports =
 
       case 'lswrap' :
         v.lswrap(args.path, args.mime, args.view, args.sort, callback);
+      break;
+
+      case 'upload' :
+        v.upload(args.file, args.path, callback);
       break;
 
 
