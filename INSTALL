@@ -64,7 +64,7 @@ This has only been tested on these Linux distributions:
 * Make sure you got all the latest submodules
 * Compile all applications with `./bin/compile-all`  
 * Install all applications globally with `./bin/install-all`
+* Add yourself a new user to test with using `./bin/add-user <username>` (optional)
 * Run `node main.js`
-
-## Finishing steps
+* Launch your browser and view 'http://localhost:3000' and use your local username/password (PAM)
 * If you're in a production environment or doing testing procedures run `./bin/update-compression` to compress all scripts etc. (Optional)

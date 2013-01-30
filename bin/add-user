@@ -40,8 +40,9 @@ fi
 sudo useradd -m -G users $1
 if [ "$?" == "0" ]; then
   sudo mkdir /home/$1/.osjs
-  sudo cp src/templates/user.xml /home/$1/user.xml
-  sudo chown -R $1:$1 /home/$1/.osjs
+  sudo cp -Rvf src/templates/vfs-user/* /home/$1/
+  sudo cp -Rvf src/templates/vfs-user/.osjs /home/$1/
+  sudo chown -R $1:$1 /home/$1
   sudo passwd $1
   echo ">>> Created user '$1'"
 else
