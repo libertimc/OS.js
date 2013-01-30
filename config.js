@@ -50,11 +50,12 @@ module.exports =
   DEFAULT_LANGUAGE    : "en_US",
   AUTOLOGIN_ENABLE    : true,
   AUTOLOGIN_UID       : 1,
+  COMPRESSOR          : "yui", // "gcc"
 
   //
   // Project
   //
-  PROJECT_VERSION     : "1.5-rc1",
+  PROJECT_VERSION     : "1.0.1-rc1",
   PROJECT_CODENAME    : "NodeElk",
   PROJECT_COPYRIGHT   : "Copyright 2013 Anders Evenrud",
   PROJECT_AUTHOR      : "Anders Evenrud <andersevenrud@gmail.com>",
