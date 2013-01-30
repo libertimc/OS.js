@@ -42,7 +42,7 @@
  * TODO: Rest of Core API
  * TODO: VFS
  * TODO: Application Events
- * TODO: Locales
+ * TODO: Locales (i18n)
  * FIXME: Safe paths (escaping)
  *
  */
@@ -51,17 +51,22 @@
 // IMPORTS
 ///////////////////////////////////////////////////////////////////////////////
 
-var config    = require('./config.js'),
-    _registry  = require(config.PATH_SRC + '/registry.js'),
-    _settings  = require(config.PATH_SRC + '/settings.js'),
-    _preload   = require(config.PATH_SRC + '/preload.js'),
-    _packages  = require(config.PATH_SRC + '/packages.js'),
-    _vfs       = require(config.PATH_SRC + '/vfs.js');
+// Internal
+var _config    = require('./config.js'),
+    _registry  = require(_config.PATH_SRC + '/registry.js'),
+    _settings  = require(_config.PATH_SRC + '/settings.js'),
+    _preload   = require(_config.PATH_SRC + '/preload.js'),
+    _packages  = require(_config.PATH_SRC + '/packages.js'),
+    _vfs       = require(_config.PATH_SRC + '/vfs.js'),
+    _ui        = require(_config.PATH_SRC + '/ui.js'),
+    _user      = require(_config.PATH_SRC + '/user.js');
 
+// External
 var express = require('express'),
     sprintf = require('sprintf').sprintf,
     swig    = require('swig');
 
+// Temporary stuff FIXME
 var _defaultLang = "en_US";
 var _defaultUser = {
   uid       : 1,
@@ -163,38 +168,6 @@ function generateIndex(req, res) {
   res.render('index', opts);
 }
 
-function generateFontCSS(filename) {
-  var font = filename.replace(/[^a-zA-Z0-9]/, '');
-
-  var sources = {
-    "normal"   : sprintf("%s/%s.ttf",        config.URI_FONT, filename),
-    "bold"     : sprintf("%s/%sBold.ttf",    config.URI_FONT, filename),
-    "italic"   : sprintf("%s/%s%s.ttf",      config.URI_FONT, filename, (font == "FreeSerif" ? "Italic" : "Oblique")),
-    "bitalic"  : sprintf("%s/%sBold%s.ttf",  config.URI_FONT, filename, (font == "FreeSerif" ? "Italic" : "Oblique"))
-  };
-
-  // Load from cache
-
-  // Render CSS template
-  var opts = {
-      normal  : sources.normal,
-      bold    : sources.bold,
-      italic  : sources.italic,
-      bitalic : sources.bitalic,
-      bcstart : "",
-      bcend   : ""
-  };
-
-  if ( font == "Sansation" ) {
-    opts.bcstart  = "/*";
-    opts.bcend    = "*/";
-  }
-
-  var file = ([config.PATH_TEMPLATES, 'resource.font.css']).join("/");
-  var css  = swig.compileFile(file).render(opts);
-
-  return css;
-}
 
 ///////////////////////////////////////////////////////////////////////////////
 // CONFIGURATION
@@ -208,7 +181,7 @@ app.configure(function() {
   app.engine('html', swig.express3);
 
   app.set('view engine',  'html');
-  app.set('views',        config.PATH_TEMPLATES);
+  app.set('views',        _config.PATH_TEMPLATES);
   app.set('view options', { layout: false });
 
   app.set('view cache', false);
@@ -252,17 +225,17 @@ app.configure(function() {
             success : true,
             result  : {
               environment : {
-                bugreporting : config.BUGREPORT_ENABLE,
-                production   : config.ENV_PRODUCTION,
-                demo         : config.ENV_DEMO,
-                cache        : config.ENABLE_CACHE,
-                connection   : config.ENV_PLATFORM,
-                ssl          : config.ENV_SSL,
-                autologin    : config.AUTOLOGIN_ENABLE,
+                bugreporting : _config.BUGREPORT_ENABLE,
+                production   : _config.ENV_PRODUCTION,
+                demo         : _config.ENV_DEMO,
+                cache        : _config.ENABLE_CACHE,
+                connection   : _config.ENV_PLATFORM,
+                ssl          : _config.ENV_SSL,
+                autologin    : _config.AUTOLOGIN_ENABLE,
                 restored     : restored,
                 hosts        : {
-                  frontend      : config.HOST_FRONTEND,
-                  'static'      : config.HOST_STATIC
+                  frontend      : _config.HOST_FRONTEND,
+                  'static'      : _config.HOST_STATIC
                 }
               }
             }
@@ -297,7 +270,7 @@ app.configure(function() {
               result : {
                 user          : user.result,
                 registry      : {
-                  revision      : config.SETTINGS_REVISION,
+                  revision      : _config.SETTINGS_REVISION,
                   settings      : _settings.getDefaultSettings(_registry.defaults),
                   packages      : packages,
                   preload       : _preload.getPreloadFiles()
@@ -307,7 +280,7 @@ app.configure(function() {
                   session       : user.resume_session
                 },
                 locale       : {
-                  system        : config.DEFAULT_LANGUAGE,
+                  system        : _config.DEFAULT_LANGUAGE,
                   browser       : user.language
                 }
               }
@@ -398,7 +371,7 @@ app.configure(function() {
                 if ( load_class === false ) {
                   res.json(200, { success: false, error: 'Cannot handle this event!', result: null });
                 } else {
-                  var _cpath = ([config.PATH_PACKAGES, load_class]).join("/");
+                  var _cpath = ([_config.PATH_PACKAGES, load_class]).join("/");
                   var _class = null;
                   try {
                     _class = require(_cpath);
@@ -438,7 +411,7 @@ app.configure(function() {
           defaultJSONResponse(req, res);
         break;
 
-        case 'call' : // TODO
+        case 'call' :
           console.log("API::call()", jsn);
           if ( (jsn.method && jsn.args) && (typeof _vfs[jsn.method] === 'function') ) {
             try {
@@ -499,10 +472,10 @@ app.configure(function() {
 
     switch ( type ) {
       case 'sound' :
-        res.sendfile(sprintf('%s/Shared/Sounds/%s', config.PATH_MEDIA, filename));
+        res.sendfile(sprintf('%s/Shared/Sounds/%s', _config.PATH_MEDIA, filename));
       break;
       case 'icon' :
-        res.sendfile(sprintf('%s/Shared/Icons/%s', config.PATH_MEDIA, filename));
+        res.sendfile(sprintf('%s/Shared/Icons/%s', _config.PATH_MEDIA, filename));
       break;
       default :
         defaultResponse(req, res);
@@ -516,7 +489,7 @@ app.configure(function() {
 
     console.log('/VFS/resource/:package/:filename', pkg, filename);
     if ( req.params.filename.match(/\.js|\.css|\.png|\.jpe?g|\.gif$/) ) { // FIXME
-      res.sendfile(sprintf('%s/%s/%s', config.PATH_PACKAGES, pkg, filename));
+      res.sendfile(sprintf('%s/%s/%s', _config.PATH_PACKAGES, pkg, filename));
     } else {
       throw "Invalid file";
     }
@@ -527,7 +500,7 @@ app.configure(function() {
 
     console.log('/VFS/resource/:filename', filename);
     if ( req.params.filename.match(/\.js|\.css$/) ) {
-      res.sendfile(sprintf('%s/%s', config.PATH_JAVASCRIPT, filename));
+      res.sendfile(sprintf('%s/%s', _config.PATH_JAVASCRIPT, filename));
     } else {
       throw "Invalid file";
     }
@@ -541,7 +514,7 @@ app.configure(function() {
 
     switch ( type ) {
       case 'font' :
-        var css = generateFontCSS(filename);
+        var css = _ui.generateFontCSS(filename);
         res.setHeader('Content-Type', 'text/css');
         res.setHeader('Content-Length', css.length);
         res.end(css);
@@ -549,17 +522,17 @@ app.configure(function() {
 
       case 'theme' :
         var theme = filename.replace(/[^a-zA-Z0-9_\-]/, '');
-        res.sendfile(sprintf('%s/theme.%s.css', config.PATH_JAVASCRIPT, theme));
+        res.sendfile(sprintf('%s/theme.%s.css', _config.PATH_JAVASCRIPT, theme));
         break;
 
       case 'cursor' :
         var cursor = filename.replace(/[^a-zA-Z0-9_\-]/, '');
-        res.sendfile(sprintf('%s/cursor.%s.css', config.PATH_JAVASCRIPT, cursor));
+        res.sendfile(sprintf('%s/cursor.%s.css', _config.PATH_JAVASCRIPT, cursor));
         break;
 
       case 'language' :
         var lang = filename.replace(/[^a-zA-Z0-9_\-]/, '');
-        res.sendfile(sprintf('%s/%s.js', config.PATH_JSLOCALE, lang));
+        res.sendfile(sprintf('%s/%s.js', _config.PATH_JSLOCALE, lang));
         break;
 
       default :
@@ -582,7 +555,7 @@ app.configure(function() {
     var user = _defaultUser;
     //var filename = req.params.filename;
     var filename = req.params[0];
-    var path = sprintf(config.PATH_VFS_USER, user.uid) + "/" + filename;
+    var path = sprintf(_config.PATH_VFS_USER, user.uid) + "/" + filename;
 
     res.sendfile(path);
   });
@@ -593,12 +566,12 @@ app.configure(function() {
     var user = _defaultUser;
     //var filename = req.params.filename;
     var filename = req.params[0];
-    var path = sprintf(config.PATH_VFS_USER, user.uid) + "/" + filename;
+    var path = sprintf(_config.PATH_VFS_USER, user.uid) + "/" + filename;
 
     res.download(path);
   });
 
-  app.use("/", express['static'](config.PATH_PUBLIC));
+  app.use("/", express['static'](_config.PATH_PUBLIC));
 
 });
 

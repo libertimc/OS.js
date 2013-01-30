@@ -1,0 +1,29 @@
+{
+  "name"        : "OS.js",
+  "version"     : "1.0.0",
+  "author"      : "Anders Evenrud <andersevenrud@gmail.com>",
+  "description" : "JavaScript Cloud/Web Desktop",
+  "license"     : "BSD",
+
+  "repository"  : {
+    "type"        : "git",
+    "url"         : "git@github.com:andersevenrud/OS.js.git"
+  }
+
+  "engines"     : {
+    "node"        : ">=0.8.0"
+  }
+
+  "bin"         : {
+    "http-server" : "./bin/http-server"
+  },
+
+  "dependencies": {
+    "xml2js"      : "0.2.2",
+    "sprintf"     : "0.1.1",
+    "express"     : "3.1.0",
+    "swig"        : "0.13.4",
+    "validator"   : "0.4.22",
+    "mime"        : "1.2.9"
+  }
+}
