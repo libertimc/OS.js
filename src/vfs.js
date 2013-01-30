@@ -498,6 +498,27 @@ function _cp(args, callback) {
   });
 }
 
+function _put(args, callback) {
+  var path      = mkpath(args.path);
+
+  fs.exists(path, function(ex) {
+    var content   = args.content;
+    var encoding  = args.encoding || "utf8";
+
+    if ( ex ) {
+      fs.appendFile(path, content, encoding, function(err) {
+        if ( err ) {
+          callback(false, err);
+        } else {
+          callback(true, true);
+        }
+      });
+    } else {
+      callback(false, "File does not exist!");
+    }
+  });
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // EXPORTS
 ///////////////////////////////////////////////////////////////////////////////
@@ -518,10 +539,10 @@ module.exports =
   rename    : _mv,
   cp        : _cp,
   copy      : _cp,
+  put       : _put,
+  write     : _put,
 
   // preview
-  // put
-  // write
   // file_info
   // fileinfo
   // readpdf
