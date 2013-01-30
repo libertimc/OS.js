@@ -25,6 +25,7 @@
     "swig"              : "0.13.4",
     "validator"         : "0.4.22",
     "mime"              : "1.2.9",
-    "authenticate-pam"  : "0.1.2"
+    "authenticate-pam"  : "0.1.2",
+    "dbus-native"       : "0.0.8"
   }
 }

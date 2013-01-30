@@ -75,10 +75,10 @@ module.exports =
   ENABLE_CACHE        : false,
 
   SETTINGS_CONFIG     : path.join(__dirname, "config.js"),
-  MINIMIZE_CACHE      : path.join(__dirname, "src/build/minimize.cache"),
-  FONT_CACHE          : path.join(__dirname, "src/build/fontcache.xml"),
-  PACKAGE_BUILD       : path.join(__dirname, "src/build/packages.xml"),
-  MIME_MAGIC          : path.join(__dirname, "vendor/mime.mgc"),
+  MINIMIZE_CACHE      : path.join(__dirname, ".build/minimize.cache"),
+  FONT_CACHE          : path.join(__dirname, ".build/fontcache.xml"),
+  PACKAGE_BUILD       : path.join(__dirname, ".build/packages.xml"),
+  MIME_MAGIC          : path.join(__dirname, ".build/mime.mgc"),
 
   //
   // Paths
@@ -93,7 +93,7 @@ module.exports =
   PATH_JAVASCRIPT     : path.join(__dirname, 'src/javascript'),
   PATH_JSLOCALE       : path.join(__dirname, 'src/javascript/locale'),
   PATH_TEMPLATES      : path.join(__dirname, 'src/templates'),
-  PATH_PACKAGES       : path.join(__dirname, 'src/packages'),
+  PATH_PACKAGES       : path.join(__dirname, 'vendor/packages'),
   PATH_PUBLIC         : path.join(__dirname, 'public_html'),
   PATH_MEDIA          : path.join(__dirname, 'public_html/media'),
 

@@ -57,6 +57,7 @@ var _config    = require('./config.js'),
     _vfs       = require(_config.PATH_SRC + '/vfs.js'),
     _ui        = require(_config.PATH_SRC + '/ui.js'),
     _user      = require(_config.PATH_SRC + '/user.js'),
+    _services  = require(_config.PATH_SRC + '/services.js'),
     _locale    = require(_config.PATH_SRC + '/locale.js');
 
 // External
@@ -67,6 +68,8 @@ var express = require('express'),
 ///////////////////////////////////////////////////////////////////////////////
 // APPLICATION
 ///////////////////////////////////////////////////////////////////////////////
+
+console.log('>>> Starting up...');
 
 var app = express();
 
@@ -134,19 +137,40 @@ function defaultJSONResponse(req, res) {
 ///////////////////////////////////////////////////////////////////////////////
 
 app.configure(function() {
+  console.log('>>> Configuring DBUS');
+
+  /*
+  var dbus_server = _services.dbus.createSession();
+  dbus_server.connection.on('message', function(msg) {
+    if ( msg.destination === name && msg['interface'] === 'com.github.andersevenrud.OSjs' && msg.path === '/0/1' ) {
+      var reply = {
+        type        : dbus.messageType.methodReturn,
+        destination : msg.sender,
+        replySerial : msg.serial,
+        sender      : name,
+        signature   : 's',
+        body        : [msg.body[0].split('').reverse().join('')]
+      };
+      bus.invoke(reply);
+    }
+  });
+
+  dbus_server.requestName('com.github.andersevenrud', 0);
+  */
 
   // Setup
+  console.log('>>> Configuring Express');
   app.use(express.bodyParser());
   app.use(express.cookieParser());
   app.use(express.session({ secret:'yodawgyo', cookie: { path: '/', httpOnly: true, maxAge: null} }));
 
-  app.engine('html', swig.express3);
-
+  app.engine('html',      swig.express3);
   app.set('view engine',  'html');
   app.set('views',        _config.PATH_TEMPLATES);
   app.set('view options', { layout: false });
+  app.set('view cache',   false);
 
-  app.set('view cache', false);
+  console.log('>>> Configuring Routes');
 
   //
   // INDEX
@@ -581,5 +605,5 @@ app.configure(function() {
 ///////////////////////////////////////////////////////////////////////////////
 
 app.listen(3000);
-console.log('Listening on port 3000');
+console.log('>>> Listening on port 3000');
 

@@ -2,6 +2,14 @@
 
 Node.js backend
 
+* PAM Authentication
+* DBUS Implementation
+* Default home moved to /home (VFS)
+* New templating
+* New bin/ files
+* Significantly reduced codebase, dependencies
+* Super simple (one-liner) installation
+
 ## 0.9.9
 
 NOTICE: Sessions are NOT destroyed on refresh anymore. They will resume if

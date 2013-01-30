@@ -6,26 +6,14 @@ _work/
 vim.session
 doc/
 public_html/.htpasswd
-VFS
 public_html/media/Public/*
 *.php
 
-# Misc
-config.php
-
 # Sub-modules
-src/packages
 vendor/*
 !vendor/launcher
 
 # Build files
-src/locale/*/LC_MESSAGES/messages.mo
-src/build/minimize.cache
-src/build/packages.xml
-src/build/fontcache.xml
-
-# Minimized files
-src/packages/*/_min
-src/resources/_min
-src/javascript/_min
-src/javascript/locale/_min
+.build/minimize.cache
+.build/packages.xml
+.build/fontcache.xml
