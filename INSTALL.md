@@ -5,24 +5,24 @@ This has only been tested on these Linux distributions:
 # Backend Dependencies:
 
 * Node.js with modules (see `package.json`)
-* 'exiftool'  
-  Debian users: `apt-get install exiftool`  
-  Gentoo users: `emerge exiftool`  
-  Download: `http://www.sno.phy.queensu.ca/~phil/exiftool/`  
-* 'pdf2svg' (Optional, for use with PDF applications)  
-  Debian users: `apt-get install pdf2svg`  
-  Gentoo users: `emerge pdf2svg`  
-  Download: `http://www.cityinthesky.co.uk/opensource/pdf2svg`  
+* _exiftool_
+  - Debian users: `apt-get install exiftool`  
+  - Gentoo users: `emerge exiftool`  
+  - Download: `http://www.sno.phy.queensu.ca/~phil/exiftool/`  
+* _pdf2svg_ (Optional, for use with PDF applications)  
+  - Debian users: `apt-get install pdf2svg`  
+  - Gentoo users: `emerge pdf2svg`  
+  - Download: `http://www.cityinthesky.co.uk/opensource/pdf2svg`  
 * _ffmpeg_ (Optional, for converting samples from OGG to MPEG)  
-  Download: `http://ffmpeg.org/download.html`
+  - Download: `http://ffmpeg.org/download.html`
 
 # Frontend Dependencies:
 * jQuery and jQuery UI
-* Yahoo YUI Compressor or Google Closure Compiler
-* JSON2 by Douglas Crockford (Git submodule)
-* Sprintf by Alexandru Marasteanu (Git submodule)
-* Gnome 2.x icon pack(s) (Git submodule)
-* Freedesktop Sound Theme (Git submodule)
+* Yahoo YUI Compressor _or_ Google Closure Compiler
+* JSON2 by Douglas Crockford (_Git submodule_)
+* Sprintf by Alexandru Marasteanu (_Git submodule_)
+* Gnome 2.x icon pack(s) (_Git submodule_)
+* Freedesktop Sound Theme (_Git submodule_)
 
 # Manual Installation:
 * Clone repository
@@ -43,13 +43,13 @@ This has only been tested on these Linux distributions:
   - You are up and running on `http://localhost:3000` :)
 
 ## Running a production envoironment
-* **ALTERNATIVE 1** Download **Yahoo YUI Compressor**
-  - `http://developer.yahoo.com/yui/compressor/`  
-  - Drop `jar` file into `vendor/yui-compressor`  
+* **ALTERNATIVE 1: ** Yahoo YUI Compressor
+  - `http://developer.yahoo.com/yui/compressor/
+  - Drop `jar` file into `vendor/yui-compressor
   - Synmlink/copy/move the jar to `vendor/yui-compressor/yuicompressor.jar`
-* **ALTERNATIVE 2** Download **Google Closure Compiler**
+* **ALTERNATIVE 2: ** Google Closure Compiler
   - `https://developers.google.com/closure/`
-  - Drop `jar` file into `vendor/closure-compiler/`  
-  - Set 'COMPRESSOR' to 'gcc' in `config.js`
+  - Drop `jar` file into `vendor/closure-compiler/`
+  - Set `COMPRESSOR` to `gcc` in `config.js`
 * Run `./bin/update-compression` to compress all scripts etc
-* Set 'ENV_PRODUCTION' in `config.js` and restart node-server
+* Set `ENV_PRODUCTION` in `config.js` and restart node-server
