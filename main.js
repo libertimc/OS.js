@@ -63,15 +63,22 @@ var _config    = require('./config.js'),
 // External
 var express = require('express'),
     sprintf = require('sprintf').sprintf,
-    swig    = require('swig');
+    swig    = require('swig'),
+    syslog  = require('node-syslog');
 
 ///////////////////////////////////////////////////////////////////////////////
 // APPLICATION
 ///////////////////////////////////////////////////////////////////////////////
 
 console.log('>>> Starting up...');
+syslog.init("OS.js", syslog.LOG_PID | syslog.LOG_ODELAY, syslog.LOG_LOCAL0);
+syslog.log(syslog.LOG_INFO, "Starting up " + new Date());
 
 var app = express();
+
+process.on('exit', function() {
+  syslog.close();
+});
 
 swig._cache = {};
 swig.express3 = function (path, options, fn) {
@@ -225,6 +232,8 @@ app.configure(function() {
             }
           }
 
+          syslog.log(syslog.LOG_INFO, "starting up a new client");
+
           response = {
             success : true,
             result  : {
@@ -282,9 +291,13 @@ app.configure(function() {
             res.json(200, {success: true, result: response});
 
             req.session.user      = user;
+
+            syslog.log(syslog.LOG_INFO, "client[" + req.session.user.username + "] logged in...");
           };
 
           var _failure = function(msg) {
+            syslog.log(syslog.LOG_ERROR, "Login failed: " + msg);
+
             console.error('login::_failure()', msg);
 
             req.session.user = null;
@@ -332,8 +345,15 @@ app.configure(function() {
           var __done = function() {
             res.json(200, {success: true, result: true});
 
+            try {
+              syslog.log(syslog.LOG_INFO, "client[" + req.session.user.username + "] shutdown complete");
+            } catch ( err )  {
+              syslog.log(syslog.LOG_INFO, "client[???] shutdown complete");
+            }
+
             req.session.user = null;
             req.session.destroy();
+
           };
 
           if ( (req.session && req.session.user) && (typeof req.session.user == 'object') ) {
@@ -352,6 +372,8 @@ app.configure(function() {
         break;
 
         case 'settings' :
+          syslog.log(syslog.LOG_INFO, "saving client[" + req.session.user.username + "] settings");
+
           _user.store(req.session.user, jsn.registry, null, function(err) {
             res.json(200, {success: err ? false : true, result: err ? err : true});
           });

@@ -26,6 +26,7 @@
     "validator"         : "0.4.22",
     "mime"              : "1.2.9",
     "authenticate-pam"  : "0.1.2",
-    "dbus-native"       : "0.0.8"
+    "dbus-native"       : "0.0.8",
+    "node-syslog"       : "1.1.7"
   }
 }
