@@ -32,14 +32,12 @@
 "use strict";
 
 /*
- * TODO: User packages
  * TODO: Package managment
  * TODO: WebServices
  * TODO: Snapshots
  * TODO: Rest of Core API
  * TODO: Locales (i18n)
  * FIXME: Safe paths (escaping)
- *
  */
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -188,13 +186,7 @@ app.configure(function() {
 
     opts.locale   = language;
     opts.language = language.split("_").shift();
-    opts.preloads = [
-      {"script" : 'json.js'},
-      {"script" : 'sprintf.js'},
-      {"script" : 'jquery.js'},
-      {"script" : 'jquery-ui.js'},
-      {"style"  : 'jquery-ui-theme.css'}
-    ];
+    opts.preloads = _preload.vendor_dependencies;
 
     res.render('index', opts);
   });

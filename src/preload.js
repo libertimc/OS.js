@@ -109,12 +109,23 @@ var _resources = {
   }
 };
 
+var _vendor = [
+  {"script" : 'json.js'},
+  {"script" : 'sprintf.js'},
+  {"script" : 'jquery.js'},
+  {"script" : 'jquery-ui.js'},
+  {"style"  : 'jquery-ui-theme.css'}
+];
+
 ///////////////////////////////////////////////////////////////////////////////
 // EXPORTS
 ///////////////////////////////////////////////////////////////////////////////
 
 module.exports =
 {
+
+  vendor_dependencies : _vendor,
+
   /**
    * preload::getPreloadFiles() -- Get preload resource list
    * @return  Objet
