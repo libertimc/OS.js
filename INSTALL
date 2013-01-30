@@ -17,54 +17,38 @@ This has only been tested on these Linux distributions:
   Download: `http://ffmpeg.org/download.html`
 
 # Frontend Dependencies:
-
-* jQuery  
-  `http://code.jquery.com/jquery-1.7.1.min.js`
-
-* jQuery UI  
-  `http://jqueryui.com/download/jquery-ui-1.8.17.custom.zip`
-
-* Yahoo YUI Compressor or Google Closure Compiler  
-  `http://developer.yahoo.com/yui/compressor/`  
-  `https://developers.google.com/closure/`
-
-* JSON2 by Douglas Crockford (Git submodule) 
-* Sprintf by Alexandru Marasteanu (Git submodule) 
-* Gnome 2.x icon pack(s) (Git submodule)  
-* Freedesktop Sound Theme (Git submodule)  
+* jQuery and jQuery UI
+* Yahoo YUI Compressor or Google Closure Compiler
+* JSON2 by Douglas Crockford (Git submodule)
+* Sprintf by Alexandru Marasteanu (Git submodule)
+* Gnome 2.x icon pack(s) (Git submodule)
+* Freedesktop Sound Theme (Git submodule)
 
 # Manual Installation:
-
-## First steps
-
-* Clone OS.js from Github (Use recursive clone or pull submodules after clone)
+* Clone repository 'git clone --recursive -b node.js git@github.com:andersevenrud/OS.js.git'
 * Set up `config.js`
+* Place jQuery dependencies into `vendor/`` (see symlinks in `public_html/vendor`)
+  - `http://code.jquery.com/jquery-1.7.1.min.js`
+  - `http://jqueryui.com/download/jquery-ui-1.8.17.custom.zip`
 * Run `npm install`
+* Compile and install all applications
+  - `./bin/compile-all`
+  - ``./bin/install-all`
+* Create users
+  - Add yourself a new user to test with using `./bin/add-user <username>`.
+  - Or copy 'src/template/vfs-user/.osjs' into users already on system
+* Start server
+  - Run `node main.js`
+  - You are up and running on 'http://localhost:3000' :)
 
-## Frontend Dependencies
-* Download **jQuery** (1.7.1 by default)  
-  - Drop into `vendor/`  
-  - Symlink JS to `public_html/vendor/jquery.js` (Should exist)  
-
-* Download **jQuery UI** (1.8.17 by default)  
-  - Drop into `vendor/`  
-  - Symlink JS to `public_html/vendor/jquery-ui.js` (Should exist)  
-  - Symlink CSS to `public_html/vendor/jquery-ui-theme.css` (Should exist)  
-  - Symlink CSS images to `public_html/vendor/images` (Should exist)  
-
+## Running a production envoironment
 * **ALTERNATIVE 1** Download **Yahoo YUI Compressor**
+  - `http://developer.yahoo.com/yui/compressor/`  
   - Drop `jar` file into `vendor/yui-compressor`  
   - Synmlink/copy/move the jar to `vendor/yui-compressor/yuicompressor.jar`
-
 * **ALTERNATIVE 2** Download **Google Closure Compiler**
+  - `https://developers.google.com/closure/`
   - Drop `jar` file into `vendor/closure-compiler/`  
   - Set 'COMPRESSOR' to 'gcc' in `config.js`
-
-## Extras
-* Make sure you got all the latest submodules
-* Compile all applications with `./bin/compile-all`  
-* Install all applications globally with `./bin/install-all`
-* Add yourself a new user to test with using `./bin/add-user <username>` (optional)
-* Run `node main.js`
-* Launch your browser and view 'http://localhost:3000' and use your local username/password (PAM)
-* If you're in a production environment or doing testing procedures run `./bin/update-compression` to compress all scripts etc. (Optional)
+* Run `./bin/update-compression` to compress all scripts etc
+* Set 'ENV_PRODUCTION' in `config.js` and restart node-server

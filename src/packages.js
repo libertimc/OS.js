@@ -1,6 +1,6 @@
 /*!
  * @file
- * OS.js - JavaScript Operating System - main node server
+ * OS.js - JavaScript Operating System - package managment
  *
  * Copyright (c) 2011-2012, Anders Evenrud <andersevenrud@gmail.com>
  * All rights reserved.
