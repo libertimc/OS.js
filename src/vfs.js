@@ -44,6 +44,155 @@ var fs        = require('fs'),
 var _config = require('../config.js');
 
 ///////////////////////////////////////////////////////////////////////////////
+// CONFIGS
+///////////////////////////////////////////////////////////////////////////////
+
+var ignore_files = [
+  ".", ".gitignore", ".git", ".cvs"
+];
+
+var icons_mime = {
+  "application" : {
+    "application/ogg" : {
+      "ogv" : "mimetypes/video-x-generic.png",
+      "_"   : "mimetypes/audio-x-generic.png"
+    },
+    "application/pdf"       : "mimetypes/gnome-mime-application-pdf.png",
+    "application/x-dosexec" : "mimetypes/binary.png",
+    "application/xml"       : "mimetypes/text-x-opml+xml.png",
+    "application/zip"       : "mimetypes/folder_tar.png",
+    "application/x-tar"     : "mimetypes/folder_tar.png",
+    "application/x-bzip2"   : "mimetypes/folder_tar.png",
+    "application/x-bzip"    : "mimetypes/folder_tar.png",
+    "application/x-gzip"    : "mimetypes/folder_tar.png",
+    "application/x-rar"     : "mimetypes/folder_tar.png"
+  },
+
+  "image" : "mimetypes/image-x-generic.png",
+  "video" : "mimetypes/video-x-generic.png",
+  "text"  : {
+    "text/html"   : "mimetypes/text-html.png",
+    "text/plain"  : "mimetypes/gnome-mime-text.png",
+    "_"           : "mimetypes/text-x-generic.png"
+  }
+};
+
+var icons_ext = {
+  "pdf"    : "mimetypes/gnome-mime-application-pdf.png",
+  "mp3"    : "mimetypes/audio-x-generic.png",
+  "ogg"    : "mimetypes/audio-x-generic.png",
+  "flac"   : "mimetypes/audio-x-generic.png",
+  "aac"    : "mimetypes/audio-x-generic.png",
+  "vob"    : "mimetypes/audio-x-generic.png",
+  "mp4"    : "mimetypes/video-x-generic.png",
+  "mpeg"   : "mimetypes/video-x-generic.png",
+  "avi"    : "mimetypes/video-x-generic.png",
+  "3gp"    : "mimetypes/video-x-generic.png",
+  "flv"    : "mimetypes/video-x-generic.png",
+  "mkv"    : "mimetypes/video-x-generic.png",
+  "webm"   : "mimetypes/video-x-generic.png",
+  "ogv"    : "mimetypes/video-x-generic.png",
+  "bmp"    : "mimetypes/image-x-generic.png",
+  "jpeg"   : "mimetypes/image-x-generic.png",
+  "jpg"    : "mimetypes/image-x-generic.png",
+  "gif"    : "mimetypes/image-x-generic.png",
+  "png"    : "mimetypes/image-x-generic.png",
+  "zip"    : "mimetypes/folder_tar.png",
+  "rar"    : "mimetypes/folder_tar.png",
+  "gz"     : "mimetypes/folder_tar.png",
+  "bz2"    : "mimetypes/folder_tar.png",
+  "bz"     : "mimetypes/folder_tar.png",
+  "tar"    : "mimetypes/folder_tar.png",
+  "xml"    : "mimetypes/text-x-opml+xml.png",
+  "html"   : "mimetypes/text-html.png",
+  "txt"    : "mimetypes/gnome-mime-text.png",
+  "pdf"    : "mimetypes/gnome-mime-application-pdf.png"
+};
+
+var vfs_dirs = {
+  "/System/Packages" : {
+    "type" : "system_packages",
+    "attr" : _config.VFS_ATTR_READ,
+    "icon" : "places/user-bookmarks.png"
+  },
+  "/System/Docs" : {
+    "type" : "core",
+    "attr" : _config.VFS_ATTR_READ,
+    "icon" : "places/folder-documents.png"
+  },
+  "/System/Wallpapers" : {
+    "type" : "core",
+    "attr" : _config.VFS_ATTR_READ,
+    "icon" : "places/folder-pictures.png"
+  },
+  "/System/Fonts" : {
+    "type" : "core",
+    "attr" : _config.VFS_ATTR_READ,
+    "icon" : "places/user-desktop.png"
+  },
+  "/System/Sounds" : {
+    "type" : "core",
+    "attr" : _config.VFS_ATTR_READ,
+    "icon" : "places/folder-music.png"
+  },
+  "/System/Templates" : {
+    "type" : "core",
+    "attr" : _config.VFS_ATTR_READ,
+    "icon" : "places/folder-templates.png"
+  },
+  "/System/Themes" : {
+    "type" : "core",
+    "attr" : _config.VFS_ATTR_READ,
+    "icon" : "places/user-bookmarks.png"
+  },
+  "/System" : {
+    "type" : "core",
+    "attr" : _config.VFS_ATTR_READ,
+    "icon" : "places/folder-templates.png"
+  },
+  "/User/Temp" : {
+    "type" : "user",
+    "attr" : _config.VFS_ATTR_RW,
+    "icon" : "places/folder-templates.png"
+  },
+  "/User/Packages" : {
+    "type" : "user_packages",
+    "attr" : _config.VFS_ATTR_RS,
+    "icon" : "places/folder-download.png"
+  },
+  "/User/Documents" : {
+    "type" : "user",
+    "attr" : _config.VFS_ATTR_RW,
+    "icon" : "places/folder-documents.png"
+  },
+  "/User/WebStorage" : {
+    "type" : "vfs",
+    "attr" : _config.VFS_ATTR_READ, // Browser overrides this
+    "icon" : "places/folder-documents.png"
+  },
+  "/User/Desktop" : {
+    "type" : "user",
+    "attr" : _config.VFS_ATTR_RW,
+    "icon" : "places/user-desktop.png"
+  },
+  "/User" : {
+    "type" : "chroot",
+    "attr" : _config.VFS_ATTR_READ,
+    "icon" : "places/folder_home.png"
+  },
+  "/Public" : {
+    "type" : "public",
+    "attr" : _config.VFS_ATTR_RW,
+    "icon" : "places/folder-publicshare.png"
+  },
+  "/Shared" : {
+    "type" : "core",
+    "attr" : _config.VFS_ATTR_READ,
+    "icon" : "places/folder-templates.png"
+  }
+};
+
+///////////////////////////////////////////////////////////////////////////////
 // HELPERS
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -66,7 +215,51 @@ function is_protected(input) {
 }
 
 function get_icon(filename, mime) {
-  return 'emblems/emblem-unreadable.png'; // FIXME
+  if ( filename ) {
+    if ( mime ) {
+      if ( icons_mime[mime] ) {
+        return icons_mime[mime];
+      }
+
+      var msplit = mime.split("/");
+      if ( msplit.length && icons_mime[msplit[0]] ) {
+        if ( typeof icons_mime[msplit[0]] == 'object' ) {
+          if ( (msplit.length > 1) && icons_mime[msplit[0]][msplit[1]] ) {
+            return icons_mime[msplit[0]][msplit[1]];
+          } else {
+            return icons_mime[msplit[0]]['_'];
+          }
+        } else {
+          return icons_mime[msplit[0]];
+        }
+      }
+    }
+
+    if ( filename.match(/\.([A-z]{2,4})$/) ) {
+      var ext = filename.split(/\.([A-z]{2,4})$/);
+      if ( ext.length > 1 ) {
+        if ( icons_ext[ext[1]] ) {
+          return icons_ext[ext[1]];
+        }
+      }
+    }
+  }
+
+  return 'emblems/emblem-unreadable.png';
+}
+
+function in_array(element, array, cmp) {
+  if (typeof cmp != "function") {
+    cmp = function (o1, o2) {
+      return o1 == o2;
+    };
+  }
+  for (var key in array) {
+    if (cmp(element, array[key])) {
+      return true;
+    }
+  }
+  return false;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -76,14 +269,12 @@ function get_icon(filename, mime) {
 function _ls(args, callback) {
   var path = mkpath(args);
 
-  console.log("_ls", path);
-
   var files  = {
     ".." : {
       path        : path,
       size        : 0,
       mime        : null,
-      icon        : get_icon(null, "dir"),
+      icon        : 'status/folder-visiting.png',
       type        : 'dir',
       'protected' : 1
     }
@@ -93,14 +284,16 @@ function _ls(args, callback) {
 
   walker.on('file', function(root, stat, next) {
     try {
-      files[stat.name] = {
-        path         : root,
-        size         : stat.size,
-        mime         : "todo/todo", // FIXME
-        icon         : get_icon(stat.name, "todo/todo"), // FIXME
-        type         : "file",
-        'protected'  : is_protected(root) ? 1 : 0
-      };
+      if ( !in_array(stat.name, ignore_files) ) {
+        files[stat.name] = {
+          path         : args + '/' + stat.name,
+          size         : stat.size,
+          mime         : "todo/todo", // FIXME
+          icon         : get_icon(stat.name, "todo/todo"), // FIXME
+          type         : "file",
+          'protected'  : is_protected(root) ? 1 : 0
+        };
+      }
     } catch ( e ) {
       console.error("walker.on(file)", e);
     }
@@ -110,14 +303,16 @@ function _ls(args, callback) {
 
   walker.on('symlink', function(symlink, stat, next) {
     try {
-      files[stat.name] = {
-        path         : symlink,
-        size         : stat.size,
-        mime         : "todo/todo", // FIXME
-        icon         : get_icon(stat.file, "todo/todo"), // FIXME
-        type         : "file",
-        'protected'  : is_protected(symlink) ? 1 : 0
-      };
+      if ( !in_array(stat.name, ignore_files) ) {
+        files[stat.name] = {
+          path         : args + '/' + stat.name,
+          size         : stat.size,
+          mime         : "todo/todo", // FIXME
+          icon         : get_icon(stat.name, "todo/todo"), // FIXME
+          type         : "file",
+          'protected'  : is_protected(symlink) ? 1 : 0
+        };
+      }
     } catch ( e ) {
       console.error("walker.on(symlink)", e);
     }
@@ -127,14 +322,16 @@ function _ls(args, callback) {
 
   walker.on('dir', function(dir, stat, next) {
     try {
-      files[stat.name] = {
-        path         : dir,
-        size         : stat.size,
-        mime         : "",
-        icon         : 'status/folder-visiting.png',
-        type         : "dir",
-        'protected'  : is_protected(dir) ? 1 : 0
-      };
+      if ( !in_array(stat.name, ignore_files) ) {
+        files[stat.name] = {
+          path         : args + '/' + stat.name,
+          size         : stat.size,
+          mime         : "",
+          icon         : 'status/folder-visiting.png',
+          type         : "dir",
+          'protected'  : is_protected(dir) ? 1 : 0
+        };
+      }
     } catch ( e ) {
       console.error("walker.on(dir)", e);
     }

@@ -3105,12 +3105,14 @@
       if ( !_Connection ) {
         if ( _SessionValid ) {
           if ( !sid || (_SessionId != sid) ) {
+            /* FIXME
             var ico = GetIcon("status/network-error.png", "32x32");
             var title = OSjs.Labels.GlobalOfflineTitle;
             var msg = OSjs.Labels.GlobalOfflineMessage;
             API.application.notification(title, msg, ico);
 
             _SessionValid = false;
+            */
           }
         }
       }
