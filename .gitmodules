@@ -1,12 +1,12 @@
 [submodule "vendor/JSON-js"]
 	path = vendor/JSON-js
 	url = https://github.com/douglascrockford/JSON-js.git
-[submodule "vendor/sound-theme-freedesktop-src"]
-	path = vendor/sound-theme-freedesktop-src
-	url = git://anongit.freedesktop.org/sound-theme-freedesktop
 [submodule "vendor/packages"]
 	path = vendor/packages
 	url = git@github.com:andersevenrud/OS.js-Packages.git
 [submodule "vendor/osjs-icon-theme"]
 	path = vendor/osjs-icon-theme
 	url = git@github.com:andersevenrud/osjs-icon-theme.git
+[submodule "vendor/osjs-sound-theme"]
+	path = vendor/osjs-sound-theme
+	url = git@github.com:andersevenrud/osjs-sound-theme.git
