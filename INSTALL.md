@@ -25,21 +25,22 @@ This has only been tested on these Linux distributions:
 * Freedesktop Sound Theme (Git submodule)
 
 # Manual Installation:
-* Clone repository 'git clone --recursive -b node.js git@github.com:andersevenrud/OS.js.git'
-* Set up `config.js`
-* Place jQuery dependencies into `vendor/`` (see symlinks in `public_html/vendor`)
+* Clone repository
+  - `git clone --recursive -b node.js git@github.com:andersevenrud/OS.js.git`
+* Place jQuery dependencies into `vendor/` (see symlinks in `public_html/vendor`)
   - `http://code.jquery.com/jquery-1.7.1.min.js`
   - `http://jqueryui.com/download/jquery-ui-1.8.17.custom.zip`
-* Run `npm install`
+* Install Node dependencies
+  - `npm install`
 * Compile and install all applications
   - `./bin/compile-all`
-  - ``./bin/install-all`
+  - `./bin/install-all`
 * Create users
   - Add yourself a new user to test with using `./bin/add-user <username>`.
-  - Or copy 'src/template/vfs-user/.osjs' into users already on system
+  - Or copy `src/template/vfs-user/.osjs` into users already on system
 * Start server
   - Run `node main.js`
-  - You are up and running on 'http://localhost:3000' :)
+  - You are up and running on `http://localhost:3000` :)
 
 ## Running a production envoironment
 * **ALTERNATIVE 1** Download **Yahoo YUI Compressor**
