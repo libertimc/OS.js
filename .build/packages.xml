@@ -1,0 +1,359 @@
+<?xml version="1.0"?>
+<packages>
+  <package type="PanelItem" name="Menu" packagename="PanelItemMenu">
+  <property name="enabled">true</property>
+  <property name="title">Menu</property>
+  <property name="description">Menu Button</property>
+  <property name="title" language="nb_NO">Meny</property>
+  <property name="icon">actions/window_new.png</property>
+
+  <resource>main.css</resource>
+  <resource>main.js</resource>
+</package>
+  <package type="Application" name="IDE" schema="schema.glade" category="development" packagename="ApplicationIDE">
+  <property name="enabled">true</property>
+  <property name="title">IDE</property>
+  <property name="icon">categories/applications-development.png</property>
+  <property name="system">false</property>
+
+  <resource>main.css</resource>
+  <resource>main.js</resource>
+</package>
+  <package type="Application" name="Test" schema="schema.glade" category="other" packagename="ApplicationTest">
+  <property name="enabled">true</property>
+  <property name="title">WebWorker Test</property>
+  <property name="title" language="nb_NO">WebWorker Test</property>
+  <property name="icon">status/starred.png</property>
+  <property name="system">false</property>
+
+  <resource>main.css</resource>
+  <resource>main.js</resource>
+  <resource>worker.js</resource>
+</package>
+  <package type="Service" name="Noop" packagename="ServiceNoop">
+  <property name="enabled">true</property>
+  <property name="title">Noop</property>
+  <property name="description">Service with no function</property>
+  <property name="title" language="nb_NO">Tjener uten funksjon</property>
+  <property name="icon">status/network-idle.png</property>
+
+  <resource>main.js</resource>
+</package>
+  <package type="Application" name="IRC" schema="schema.glade" category="internet" packagename="ApplicationIRC">
+  <property name="enabled">true</property>
+  <property name="title">IRC</property>
+  <property name="title" language="nb_NO">IRC</property>
+  <property name="icon">apps/system-users.png</property>
+  <property name="system">false</property>
+
+  <resource>main.css</resource>
+  <resource>main.js</resource>
+
+  <compability>socket</compability>
+</package>
+  <package type="PanelItem" name="Weather" packagename="PanelItemWeather">
+  <property name="enabled">true</property>
+  <property name="title">Weather</property>
+  <property name="description">Weather Notification</property>
+  <property name="title" language="nb_NO">V&#xE6;r</property>
+  <property name="icon">status/weather-few-clouds.png</property>
+
+  <resource>main.css</resource>
+  <resource>main.js</resource>
+</package>
+  <package type="PanelItem" name="Clock" packagename="PanelItemNotificationArea">
+  <property name="enabled">true</property>
+  <property name="title">Notification Area</property>
+  <property name="title" language="nb_NO">Notifikasjons-omr&#xE5;de</property>
+  <property name="description">Notification Area</property>
+  <property name="icon">emblems/emblem-important.png</property>
+
+  <resource>main.css</resource>
+  <resource>main.js</resource>
+</package>
+  <package type="Application" name="Textpad" schema="schema.glade" category="office" packagename="ApplicationTextpad">
+  <property name="enabled">true</property>
+  <property name="title">Textpad</property>
+  <property name="title" language="nb_NO">Skriveblokk</property>
+  <property name="icon">apps/text-editor.png</property>
+  <property name="system">false</property>
+
+  <resource>main.css</resource>
+  <resource>main.js</resource>
+
+  <mime>text/*</mime>
+  <mime>inode/x-empty</mime>
+  <mime>application/x-empty</mime>
+</package>
+  <package type="Application" name="MusicPlayer" schema="schema.glade" category="multimedia" packagename="ApplicationMusicPlayer">
+  <property name="enabled">true</property>
+  <property name="title">Music Player</property>
+  <property name="title" language="nb_NO">Musikkspiller</property>
+  <property name="icon">status/audio-volume-high.png</property>
+  <property name="system">false</property>
+
+  <resource>main.css</resource>
+  <resource>main.js</resource>
+
+  <mime>audio/*</mime>
+  <mime>audio/x-mpegurl</mime>
+  <mime>audio/mpeg-url</mime>
+  <mime>application/x-winamp-playlist</mime>
+  <mime>audio/scpls</mime>
+  <mime>audio/x-scpls</mime>
+
+  <compability>audio</compability>
+</package>
+  <package type="Application" name="VideoPlayer" schema="schema.glade" category="multimedia" packagename="ApplicationVideoPlayer">
+  <property name="enabled">true</property>
+  <property name="title">Video Player</property>
+  <property name="title" language="nb_NO">Videospiller</property>
+  <property name="icon">mimetypes/video-x-generic.png</property>
+  <property name="system">false</property>
+
+  <resource>main.css</resource>
+  <resource>main.js</resource>
+
+  <mime>video/*</mime>
+
+  <compability>video</compability>
+</package>
+  <package type="Application" name="Viewer" schema="schema.glade" category="games" packagename="ApplicationTickTackToe">
+  <property name="enabled">true</property>
+  <property name="title">Tick-tack-toe</property>
+  <property name="title" language="nb_NO">Bondesjakk</property>
+  <property name="icon">pixmap.png</property>
+  <property name="system">false</property>
+
+  <resource>main.css</resource>
+  <resource>main.js</resource>
+</package>
+  <package type="PanelItem" name="Clock" packagename="PanelItemClock">
+  <property name="enabled">true</property>
+  <property name="title">Clock</property>
+  <property name="description">Clock with date</property>
+  <property name="title" language="nb_NO">Klokke</property>
+  <property name="icon">status/appointment-soon.png</property>
+
+  <resource>main.css</resource>
+  <resource>main.js</resource>
+</package>
+  <package type="Application" name="Logout" packagename="SystemLogout">
+  <property name="enabled">true</property>
+  <property name="title">Logout</property>
+  <property name="title" language="nb_NO">Utlogging</property>
+  <property name="icon">actions/gnome-logout.png</property>
+  <property name="system">true</property>
+
+  <resource>main.css</resource>
+  <resource>main.js</resource>
+</package>
+  <package type="Application" name="Arkanoid" schema="schema.glade" category="games" packagename="ApplicationArkanoid">
+  <property name="enabled">true</property>
+  <property name="title">Arkanoid</property>
+  <property name="icon">emblems/emblem-new.png</property>
+  <property name="system">false</property>
+
+  <resource>main.css</resource>
+  <resource>main.js</resource>
+
+  <compability>canvas</compability>
+</package>
+  <package type="Application" name="ControlPanel" schema="schema.glade" category="system" packagename="SystemControlPanel">
+  <property name="enabled">true</property>
+  <property name="title">Control Panel</property>
+  <property name="title" language="nb_NO">Kontrollpanel</property>
+  <property name="icon">categories/preferences-system.png</property>
+  <property name="system">trye</property>
+
+  <resource>main.css</resource>
+  <resource>main.js</resource>
+</package>
+  <package type="Application" name="Mail" schema="schema.glade" category="internet" packagename="ApplicationMail">
+  <property name="enabled">true</property>
+  <property name="title">Mail</property>
+  <property name="title" language="nb_NO">Epost</property>
+  <property name="icon">status/mail-unread.png</property>
+  <property name="system">false</property>
+
+  <resource>main.css</resource>
+  <resource>main.js</resource>
+</package>
+  <package type="Application" name="Archiver" schema="schema.glade" category="utilities" packagename="ApplicationArchiver">
+  <property name="enabled">true</property>
+  <property name="title">File Archiver</property>
+  <property name="title" language="nb_NO">Fil Arkivering</property>
+  <property name="icon">mimetypes/package-x-generic.png</property>
+  <property name="system">false</property>
+
+  <mime>application/zip</mime>
+  <mime>application/x-bzip2</mime>
+  <mime>application/x-gzip</mime>
+  <mime>application/x-rar</mime>
+  <mime>application/x-tar</mime>
+
+  <resource>main.css</resource>
+  <resource>main.js</resource>
+</package>
+  <package type="Application" name="Browser" schema="schema.glade" category="internet" packagename="ApplicationBrowser">
+  <property name="enabled">true</property>
+  <property name="title">HTML Browser</property>
+  <property name="title" language="nb_NO">HTML Leser</property>
+  <property name="icon">apps/web-browser.png</property>
+  <property name="system">false</property>
+
+  <resource>main.css</resource>
+  <resource>main.js</resource>
+
+  <mime>text/html</mime>
+</package>
+  <package type="Application" name="Viewer" schema="schema.glade" category="graphics" packagename="ApplicationViewer">
+  <property name="enabled">true</property>
+  <property name="title">Image Viewer</property>
+  <property name="title" language="nb_NO">Bilde-visning</property>
+  <property name="icon">mimetypes/image-x-generic.png</property>
+  <property name="system">false</property>
+
+  <resource>main.css</resource>
+  <resource>main.js</resource>
+
+  <mime>image/*</mime>
+</package>
+  <package type="Application" name="Draw" schema="schema.glade" category="graphics" packagename="ApplicationDraw">
+  <property name="enabled">true</property>
+  <property name="title">Draw</property>
+  <property name="title" language="nb_NO">Tegne</property>
+  <property name="icon">categories/gnome-graphics.png</property>
+  <property name="system">false</property>
+
+  <resource>main.css</resource>
+  <resource>main.js</resource>
+
+  <mime>image/*</mime>
+
+  <compability>canvas</compability>
+</package>
+  <package type="Application" name="ServerStatus" schema="schema.glade" category="unknown" packagename="ApplicationServerStatus">
+  <property name="enabled">true</property>
+  <property name="title">Server Status</property>
+  <property name="title" language="nb_NO">Server Status</property>
+  <property name="icon">status/network-transmit-receive.png</property>
+  <property name="system">false</property>
+
+  <resource>main.css</resource>
+  <resource>main.js</resource>
+</package>
+  <package type="Application" name="Terminal" schema="schema.glade" category="utilities" packagename="ApplicationTerminal">
+  <property name="enabled">true</property>
+  <property name="title">Terminal</property>
+  <property name="title" language="nb_NO">Terminal</property>
+  <property name="icon">apps/utilities-terminal.png</property>
+  <property name="system">false</property>
+
+  <resource>main.css</resource>
+  <resource>main.js</resource>
+</package>
+  <package type="Application" name="FileManager" schema="schema.glade" category="utilities" packagename="ApplicationFileManager">
+  <property name="enabled">true</property>
+  <property name="title">File Manager</property>
+  <property name="title" language="nb_NO">Fil Behandler</property>
+  <property name="icon">apps/file-manager.png</property>
+  <property name="system">false</property>
+
+  <resource>main.css</resource>
+  <resource>main.js</resource>
+</package>
+  <package type="PanelItem" name="Dock" packagename="PanelItemDock">
+  <property name="enabled">true</property>
+  <property name="title">Launcher Dock</property>
+  <property name="description">Application Launcher Dock</property>
+  <property name="title" language="nb_NO">Launcher Dock</property>
+  <property name="icon">actions/system-run.png</property>
+
+  <resource>main.css</resource>
+  <resource>main.js</resource>
+</package>
+  <package type="PanelItem" name="WindowList" packagename="PanelItemWindowList">
+  <property name="enabled">true</property>
+  <property name="title">Window List</property>
+  <property name="description">Window Selection List</property>
+  <property name="title" language="nb_NO">Vindu-liste</property>
+  <property name="icon">apps/xfwm4.png</property>
+
+  <resource>main.css</resource>
+  <resource>main.js</resource>
+</package>
+  <package type="Application" name="Processes" schema="schema.glade" packagename="SystemProcesses">
+  <property name="enabled">true</property>
+  <property name="title">Processes Information</property>
+  <property name="title" language="nb_NO">Prosess Informasjon</property>
+  <property name="icon">apps/utilities-system-monitor.png</property>
+  <property name="system">true</property>
+
+  <resource>main.css</resource>
+  <resource>main.js</resource>
+</package>
+  <package type="Application" name="ProcessingJS" schema="" category="unknown" packagename="ApplicationProcessingJS">
+  <property name="enabled">true</property>
+  <property name="title">ProcessingJS</property>
+  <property name="icon">emblems/emblem-system.png</property>
+  <property name="system">false</property>
+
+  <resource>main.css</resource>
+  <resource>main.js</resource>
+</package>
+  <package type="Application" name="Writer" schema="schema.glade" category="office" packagename="ApplicationWriter">
+  <property name="enabled">true</property>
+  <property name="title">Writer</property>
+  <property name="title" language="nb_NO">Skriveprogram</property>
+  <property name="icon">apps/libreoffice34-writer.png</property>
+  <property name="system">false</property>
+
+  <resource>main.css</resource>
+  <resource>main.js</resource>
+
+  <mime>text/*</mime>
+</package>
+  <package type="Application" name="About" schema="schema.glade" packagename="SystemAbout">
+  <property name="enabled">true</property>
+  <property name="title">About</property>
+  <property name="title" language="nb_NO">Om Forfatter</property>
+  <property name="icon">actions/gtk-about.png</property>
+  <property name="system">true</property>
+
+  <resource>main.css</resource>
+  <resource>main.js</resource>
+</package>
+  <package type="PanelItem" name="Separator" packagename="PanelItemSeparator">
+  <property name="enabled">true</property>
+  <property name="title">Separator</property>
+  <property name="description">Separator</property>
+  <property name="title" language="nb_NO">Skille</property>
+  <property name="icon">actions/gtk-remove.png</property>
+
+  <resource>main.css</resource>
+  <resource>main.js</resource>
+</package>
+  <package type="Application" name="Clock" schema="schema.glade" category="utilities" packagename="ApplicationClock">
+  <property name="enabled">true</property>
+  <property name="title">Clock</property>
+  <property name="title" language="nb_NO">Klokke</property>
+  <property name="icon">status/appointment-soon.png</property>
+  <property name="system">false</property>
+
+  <resource>main.css</resource>
+  <resource>main.js</resource>
+</package>
+  <package type="Application" name="PDF" schema="schema.glade" category="office" packagename="ApplicationPDF">
+  <property name="enabled">true</property>
+  <property name="title">PDF Viewer</property>
+  <property name="title" language="nb_NO">PDF Leser</property>
+  <property name="icon">mimetypes/gnome-mime-application-pdf.png</property>
+  <property name="system">false</property>
+
+  <resource>main.css</resource>
+  <resource>main.js</resource>
+
+  <mime>application/pdf</mime>
+</package>
+</packages>
