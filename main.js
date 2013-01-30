@@ -35,7 +35,6 @@
  * TODO: Package managment
  * TODO: WebServices
  * TODO: Snapshots
- * TODO: Rest of Core API
  * TODO: Locales (i18n)
  * FIXME: Safe paths (escaping)
  */
@@ -450,7 +449,40 @@ app.configure(function() {
           }
         break;
 
-        case 'package' : // TODO
+        case 'package' :
+          if ( (jsn.operation) ) {
+            var failed = false;
+            switch ( jsn.operation ) {
+              case 'install' :
+                _package.installPackage(jsn['archive'], function(success, result) {
+                  if ( success ) {
+                    res.json(200, { success: true, result: result });
+                  } else {
+                    res.json(200, { success: false, error: result, result: null });
+                  }
+                });
+              break;
+
+              case 'uninstall' :
+                _packages.uninstallPackage(jsn['package'], function(success, result) {
+                  if ( success ) {
+                    res.json(200, { success: true, result: result });
+                  } else {
+                    res.json(200, { success: false, error: result, result: null });
+                  }
+                });
+              break;
+
+              default :
+                failed = true;
+              break;
+            }
+          }
+
+          if ( failed ) {
+            res.json(200, { success: false, error: 'Invalid package operation!', result: null });
+          }
+
           defaultJSONResponse(req, res);
         break;
 

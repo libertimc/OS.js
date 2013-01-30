@@ -3,9 +3,7 @@ CORE TODO:
 [HIG] Implement IconView in launch dialog
 [MED] New package type: Theme OR theme compiler with value-sheet ?!
 [MED] Finish up adding/removing panels, etc
-[MED] Finish HTTPS connections
 [MED] Implement new flexbox model
-[LOW] Bugfix: Session snapshot loading not working anymore
 [LOW] Finish up resource loading balancing by serving URIs to client
 [LOW] Richtext: Add custom contextmenu
 [LOW] Finish CoreVFS Storage integration
@@ -23,9 +21,5 @@ PACKAGES TODO:
 
 MISC TODO:
 -------------------------------------------------------------------------------
-* Create installer
 * Finish Standalone Platform
-* Manifest and Cache for offline usage
 * Replace jQuery
-* Streaming of applications over SSH
-

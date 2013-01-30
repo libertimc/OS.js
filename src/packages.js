@@ -267,6 +267,26 @@ module.exports =
         }
       });
     });
+  },
+
+  /**
+   * packages::installPackage() -- Install a User package
+   * @param   Object    archive   Package archive
+   * @param   Function  callback  Callback function
+   * @return  void
+   */
+  installPackage : function(archive, callback) {
+    callback(false, "TODO");
+  },
+
+  /**
+   * packages::uninstallPackage() -- Uninstall a User package
+   * @param   Object    pkg       Package info
+   * @param   Function  callback  Callback function
+   * @return  void
+   */
+  uninstallPackage : function(pkg, callback) {
+    callback(false, "TODO");
   }
 };
 
