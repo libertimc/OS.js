@@ -31,6 +31,10 @@
  */
 "use strict";
 
+///////////////////////////////////////////////////////////////////////////////
+// IMPORTS
+///////////////////////////////////////////////////////////////////////////////
+
 var fs         = require('fs'),
     sprintf    = require('sprintf').sprintf,
     pam        = require('authenticate-pam'),
@@ -38,28 +42,36 @@ var fs         = require('fs'),
 
 var config     = require('../config.js');
 
-// Temporary stuff FIXME
-var _defaultLang = "en_US";
+///////////////////////////////////////////////////////////////////////////////
+// HELPERS
+///////////////////////////////////////////////////////////////////////////////
+
 var _defaultUser = {
   uid       : -1,
   sid       : '',
   lock      : false,
-  language  : _defaultLang,
+  language  : _config.DEFAULT_LANGUAGE,
   username  : "nodejs",
   groups    : ["nodejs"],
   info      : {
-    name        : "Node.js user",
-    browser     : {
-      platform    : "Platform info",
-      engine      : "Engine info",
-      version     : "Version info"
-    }
+    name        : "Node.js user"
   }
 };
 
 
+///////////////////////////////////////////////////////////////////////////////
+// EXPORTS
+///////////////////////////////////////////////////////////////////////////////
+
 module.exports =
 {
+  /**
+   * user::login() -- Log in with PAM
+   * @param   String    username      Username
+   * @param   String    password      Password
+   * @param   Function  callback      Callback when donw
+   * @return  void
+   */
   login  : function(username, password, callback) {
     pam.authenticate(username, password, function(err) {
       if ( err ) {
@@ -82,8 +94,6 @@ module.exports =
                 for ( var i = 0; i < node.length; i++ ) {
                   info[node[i]['$'].name] = node[i]['_'];
                 }
-
-                info.browser = {};
               }
             });
           }
@@ -93,10 +103,6 @@ module.exports =
           user.groups    = [username];
           user.lock      = false;
           user.info      = info || user.info;
-
-          user.info.browser.platform = "Platform";
-          user.info.browser.engine   = "Engine";
-          user.info.browser.version  = "Version";
 
           // Lock session
           var lpath = sprintf(config.PATH_VFS_LOCK, user.username);
@@ -117,6 +123,16 @@ module.exports =
     });
   },
 
+  /**
+   * user::logout() -- Log out the user
+   * @param   Object      user          Current user
+   * @param   Object      registry      Current registry dump
+   * @param   Object      session       Current session dump
+   * @param   bool        save          Save current session ?
+   * @param   int         duration      Session duration in seconds
+   * @param   Function    _callback     Callback function
+   * @return void
+   */
   logout : function(user, registry, session, save, duration, _callback) {
     if ( !save ) {
       session = {};
@@ -131,6 +147,12 @@ module.exports =
     });
   },
 
+  /**
+   * user::resume() -- Load previous session and/or registry for a user
+   * @param   Object    user          User
+   * @param   Function  _callback     Callback function
+   * @return  void
+   */
   resume : function(user, _callback) {
     var _loadRegistry = function(callback) {
       var path = sprintf(config.PATH_VFS_LAST_REGISTRY, user.username);
@@ -171,6 +193,14 @@ module.exports =
     });
   },
 
+  /**
+   * user::store() -- Save current user registry/session
+   * @param   Object    user            User
+   * @param   Object    registry        Registry dump (null = ignore)
+   * @param   Object    session         Session dump (null = ignore)
+   * @param   Function  callback        Callback function
+   * @return  void
+   */
   store : function(user, registry, session, callback) {
     var _saveRegistry = function(clb) {
       if ( registry === null ) {

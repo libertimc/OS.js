@@ -29,11 +29,28 @@
  * @licence Simplified BSD License
  * @created 2013-01-27
  */
+"use strict";
+
+///////////////////////////////////////////////////////////////////////////////
+// IMPORTS
+///////////////////////////////////////////////////////////////////////////////
+
 var fs = require('fs'),
     xml2js = require('xml2js');
 
 var config = require('../config.js');
 
+///////////////////////////////////////////////////////////////////////////////
+// HELPERS
+///////////////////////////////////////////////////////////////////////////////
+
+/**
+ * parseList() -- Parse a package.xml list
+ * @param   String      language    Current language
+ * @param   Object      result      The xml2js parsed data
+ * @param   Function    callback    Callback function
+ * @return  void
+ */
 function parseList(language, result, callback) {
   var packages = {};
 
@@ -126,6 +143,12 @@ function parseList(language, result, callback) {
   callback(true, packages); // TODO
 }
 
+/**
+ * getSystemPackages() -- Get installed system packages
+ * @param   String    language      Current language
+ * @param   Function  callback      Callback function
+ * @return  void
+ */
 function getSystemPackages(language, callback) {
   var parser = new xml2js.Parser();
   var filename = config.PACKAGE_BUILD;
@@ -145,8 +168,18 @@ function getSystemPackages(language, callback) {
   });
 }
 
+///////////////////////////////////////////////////////////////////////////////
+// EXPORTS
+///////////////////////////////////////////////////////////////////////////////
+
 module.exports =
 {
+  /**
+   * packages::getInstalledSystemPackages() -- Get installed system packages
+   * @param   String    language    Current language
+   * @param   Function  callback    Callback function
+   * @return  void
+   */
   getInstalledSystemPackages : function(language, callback) {
     var _finished = function(packages) {
       callback(true, packages);
@@ -164,10 +197,22 @@ module.exports =
     });
   },
 
+  /**
+   * packages::getInstalledUserPackages() -- Get installed user packages
+   * @param   String    language    Current language
+   * @param   Function  callback    Callback function
+   * @return  void
+   */
   getInstalledUserPackages : function() {
     // TODO
   },
 
+  /**
+   * packages::getInstalledPackages() -- Get installed packages
+   * @param   Object    user        User reference
+   * @param   Function  callback    Callback function
+   * @return  void
+   */
   getInstalledPackages : function(user, callback) {
     var _finished = function(sys, usr) {
        callback(true, {

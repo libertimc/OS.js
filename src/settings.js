@@ -29,6 +29,12 @@
  * @licence Simplified BSD License
  * @created 2013-01-27
  */
+"use strict";
+
+///////////////////////////////////////////////////////////////////////////////
+// CONFIGS
+///////////////////////////////////////////////////////////////////////////////
+
 var _defaults = {
   //
   // Window Manager
@@ -203,8 +209,17 @@ var _defaults = {
   }
 };
 
+///////////////////////////////////////////////////////////////////////////////
+// EXPORTS
+///////////////////////////////////////////////////////////////////////////////
+
 module.exports =
 {
+  /**
+   * settings::getDefaultSettings() -- Get the default settings list
+   * @param   Object    registry    Reference registry
+   * @return  Object
+   */
   getDefaultSettings : function(registry) {
     var settings = _defaults;
 

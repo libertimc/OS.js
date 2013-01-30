@@ -31,10 +31,26 @@
  */
 "use strict";
 
+///////////////////////////////////////////////////////////////////////////////
+// IMPORTS
+///////////////////////////////////////////////////////////////////////////////
+
 var _config    = require('../config.js');
+
+///////////////////////////////////////////////////////////////////////////////
+// EXPORTS
+///////////////////////////////////////////////////////////////////////////////
 
 module.exports =
 {
+  /**
+   * locale::getLanguage() -- Get current langauge
+   *
+   * Gets via user or browser, falls back to config defined.
+   *
+   * @param   HttpRequest     req     HTTP Request reference
+   * @return  String
+   */
   getLanguage : function(req) {
     var language = _config.DEFAULT_LANGUAGE;
     var check    = true;
@@ -59,3 +75,4 @@ module.exports =
   }
 
 };
+
