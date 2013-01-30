@@ -33,15 +33,12 @@
 
 /*
  *
- * TODO: Session
  * TODO: Users
  * TODO: User packages
  * TODO: Package managment
  * TODO: WebServices
  * TODO: Snapshots
  * TODO: Rest of Core API
- * TODO: VFS
- * TODO: Application Events
  * TODO: Locales (i18n)
  * FIXME: Safe paths (escaping)
  *
@@ -216,7 +213,6 @@ app.configure(function() {
             }
           }
 
-          // TODO: Session
           response = {
             success : true,
             result  : {
