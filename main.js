@@ -66,28 +66,6 @@ var express = require('express'),
     sprintf = require('sprintf').sprintf,
     swig    = require('swig');
 
-// Temporary stuff FIXME
-var _defaultLang = "en_US";
-var _defaultUser = {
-  uid       : 1,
-  sid       : '',
-  duplicate : false,
-  info      : {
-    "User ID"       : 1,
-    "Username"      : "nodejs",
-    "Name"          : "Node.js user",
-    "Groups"        : ["root"],
-    "Registered"    : "2013-01-01 00:00:00",
-    "Last Modified" : "2013-01-01 00:00:00",
-    "Last Login"    : "2013-01-01 00:00:00",
-    "Browser"       : {
-      "platform"  : "Platform info",
-      "engine"    : "Engine info",
-      "version"   : "Version info"
-    }
-  }
-};
-
 ///////////////////////////////////////////////////////////////////////////////
 // APPLICATION
 ///////////////////////////////////////////////////////////////////////////////
@@ -154,9 +132,9 @@ function defaultJSONResponse(req, res) {
 }
 
 function generateIndex(req, res) {
-  var opts = config;
+  var opts = _config;
 
-  opts.locale   = _defaultLang; // FIXME
+  opts.locale   = "en_US"; // FIXME
   opts.preloads = [
     {"script" : 'json.js'},
     {"script" : 'sprintf.js'},
@@ -168,6 +146,16 @@ function generateIndex(req, res) {
   res.render('index', opts);
 }
 
+function mkpath(input) {
+  // FIXME Safe
+  if ( input.match(/^\/User/) ) {
+    var uid = 1; // FIXME
+    return sprintf(_config.PATH_VFS_USER, uid) + input.replace(/^\/User/, '');
+  }
+
+  return (_config.PATH_MEDIA + input);
+}
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // CONFIGURATION
@@ -177,6 +165,8 @@ app.configure(function() {
 
   // Setup
   app.use(express.bodyParser());
+  app.use(express.cookieParser());
+  app.use(express.session({ secret:'yodawgyo' }));
 
   app.engine('html', swig.express3);
 
@@ -218,7 +208,13 @@ app.configure(function() {
       // TODO: Implement array-check for which methods require user/session
       switch ( jsn.action ) {
         case 'boot' :
-          var restored = true; // FIXME
+          var restore = false;
+
+          if ( (req.session && req.session.user) && (typeof req.session.user == 'object') ) {
+            if ( req.session.user.lock ) {
+              restore = true;
+            }
+          }
 
           // TODO: Session
           response = {
@@ -232,7 +228,7 @@ app.configure(function() {
                 connection   : _config.ENV_PLATFORM,
                 ssl          : _config.ENV_SSL,
                 autologin    : _config.AUTOLOGIN_ENABLE,
-                restored     : restored,
+                restored     : restore,
                 hosts        : {
                   frontend      : _config.HOST_FRONTEND,
                   'static'      : _config.HOST_STATIC
@@ -244,76 +240,102 @@ app.configure(function() {
           res.json(200,  response);
         break;
 
-        case 'logout' :
-          // TODO: Session
-          // TODO: Update user
-          response = {
-            success : true,
-            result : {
-            }
-          };
-
-          res.json(200, response);
-        break;
+        /*case 'logout' :
+        break;*/
 
         case 'login' :
-          var user = {   // FIXME
-            result            : _defaultUser,
-            language          : _defaultLang,
-            resume_registry   : {},
-            resume_session    : {}
-          };
+          var username = jsn.form ? (jsn.form.username || "") : "";
+          var password = jsn.form ? (jsn.form.password || "") : "";
+          var resume   = (jsn.resume === true || jsn.resume === "true");
 
-          var _success = function(packages) {
+          var _success = function(user, packages, resume_registry, resume_session) {
             response = {
-              success : true,
-              result : {
-                user          : user.result,
-                registry      : {
-                  revision      : _config.SETTINGS_REVISION,
-                  settings      : _settings.getDefaultSettings(_registry.defaults),
-                  packages      : packages,
-                  preload       : _preload.getPreloadFiles()
-                },
-                restore      : {
-                  registry      : user.resume_registry,
-                  session       : user.resume_session
-                },
-                locale       : {
-                  system        : _config.DEFAULT_LANGUAGE,
-                  browser       : user.language
-                }
+              user          : user,
+              registry      : {
+                revision      : _config.SETTINGS_REVISION,
+                settings      : _settings.getDefaultSettings(_registry.defaults),
+                packages      : packages,
+                preload       : _preload.getPreloadFiles()
+              },
+              restore      : {
+                registry      : resume_registry,
+                session       : resume_session
+              },
+              locale       : {
+                system        : _config.DEFAULT_LANGUAGE,
+                browser       : user.language
               }
             };
 
-            res.json(200, response);
+
+            res.json(200, {success: true, result: response});
+
+            req.session.user      = user;
+            req.session.user.sid  = req.sessionID;
+            req.session.user.lock = true;
           };
 
           var _failure = function(msg) {
             console.error(msg);
 
+            req.session.user = null;
+
             res.json(200, {success: false, error: msg, result: null});
           };
 
-          _packages.getInstalledPackages(user.language, user.result, function(success, result) {
-            if ( success ) {
-              _success(result);
-            } else {
-              _failure(result);
+          var _proceed = function(puser) {
+            _packages.getInstalledPackages(puser, function(success, result) {
+              if ( success ) {
+                _user.resume(puser, function(resume_registry, resume_session) {
+                  _success(puser, result, resume_registry, resume_session);
+                });
+              } else {
+                _failure(result);
+              }
+            });
+          };
+
+          if ( resume ) {
+            _proceed(req.session.user);
+          } else {
+            if ( _config.AUTOLOGIN_ENABLE ) {
+              username = _config.AUTOLOGIN_USERNAME;
+              password = _config.AUTOLOGIN_PASSWORD;
             }
-          });
+
+            _user.login(username, password, function(success, data) {
+              if ( success ) {
+                data.lock = false;
+                _proceed(data);
+              } else {
+                _failure(data || "Failed to log in!");
+              }
+            });
+          }
         break;
 
         case 'shutdown' :
-          // TODO: Session
-          // TODO: Update user
-          response = {
-            success : true,
-            result : {
-            }
+          var registry = jsn.registry || {};
+          var session  = jsn.session || {};
+          var save     = (jsn.save === true || jsn.save === "true");
+          var duration = jsn.duration;
+
+          var __done = function() {
+            res.json(200, {success: true, result: true});
+
+            req.session.user = null;
+            req.session.destroy();
           };
 
-          res.json(200, response);
+          if ( (req.session && req.session.user) && (typeof req.session.user == 'object') ) {
+            req.session.user.lock = false;
+            _user.logout(req.session.user, registry, session, save, duration, function() {
+              __done();
+            });
+          } else {
+            __done();
+          }
+
         break;
 
         case 'updateCache' : // TODO
@@ -338,7 +360,7 @@ app.configure(function() {
 
             case 'info' :
             default     :
-              res.json(200, {success: true, result: _defaultUser.info});
+              res.json(200, {success: true, result: req.session.user.info});
               return;
               break;
           }
@@ -352,10 +374,12 @@ app.configure(function() {
           var ev_args     = ev_instance.args || [];
           var ev_name     = ev_instance.name ? ev_instance.name.replace(/[^A-z0-9]/, '') : null;
 
+          var user = req.session.user;
+
           if ( ev_action === null || ev_instance === null || ev_name === null ) {
             res.json(200, { success: false, error: "Invalid event!", result: null });
           } else {
-            _packages.getInstalledSystemPackages(_defaultLang, function(success, result) {
+            _packages.getInstalledSystemPackages(user.language, function(success, result) {
               if ( success ) {
                 var load_class = false;
 
@@ -551,23 +575,15 @@ app.configure(function() {
 
   //app.get('/media/User/:filename', function(req, res) {
   app.get(/^\/media\/User\/(.*)/, function(req, res) {
-    // FIXME: View only [TEST]
-    var user = _defaultUser;
-    //var filename = req.params.filename;
     var filename = req.params[0];
-    var path = sprintf(_config.PATH_VFS_USER, user.uid) + "/" + filename;
-
+    var path = mkpath(filename);
     res.sendfile(path);
   });
 
   //app.get('/media-download/User/:filename', function(req, res) {
   app.get(/^\/media-download\/User\/(.*)/, function(req, res) {
-    // FIXME: Download only [TEST]
-    var user = _defaultUser;
-    //var filename = req.params.filename;
     var filename = req.params[0];
-    var path = sprintf(_config.PATH_VFS_USER, user.uid) + "/" + filename;
-
+    var path = mkpath(filename);
     res.download(path);
   });
 

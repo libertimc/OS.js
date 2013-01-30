@@ -2068,7 +2068,7 @@
     handleLogin : function(response, dcallback) {
       dcallback = dcallback || function() {};
 
-      if ( response.user.duplicate ) {
+      if ( response.user.lock ) {
         var con = !this.confirmation || confirm(OSjs.Labels.LoginConfirm);
         if ( con ) {
           _Core.login(response);

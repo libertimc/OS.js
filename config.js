@@ -48,8 +48,9 @@ module.exports =
   //
   SETTINGS_REVISION   : 2,
   DEFAULT_LANGUAGE    : "en_US",
-  AUTOLOGIN_ENABLE    : true,
-  AUTOLOGIN_UID       : 1,
+  AUTOLOGIN_ENABLE    : false,
+  AUTOLOGIN_USERNAME  : "test",
+  AUTOLOGIN_PASSWORD  : "test",
   COMPRESSOR          : "yui", // "gcc"
 
   //

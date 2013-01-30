@@ -168,7 +168,7 @@ module.exports =
     // TODO
   },
 
-  getInstalledPackages : function(language, user, callback) {
+  getInstalledPackages : function(user, callback) {
     var _finished = function(sys, usr) {
        callback(true, {
         System : sys || [],
@@ -180,7 +180,7 @@ module.exports =
       callback(false, msg);
     };
 
-    getSystemPackages(language, function(success, result) {
+    getSystemPackages(user.language, function(success, result) {
       if ( success ) {
         _finished(result, []); // FIXME
       } else {
