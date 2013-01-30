@@ -40,7 +40,6 @@
 var fs        = require('fs'),
     http      = require('http'),
     url       = require('url'),
-    walk      = require('walk'),
     sprintf   = require('sprintf').sprintf,
     sanitize  = require('validator').sanitize,
     mime      = require('mime');
