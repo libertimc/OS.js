@@ -192,16 +192,6 @@ function sortObj(object, sortFunc) {
   return rv;
 }
 
-function mkpath(input) {
-  // FIXME Safe
-  if ( input.match(/^\/User/) ) {
-    var username = "anti-s";
-    return sprintf(_config.PATH_VFS_USER, username) + input.replace(/^\/User/, '');
-  }
-
-  return (_config.PATH_MEDIA + input);
-}
-
 function is_protected(input) {
   // TODO: Permissions
   if ( input.match(/^\/User/) ) {
@@ -271,98 +261,8 @@ function in_array(element, array, cmp) {
 // FS WRAPPERS
 ///////////////////////////////////////////////////////////////////////////////
 
+/*
 function _ls(args, callback) {
-  var path = mkpath(args);
-  console.log("_ls", path);
-
-  var tree  = {
-    dirs : {},
-    files : {}
-  };
-
-  if ( args != "/" ) {
-    var parentdir = args.split('/');
-    if ( parentdir.length > 1 ) {
-      parentdir.pop();
-      parentdir = parentdir.join('/') || "/";
-    } else {
-      parentdir = "/";
-    }
-
-    tree.dirs[".."] = {
-      path        : parentdir,
-      size        : 0,
-      mime        : '',
-      icon        : 'status/folder-visiting.png',
-      type        : 'dir',
-      'protected' : 1
-    };
-  }
-
-  var __callback = function() {
-    var i, result = {};
-    var dirs = sortObj(tree.dirs);
-    var files = sortObj(tree.files);
-
-    for ( i = 0; i < dirs.length; i++ ) {
-      result[dirs[i].key] = dirs[i].value;
-    }
-    for ( i = 0; i < files.length; i++ ) {
-      result[files[i].key] = files[i].value;
-    }
-
-    callback(true, result);
-  };
-
-  fs.readdir(path, function(err, files) {
-    if ( err ) {
-      callback(false, err);
-      return;
-    }
-
-    var list = files;
-    var __next = function() {
-      if ( list.length ) {
-        var iter  = list.pop();
-
-        if ( in_array(iter, ignore_files) ) {
-          __next();
-        } else {
-          var fname = path + '/' + iter;
-          var froot = args;
-          var fpath = args == "/" ? ('/' + iter) : (args + '/' + iter);
-
-          fs.stat(fname, function(err, stats) {
-            if ( !err && stats ) {
-              var fmime = mime.lookup(fname);
-              var isdir = stats.isDirectory();
-              var fiter = {
-                path         : fpath,
-                size         : stats.size,
-                mime         : fmime,
-                icon         : isdir ? "places/folder.png" : get_icon(iter, fmime),
-                type         : isdir ? 'dir' : 'file',
-                'protected'  : is_protected(fpath) ? 1 : 0
-              };
-
-              if ( isdir ) {
-                tree.dirs[iter] = fiter;
-              } else {
-                tree.files[iter] = fiter;
-              }
-            }
-
-            __next();
-          });
-        }
-        return;
-      }
-
-      __callback();
-    };
-
-    __next();
-  }); // readdir
 
 }
 
@@ -537,57 +437,281 @@ function fileinfo(filename, callback) {
     }
   });
 }
-
-function basename(path) {
+*/
+function dirname(path) {
   var spl = path.split('/');
   spl.pop();
   return spl.join('/');
 }
 
-///////////////////////////////////////////////////////////////////////////////
-// EXPORTS
-///////////////////////////////////////////////////////////////////////////////
+function basename(path) {
+  var spl = path.split('/');
+  return spl.pop();
+}
 
-module.exports =
-{
-  // Base
-  ls        : _ls,
-  readdir   : _ls,
-  cat       : _cat,
-  read      : _cat,
-  exists    : _exists,
-  mkdir     : _mkdir,
-  touch     : _touch,
-  'delete'  : _rm,
-  rm        : _rm,
-  mv        : _mv,
-  rename    : _mv,
-  cp        : _cp,
-  copy      : _cp,
-  put       : _put,
-  write     : _put,
+function mkpath(user, input) {
+  if ( input.match(/^\/User/) ) {
+    return sprintf(_config.PATH_VFS_USER, user.username) + input.replace(/^\/User/, '');
+  }
+  return (_config.PATH_MEDIA + input);
+}
 
-  file_info : fileinfo,
-  fileinfo  : fileinfo,
+var VFS = function(user) {
+  this.user = user;
+};
 
-  // preview
-  // file_info
-  // fileinfo
-  // readpdf
-  // upload
-  // ls_archive
-  // extract_archive
+VFS.prototype = {
+  ls : function(args, callback) {
+    var path = mkpath(this.user, args);
+    console.log("_ls", path);
 
+    var tree  = {
+      dirs : {},
+      files : {}
+    };
+
+    if ( args != "/" ) {
+      var parentdir = args.split('/');
+      if ( parentdir.length > 1 ) {
+        parentdir.pop();
+        parentdir = parentdir.join('/') || "/";
+      } else {
+        parentdir = "/";
+      }
+
+      tree.dirs[".."] = {
+        path        : parentdir,
+        size        : 0,
+        mime        : '',
+        icon        : 'status/folder-visiting.png',
+        type        : 'dir',
+        'protected' : 1
+      };
+    }
+
+    var __callback = function() {
+      var i, result = {};
+      var dirs = sortObj(tree.dirs);
+      var files = sortObj(tree.files);
+
+      for ( i = 0; i < dirs.length; i++ ) {
+        result[dirs[i].key] = dirs[i].value;
+      }
+      for ( i = 0; i < files.length; i++ ) {
+        result[files[i].key] = files[i].value;
+      }
+
+      callback(true, result);
+    };
+
+    fs.readdir(path, function(err, files) {
+      if ( err ) {
+        callback(false, err);
+        return;
+      }
+
+      var list = files;
+      var __next = function() {
+        if ( list.length ) {
+          var iter  = list.pop();
+
+          if ( in_array(iter, ignore_files) ) {
+            __next();
+          } else {
+            var fname = path + '/' + iter;
+            var froot = args;
+            var fpath = args == "/" ? ('/' + iter) : (args + '/' + iter);
+
+            fs.stat(fname, function(err, stats) {
+              if ( !err && stats ) {
+                var fmime = mime.lookup(fname);
+                var isdir = stats.isDirectory();
+                var fiter = {
+                  path         : fpath,
+                  size         : stats.size,
+                  mime         : fmime,
+                  icon         : isdir ? "places/folder.png" : get_icon(iter, fmime),
+                  type         : isdir ? 'dir' : 'file',
+                  'protected'  : is_protected(fpath) ? 1 : 0
+                };
+
+                if ( isdir ) {
+                  tree.dirs[iter] = fiter;
+                } else {
+                  tree.files[iter] = fiter;
+                }
+              }
+
+              __next();
+            });
+          }
+          return;
+        }
+
+        __callback();
+      };
+
+      __next();
+    }); // readdir
+  },
+
+  cat : function(filename, callback) {
+    fs.readFile(mkpath(this.user, filename), function(err, data) {
+      if ( err ) {
+        callback(false, err || "File not found or permission denied!");
+      } else {
+        callback(true, data.toString());
+      }
+    });
+  },
+
+  exists : function(filename, callback) {
+    fs.exists(mkpath(this.user, filename), function(ex) {
+      if ( ex ) {
+        callback(true, true);
+      } else {
+        callback(true, false);
+      }
+    });
+  },
+
+  mkdir : function(name, callback) {
+    fs.mkdir(mkpath(this.user, name), _config.VFS_MKDIR_PERM, function(err) {
+      if ( err ) {
+        callback(false, err);
+      } else {
+        callback(true, true);
+      }
+    });
+  },
+
+  touch : function(filename, callback) {
+    var path = mkpath(this.user, filename);
+    fs.exists(path, function(ex) {
+      if ( ex ) {
+        callback(false, "File exists!");
+      } else {
+        fs.writeFile(path, "", function(err) {
+          if ( err ) {
+            callback(false, err);
+          } else {
+            callback(true, true);
+          }
+        });
+      }
+    });
+  },
+
+  rm : function(name, callback) {
+    // FIXME: Recursive
+    var path = mkpath(this.user, name);
+    fs.exists(path, function(ex) {
+      if ( ex ) {
+        callback(false, "File exists!");
+      } else {
+        fs.unlink(path, function(err) {
+          if ( err ) {
+            callback(false, err);
+          } else {
+            callback(true, true);
+          }
+        });
+      }
+    });
+  },
+
+  cp : function(src, dst, callback) {
+    var u = this.user;
+    fs.exists(mkpath(u, dst), function(ex) {
+      if ( ex ) {
+        callback(false, 'Destination already exists!');
+      } else {
+        fs.readFile(mkpath(u, src), function(err, data) {
+          if ( err ) {
+            callback(false, err);
+          } else {
+            fs.writeFile(mkpath(u, dst), data, function(err) {
+              if ( err ) {
+                callback(false, err);
+              } else {
+                callback(true, true);
+              }
+            });
+          }
+        });
+      }
+    });
+  },
+
+  put : function(filename, content, encoding, callback) {
+    var path = mkpath(this.user, filename);
+    fs.exists(path, function(ex) {
+      if ( ex ) {
+        fs.appendFile(path, content, encoding || "utf8", function(err) {
+          if ( err ) {
+            callback(false, err);
+          } else {
+            callback(true, true);
+          }
+        });
+      } else {
+        callback(false, "File does not exist!");
+      }
+    });
+  },
+
+  fileinfo : function(filename, callback) {
+    var path = mkpath(this.user, filename);
+
+    fs.exists(path, function(ex) {
+      if ( ex ) {
+
+        fs.stat(fname, function(err, stats) {
+          if ( err ) {
+            callback(false, err);
+          } else {
+            if ( !stats.isDirectory() ) {
+              var media_info;
+              var fmime = mime.lookup(path) || null;
+
+              switch ( fmime.split("/").shift() ) {
+                case 'image' :
+                case 'video' :
+                case 'audio' :
+                  media_info = {};
+                break;
+                default :
+                  media_info = null;
+                break;
+              }
+
+              callback(true, {
+                filename  : basename(filename),
+                path      : dirname(filename),
+                size      : stats.size || 0,
+                mime      : fmime,
+                info      : media_info
+              });
+            } else {
+              callback(false, "Cannot stat a directory!");
+            }
+          }
+        });
+      } else {
+        callback(false, "File does not exist!");
+      }
+    });
+  },
+
+  //
   // Wrappers
-
-  mkpath : mkpath,
-
-  lswrap  : function(args, callback) {
-    _ls(args.path, function(success, result) {
+  //
+  lswrap  : function(path, callback) {
+    this.ls(path, function(success, result) {
       if ( success ) {
         var ls_items = [];
         var ls_bytes = 0;
-        var ls_path  = args.path; // FIXME
+        var ls_path  = path; // FIXME
 
         var iter;
         for ( var f in result ) {
@@ -623,7 +747,9 @@ module.exports =
     });
   },
 
+  //
   // Extern
+  //
   readurl : function(args, callback) {
     if ( args !== null ) {
       var qdata   = url.parse(args, true);
@@ -649,5 +775,90 @@ module.exports =
       callback(false, "Invalid URL!");
     }
   }
+
+};
+
+///////////////////////////////////////////////////////////////////////////////
+// EXPORTS
+///////////////////////////////////////////////////////////////////////////////
+
+module.exports =
+{
+  mkpath  : mkpath,
+  call    : function(user, method, args, callback) {
+    var v = new VFS(user);
+
+    switch ( method ) {
+      case 'ls'       :
+      case 'readdir'  :
+        v.ls(args, callback);
+      break;
+
+      case 'cat'      :
+      case 'read'     :
+        v.cat(args, callback);
+      break;
+
+      case 'exists'   :
+        v.exists(args, callback);
+      break;
+
+      case 'mkdir'    :
+        v.mkdir(args, callback);
+      break;
+
+      case 'touch'    :
+        v.touch(args, callback);
+      break;
+
+      case 'delete'   :
+      case 'rm'       :
+        v.rm(args, callback);
+      break;
+
+      case 'mv'       :
+      case 'rename'   :
+        v.mv(args.source, args.destination, callback);
+      break;
+
+      case 'cp'       :
+      case 'copy'     :
+        v.cp(args.source, args.destination, callback);
+      break;
+
+      case 'put'      :
+      case 'write'    :
+        v.pu(args.path, args.content, args.encoding, callback);
+      break;
+
+      case 'fileinfo' :
+      case 'file_info':
+        v.fileinfo(args, callback);
+      break;
+
+      case 'readurl'  :
+        v.readurl(args, callback);
+      break;
+
+      case 'lswrap' :
+        v.lswrap(args.path, callback);
+      break;
+
+
+      default :
+        return false;
+      break;
+    }
+
+    return true;
+  }
+
+  // preview
+  // file_info
+  // fileinfo
+  // readpdf
+  // upload
+  // ls_archive
+  // extract_archive
 };
 

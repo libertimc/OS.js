@@ -423,12 +423,9 @@ app.configure(function() {
 
         case 'call' :
           console.log("API::call()", jsn);
-          if ( (jsn.method && jsn.args) && (typeof _vfs[jsn.method] === 'function') ) {
+          if ( (jsn.method && jsn.args) ) {
             try {
-              var _method = _vfs[jsn.method];
-              var _args   = (jsn.args ? [jsn.args] : [[]]);
-
-              _args.push(function(vfssuccess, vfsresult) {
+              var ok = _vfs.call(req.session.user, jsn.method, (jsn.args || []), function(vfssuccess, vfsresult) {
                 if ( vfssuccess ) {
                   res.json(200, { success: true, result: vfsresult });
                 } else {
@@ -436,14 +433,15 @@ app.configure(function() {
                 }
               });
 
-              _method.apply(_method, _args);
-              //_method.call(_method, _args);
+              if ( !ok ) {
+                res.json(200, { success: false, error: 'Invalid VFS action!', result: null });
+              }
             } catch ( err ) {
               console.error(err);
               res.json(200, { success: false, error: err.message, result: null });
             }
           } else {
-            res.json(200, { success: false, error: 'Invalid VFS action!', result: null });
+            res.json(200, { success: false, error: 'Invalid VFS arguments!', result: null });
           }
           return;
         break;
@@ -562,14 +560,14 @@ app.configure(function() {
   //app.get('/media/User/:filename', function(req, res) {
   app.get(/^\/media\/User\/(.*)/, function(req, res) {
     var filename = req.params[0];
-    var path = _vfs.mkpath('/User/' + filename);
+    var path = _vfs.mkpath(req.session.user, '/User/' + filename);
     res.sendfile(path);
   });
 
   //app.get('/media-download/User/:filename', function(req, res) {
   app.get(/^\/media-download\/User\/(.*)/, function(req, res) {
     var filename = req.params[0];
-    var path = _vfs.mkpath('/User/' + filename);
+    var path = _vfs.mkpath(req.session.user, '/User/' + filename);
     res.download(path);
   });
 

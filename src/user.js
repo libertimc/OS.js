@@ -44,11 +44,13 @@ var _defaultUser = {
   sid       : '',
   lock      : false,
   language  : _defaultLang,
+  username  : "nodejs",
+  groups    : ["nodejs"],
   info      : {
     "User ID"       : -1,
     "Username"      : "nodejs",
     "Name"          : "Node.js user",
-    "Groups"        : ["root"],
+    "Groups"        : ["nodejs"],
     "Registered"    : "2013-01-01 00:00:00",
     "Last Modified" : "2013-01-01 00:00:00",
     "Last Login"    : "2013-01-01 00:00:00",
@@ -73,6 +75,8 @@ module.exports =
         user.info.username  = username;
         user.info.name      = username;
         user.info.groups    = [username];
+        user.username       = username;
+        user.groups         = [username];
 
         callback(true, user);
       }
