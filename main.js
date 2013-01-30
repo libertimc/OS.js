@@ -165,6 +165,7 @@ app.configure(function() {
   app.use(express.bodyParser());
   app.use(express.cookieParser());
   app.use(express.session({ secret:'yodawgyo', cookie: { path: '/', httpOnly: true, maxAge: null} }));
+  app.use(express.limit('1024mb'));
 
   app.engine('html',      swig.express3);
   app.set('view engine',  'html');
@@ -623,7 +624,17 @@ app.configure(function() {
   //
 
   app.post('/API/upload', function(req, res) { // TODO
-    defaultResponse(req, res);
+    var ok = _vfs.call(req.session.user, 'upload', {'file': req.files.upload, 'path': req.body.path}, function(vfssuccess, vfsresult) {
+      if ( vfssuccess ) {
+        res.json(200, { success: true, result: vfsresult });
+      } else {
+        res.json(200, { success: false, error: vfsresult, result: null });
+      }
+    });
+
+    if ( !ok ) {
+      res.json(200, { success: false, error: 'Upload error!', result: null });
+    }
   });
 
   //app.get('/media/User/:filename', function(req, res) {

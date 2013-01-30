@@ -615,9 +615,6 @@ VFS.prototype = {
       var psrc = ref.path;
       var pdest = mkpath(this.user, path + '/' + ref.name);
 
-      console.log("upload src", psrc);
-      console.log("upload dest", pdest);
-
       fs.exists(pdest, function(ex) {
         if ( ex ) {
           callback(false, "File already exists!");
