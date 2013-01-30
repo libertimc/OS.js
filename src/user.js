@@ -50,7 +50,7 @@ var _defaultUser = {
   uid       : -1,
   sid       : '',
   lock      : false,
-  language  : _config.DEFAULT_LANGUAGE,
+  language  : config.DEFAULT_LANGUAGE,
   username  : "nodejs",
   groups    : ["nodejs"],
   info      : {
