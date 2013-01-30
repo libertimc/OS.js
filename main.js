@@ -575,19 +575,23 @@ app.configure(function() {
     defaultResponse(req, res);
   });
 
-  app.get('/media/User:filename', function(req, res) {
+  //app.get('/media/User/:filename', function(req, res) {
+  app.get(/^\/media\/User\/(.*)/, function(req, res) {
     // FIXME: View only [TEST]
     var user = _defaultUser;
-    var filename = req.params.filename;
+    //var filename = req.params.filename;
+    var filename = req.params[0];
     var path = sprintf(config.PATH_VFS_USER, user.uid) + "/" + filename;
 
     res.sendfile(path);
   });
 
-  app.get('/media-download/User:filename', function(req, res) {
+  //app.get('/media-download/User/:filename', function(req, res) {
+  app.get(/^\/media-download\/User\/(.*)/, function(req, res) {
     // FIXME: Download only [TEST]
     var user = _defaultUser;
-    var filename = req.params.filename;
+    //var filename = req.params.filename;
+    var filename = req.params[0];
     var path = sprintf(config.PATH_VFS_USER, user.uid) + "/" + filename;
 
     res.download(path);
