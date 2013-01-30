@@ -56,7 +56,8 @@ var _config    = require('./config.js'),
     _packages  = require(_config.PATH_SRC + '/packages.js'),
     _vfs       = require(_config.PATH_SRC + '/vfs.js'),
     _ui        = require(_config.PATH_SRC + '/ui.js'),
-    _user      = require(_config.PATH_SRC + '/user.js');
+    _user      = require(_config.PATH_SRC + '/user.js'),
+    _locale    = require(_config.PATH_SRC + '/locale.js');
 
 // External
 var express = require('express'),
@@ -128,22 +129,6 @@ function defaultJSONResponse(req, res) {
   res.json(200, { url: req.url });
 }
 
-function generateIndex(req, res) {
-  var opts = _config;
-
-  opts.locale   = "en_US"; // FIXME
-  opts.preloads = [
-    {"script" : 'json.js'},
-    {"script" : 'sprintf.js'},
-    {"script" : 'jquery.js'},
-    {"script" : 'jquery-ui.js'},
-    {"style"  : 'jquery-ui-theme.css'}
-  ];
-
-  res.render('index', opts);
-}
-
-
 ///////////////////////////////////////////////////////////////////////////////
 // CONFIGURATION
 ///////////////////////////////////////////////////////////////////////////////
@@ -153,7 +138,7 @@ app.configure(function() {
   // Setup
   app.use(express.bodyParser());
   app.use(express.cookieParser());
-  app.use(express.session({ secret:'yodawgyo' }));
+  app.use(express.session({ secret:'yodawgyo', cookie: { path: '/', httpOnly: true, maxAge: null} }));
 
   app.engine('html', swig.express3);
 
@@ -169,7 +154,20 @@ app.configure(function() {
   app.get('/', function(req, res) {
     console.log('GET /');
 
-    generateIndex(req, res);
+    var opts     = _config;
+    var language = _locale.getLanguage(req);
+
+    opts.locale   = language;
+    opts.language = language.split("_").shift();
+    opts.preloads = [
+      {"script" : 'json.js'},
+      {"script" : 'sprintf.js'},
+      {"script" : 'jquery.js'},
+      {"script" : 'jquery-ui.js'},
+      {"style"  : 'jquery-ui-theme.css'}
+    ];
+
+    res.render('index', opts);
   });
 
   //
@@ -235,6 +233,9 @@ app.configure(function() {
           var resume   = (jsn.resume === true || jsn.resume === "true");
 
           var _success = function(user, packages, resume_registry, resume_session) {
+            user.sid = req.sessionID;
+            res.cookie('osjs_sessionid', user.sid);
+
             response = {
               user          : user,
               registry      : {
@@ -257,13 +258,13 @@ app.configure(function() {
             res.json(200, {success: true, result: response});
 
             req.session.user      = user;
-            req.session.user.sid  = req.sessionID;
           };
 
           var _failure = function(msg) {
-            console.error(msg);
+            console.error('login::_failure()', msg);
 
             req.session.user = null;
+            res.cookie('osjs_sessionid', null);
 
             res.json(200, {success: false, error: msg, result: null});
           };
@@ -386,7 +387,7 @@ app.configure(function() {
                   try {
                     _class = require(_cpath);
                   } catch ( err ) {
-                    console.error(err);
+                    console.error('event', err);
                     res.json(200, { success: false, error: err.message, result: null });
                     return;
                   }
@@ -401,7 +402,7 @@ app.configure(function() {
                         }
                       });
                     } catch ( err ) {
-                      console.error(err);
+                      console.error('event', err);
                       res.json(200, { success: false, error: err.message, result: null });
                     }
                   }
@@ -437,7 +438,7 @@ app.configure(function() {
                 res.json(200, { success: false, error: 'Invalid VFS action!', result: null });
               }
             } catch ( err ) {
-              console.error(err);
+              console.error('call', err);
               res.json(200, { success: false, error: err.message, result: null });
             }
           } else {

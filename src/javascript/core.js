@@ -53,7 +53,7 @@
   var NOTIFICATION_TIMEOUT   = 5000;                //!< Desktop notification timeout
   var MAX_PROCESSES          = 50;                  //!< Max processes running (except core procs)
   var SESSION_CHECK          = 5000;                //!< Connection by session check freq
-  var SESSION_KEY            = "PHPSESSID";         //!< The Server session cookie-key
+  var SESSION_KEY            = "osjs_sessionid";    //!< The Server session cookie-key
   var ENV_CACHE              = undefined;           //!< Server-side cache enabled state
   var ENV_PRODUCTION         = undefined;           //!< Server-side production env. state
   var ENV_DEMO               = undefined;           //!< Server-side demo env. state
@@ -3105,14 +3105,12 @@
       if ( !_Connection ) {
         if ( _SessionValid ) {
           if ( !sid || (_SessionId != sid) ) {
-            /* FIXME
             var ico = GetIcon("status/network-error.png", "32x32");
             var title = OSjs.Labels.GlobalOfflineTitle;
             var msg = OSjs.Labels.GlobalOfflineMessage;
             API.application.notification(title, msg, ico);
 
             _SessionValid = false;
-            */
           }
         }
       }
