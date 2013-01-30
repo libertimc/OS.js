@@ -35,8 +35,9 @@
 // IMPORTS
 ///////////////////////////////////////////////////////////////////////////////
 
-var fs = require('fs'),
-    xml2js = require('xml2js');
+var fs        = require('fs'),
+    sprintf   = require('sprintf').sprintf,
+    xml2js    = require('xml2js');
 
 var config = require('../config.js');
 
@@ -138,20 +139,14 @@ function parseList(language, result, callback) {
     }
   }
 
-  // FIXME sort pacckages
-
-  callback(true, packages); // TODO
+  callback(true, packages);
 }
 
 /**
- * getSystemPackages() -- Get installed system packages
- * @param   String    language      Current language
- * @param   Function  callback      Callback function
- * @return  void
+ * _GetPackages() -- Abstract for reading xml package file
  */
-function getSystemPackages(language, callback) {
+function _GetPackages(language, filename, callback) {
   var parser = new xml2js.Parser();
-  var filename = config.PACKAGE_BUILD;
 
   fs.readFile(filename, function(err, data) {
     if ( err ) {
@@ -166,6 +161,28 @@ function getSystemPackages(language, callback) {
       });
     }
   });
+}
+
+/**
+ * getSystemPackages() -- Get installed system packages
+ * @param   String    language      Current language
+ * @param   Function  callback      Callback function
+ * @return  void
+ */
+function getSystemPackages(language, callback) {
+  var filename = config.PACKAGE_BUILD;
+  _GetPackages(language, filename, callback);
+}
+
+/**
+ * getUserPackages() -- Get installed user packages
+ * @param   String    language      Current language
+ * @param   Function  callback      Callback function
+ * @return  void
+ */
+function getUserPackages(username, language, callback) {
+  var filename = sprintf(config.PATH_VFS_PACKAGEMETA, username);
+  _GetPackages(language, filename, callback);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -199,12 +216,26 @@ module.exports =
 
   /**
    * packages::getInstalledUserPackages() -- Get installed user packages
+   * @param   String    username    Username
    * @param   String    language    Current language
    * @param   Function  callback    Callback function
    * @return  void
    */
-  getInstalledUserPackages : function() {
-    // TODO
+  getInstalledUserPackages : function(username, language, callback) {
+    var _finished = function(packages) {
+      callback(true, packages);
+    };
+    var _failed = function(msg) {
+      callback(false, msg);
+    };
+
+    getUserPackages(username, language, function(success, result) {
+      if ( success ) {
+        _finished(result, []);
+      } else {
+        _failed(result);
+      }
+    });
   },
 
   /**
@@ -225,12 +256,16 @@ module.exports =
       callback(false, msg);
     };
 
-    getSystemPackages(user.language, function(success, result) {
-      if ( success ) {
-        _finished(result, []); // FIXME
-      } else {
-        _failed(result);
-      }
+    getUserPackages(user.username, user.language, function(success, user_result) {
+      user_result = success ? (user_result || []) : [];
+
+      getSystemPackages(user.language, function(success, system_result) {
+        if ( success ) {
+          _finished(system_result, user_result);
+        } else {
+          _failed(system_result);
+        }
+      });
     });
   }
 };

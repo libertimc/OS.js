@@ -32,8 +32,6 @@
 "use strict";
 
 /*
- *
- * TODO: Users
  * TODO: User packages
  * TODO: Package managment
  * TODO: WebServices
