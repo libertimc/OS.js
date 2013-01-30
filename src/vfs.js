@@ -25,10 +25,13 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
+ * @link http://nodejs.org/api/fs.html
+ *
  * @author  Anders Evenrud <andersevenrud@gmail.com>
  * @licence Simplified BSD License
  * @created 2013-01-27
  */
+"use strict";
 
 /*
  * TODO: Secure input
@@ -39,7 +42,8 @@ var fs        = require('fs'),
     url       = require('url'),
     walk      = require('walk'),
     sprintf   = require('sprintf').sprintf,
-    sanitize  = require('validator').sanitize;
+    sanitize  = require('validator').sanitize,
+    mime      = require('mime');
 
 var _config = require('../config.js');
 
@@ -51,7 +55,7 @@ var ignore_files = [
   ".", ".gitignore", ".git", ".cvs"
 ];
 
-var icons_mime = {
+var icons_mimetype = {
   "application" : {
     "application/ogg" : {
       "ogv" : "mimetypes/video-x-generic.png",
@@ -105,8 +109,7 @@ var icons_ext = {
   "tar"    : "mimetypes/folder_tar.png",
   "xml"    : "mimetypes/text-x-opml+xml.png",
   "html"   : "mimetypes/text-html.png",
-  "txt"    : "mimetypes/gnome-mime-text.png",
-  "pdf"    : "mimetypes/gnome-mime-application-pdf.png"
+  "txt"    : "mimetypes/gnome-mime-text.png"
 };
 
 var vfs_dirs = {
@@ -196,6 +199,24 @@ var vfs_dirs = {
 // HELPERS
 ///////////////////////////////////////////////////////////////////////////////
 
+function sortObj(object, sortFunc) {
+  if ( !sortFunc ) {
+    sortFunc = function(a, b) {
+      if (a > b) return 1;
+      if (a < b) return -1;
+      return 0;
+    };
+  }
+  var rv = [];
+  for (var k in object) {
+    if (object.hasOwnProperty(k)) rv.push({key: k, value:  object[k]});
+  }
+  rv.sort(function(o1, o2) {
+    return sortFunc(o1.key, o2.key);
+  });
+  return rv;
+}
+
 function mkpath(input) {
   // FIXME Safe
   if ( input.match(/^\/User/) ) {
@@ -214,25 +235,34 @@ function is_protected(input) {
   return true;
 }
 
-function get_icon(filename, mime) {
+function get_icon(filename, mimetype) {
   if ( filename ) {
-    if ( mime ) {
-      if ( icons_mime[mime] ) {
-        return icons_mime[mime];
+    if ( mimetype ) {
+      if ( icons_mimetype[mimetype] ) {
+        return icons_mimetype[mimetype];
       }
 
-      var msplit = mime.split("/");
-      if ( msplit.length && icons_mime[msplit[0]] ) {
-        if ( typeof icons_mime[msplit[0]] == 'object' ) {
-          if ( (msplit.length > 1) && icons_mime[msplit[0]][msplit[1]] ) {
-            return icons_mime[msplit[0]][msplit[1]];
+      var msplit = mimetype.split("/");
+      if ( msplit.length && icons_mimetype[msplit[0]] ) {
+        if ( typeof icons_mimetype[msplit[0]] == 'object' ) {
+          if ( (msplit.length > 1) && icons_mimetype[msplit[0]][msplit[1]] ) {
+            return icons_mimetype[msplit[0]][msplit[1]];
           } else {
-            return icons_mime[msplit[0]]['_'];
+            if ( icons_mimetype[msplit[0]]['_'] ) {
+              return icons_mimetype[msplit[0]]['_'];
+            }
           }
         } else {
-          return icons_mime[msplit[0]];
+          return icons_mimetype[msplit[0]];
         }
       }
+
+      /*var mext = mime.extension(mimetype);
+      if ( mext ) {
+        if ( icons_ext[mext] ) {
+          return icons_ext[mext];
+        }
+      }*/
     }
 
     if ( filename.match(/\.([A-z]{2,4})$/) ) {
@@ -268,84 +298,91 @@ function in_array(element, array, cmp) {
 
 function _ls(args, callback) {
   var path = mkpath(args);
+  console.log("_ls", path);
 
-  var files  = {
-    ".." : {
-      path        : path,
+  var tree  = {
+    dirs : {},
+    files : {}
+  };
+
+  if ( args != "/" ) {
+    var parentdir = args.split('/');
+    if ( parentdir.length > 1 ) {
+      parentdir.pop();
+      parentdir = parentdir.join('/') || "/";
+    } else {
+      parentdir = "/";
+    }
+
+    tree.dirs[".."] = {
+      path        : parentdir,
       size        : 0,
-      mime        : null,
+      mime        : '',
       icon        : 'status/folder-visiting.png',
       type        : 'dir',
       'protected' : 1
+    };
+  }
+
+  var __callback = function() {
+    var i, result = {};
+    var dirs = sortObj(tree.dirs);
+    var files = sortObj(tree.files);
+
+    for ( i = 0; i < dirs.length; i++ ) {
+      result[dirs[i].key] = dirs[i].value;
     }
+    for ( i = 0; i < files.length; i++ ) {
+      result[files[i].key] = files[i].value;
+    }
+
+    callback(true, result);
   };
 
-  var walker = walk.walk(path); //, { followLinks: false });
-
-  walker.on('file', function(root, stat, next) {
-    try {
-      if ( !in_array(stat.name, ignore_files) ) {
-        files[stat.name] = {
-          path         : args + '/' + stat.name,
-          size         : stat.size,
-          mime         : "todo/todo", // FIXME
-          icon         : get_icon(stat.name, "todo/todo"), // FIXME
-          type         : "file",
-          'protected'  : is_protected(root) ? 1 : 0
-        };
-      }
-    } catch ( e ) {
-      console.error("walker.on(file)", e);
+  fs.readdir(path, function(err, files) {
+    if ( err ) {
+      callback(false, err);
+      return;
     }
 
-    next();
-  });
+    var list = files;
+    var __next = function() {
+      if ( list.length ) {
+        var iter  = list.pop();
+        var fname = path + '/' + iter;
+        var froot = args;
+        var fpath = args + '/' + iter;
 
-  walker.on('symlink', function(symlink, stat, next) {
-    try {
-      if ( !in_array(stat.name, ignore_files) ) {
-        files[stat.name] = {
-          path         : args + '/' + stat.name,
-          size         : stat.size,
-          mime         : "todo/todo", // FIXME
-          icon         : get_icon(stat.name, "todo/todo"), // FIXME
-          type         : "file",
-          'protected'  : is_protected(symlink) ? 1 : 0
-        };
+        fs.stat(fname, function(err, stats) {
+          if ( !err && stats ) {
+            var fmime = mime.lookup(fname);
+            var fiter = {
+              path         : froot,
+              size         : stats.size,
+              mime         : fmime,
+              icon         : get_icon(iter, fmime),
+              type         : 'file',
+              'protected'  : is_protected(fpath) ? 1 : 0
+            };
+
+            if ( stats.isDirectory() ) {
+              tree.dirs[iter] = fiter;
+            } else {
+              tree.files[iter] = fiter;
+            }
+          }
+
+          __next();
+        });
+        return;
       }
-    } catch ( e ) {
-      console.error("walker.on(symlink)", e);
-    }
 
-    next();
-  });
+      __callback();
+    };
 
-  walker.on('dir', function(dir, stat, next) {
-    try {
-      if ( !in_array(stat.name, ignore_files) ) {
-        files[stat.name] = {
-          path         : args + '/' + stat.name,
-          size         : stat.size,
-          mime         : "",
-          icon         : 'status/folder-visiting.png',
-          type         : "dir",
-          'protected'  : is_protected(dir) ? 1 : 0
-        };
-      }
-    } catch ( e ) {
-      console.error("walker.on(dir)", e);
-    }
+    __next();
+  }); // readdir
 
-    next();
-  });
-
-  /*walker.on('error', function(er, entry, stat) {
-    console.error("_ls error:", er, entry, stat);
-  });*/
-
-  walker.on('end', function() {
-    callback(true, files);
-  });
 }
 
 function _cat(filename, callback) {
@@ -473,8 +510,8 @@ module.exports =
                 name        : sanitize(f).entityEncode(),
                 path        : iter.path,
                 size        : iter.size,
-                hsize       : iter.size + "b", // FIXME
-                'protected' : is_protected(iter.path) ? 1 : 0
+                hsize       : sprintf("%d%s", iter.size, "b"), // FIXME
+                'protected' : iter['protected']
             });
           }
         }
@@ -483,7 +520,7 @@ module.exports =
           items : ls_items,
           total : ls_items.length,
           bytes : ls_bytes,
-          path  : ls_path
+          path  : ls_path == '/User/Documents' ? 'Home' : ls_path
         };
 
         callback(true, data);

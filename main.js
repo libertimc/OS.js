@@ -29,6 +29,7 @@
  * @licence Simplified BSD License
  * @created 2013-01-27
  */
+"use strict";
 
 /*
  *

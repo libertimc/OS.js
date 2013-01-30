@@ -4,7 +4,7 @@ This has only been tested on these Linux distributions:
 
 # Backend Dependencies:
 
-* Node.js with modules `xml2js sprintf express swig walk (node-)validator`
+* Node.js with modules `xml2js sprintf express swig validator mime`
 * 'exiftool'  
   Debian users: `apt-get install exiftool`  
   Gentoo users: `emerge exiftool`  
