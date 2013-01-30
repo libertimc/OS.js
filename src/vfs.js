@@ -519,6 +519,49 @@ function _put(args, callback) {
   });
 }
 
+function fileinfo(filename, callback) {
+  var path = mkpath(filename);
+
+  fs.exists(path, function(ex) {
+    if ( ex ) {
+
+      fs.stat(fname, function(err, stats) {
+        if ( err ) {
+          callback(false, err);
+        } else {
+          if ( !stats.isDirectory() ) {
+            var media_info;
+            var fmime = mime.lookup(path) || null;
+
+            switch ( fmime.split("/").shift() ) {
+              case 'image' :
+              case 'video' :
+              case 'audio' :
+                media_info = {};
+              break;
+              default :
+                media_info = null;
+              break;
+            }
+
+            callback(true, {
+              filename  : basename(filename),
+              path      : dirname(filename),
+              size      : stats.size || 0,
+              mime      : fmime,
+              info      : media_info
+            });
+          } else {
+            callback(false, "Cannot stat a directory!");
+          }
+        }
+      });
+    } else {
+      callback(false, "File does not exist!");
+    }
+  });
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // EXPORTS
 ///////////////////////////////////////////////////////////////////////////////
@@ -541,6 +584,9 @@ module.exports =
   copy      : _cp,
   put       : _put,
   write     : _put,
+
+  file_info : fileinfo,
+  fileinfo  : fileinfo,
 
   // preview
   // file_info
