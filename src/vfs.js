@@ -349,31 +349,36 @@ function _ls(args, callback) {
     var __next = function() {
       if ( list.length ) {
         var iter  = list.pop();
-        var fname = path + '/' + iter;
-        var froot = args;
-        var fpath = args + '/' + iter;
 
-        fs.stat(fname, function(err, stats) {
-          if ( !err && stats ) {
-            var fmime = mime.lookup(fname);
-            var fiter = {
-              path         : froot,
-              size         : stats.size,
-              mime         : fmime,
-              icon         : get_icon(iter, fmime),
-              type         : 'file',
-              'protected'  : is_protected(fpath) ? 1 : 0
-            };
-
-            if ( stats.isDirectory() ) {
-              tree.dirs[iter] = fiter;
-            } else {
-              tree.files[iter] = fiter;
-            }
-          }
-
+        if ( in_array(iter, ignore_files) ) {
           __next();
-        });
+        } else {
+          var fname = path + '/' + iter;
+          var froot = args;
+          var fpath = args + '/' + iter;
+
+          fs.stat(fname, function(err, stats) {
+            if ( !err && stats ) {
+              var fmime = mime.lookup(fname);
+              var fiter = {
+                path         : froot,
+                size         : stats.size,
+                mime         : fmime,
+                icon         : get_icon(iter, fmime),
+                type         : 'file',
+                'protected'  : is_protected(fpath) ? 1 : 0
+              };
+
+              if ( stats.isDirectory() ) {
+                tree.dirs[iter] = fiter;
+              } else {
+                tree.files[iter] = fiter;
+              }
+            }
+
+            __next();
+          });
+        }
         return;
       }
 
@@ -440,6 +445,7 @@ function _touch(filename, callback) {
 }
 
 function _rm(name, callback) {
+  // FIXME: Recursive
   var path = mkpath(name);
 
   _exists(path, function(sucess, result) {
@@ -453,6 +459,41 @@ function _rm(name, callback) {
       });
     } else {
       callback(true, false);
+    }
+  });
+}
+
+function _mv(args, callback) {
+  var src = mkpath(args.source);
+  var dst = mkpath(args.destination);
+
+  console.log("_mv", src, '->', dst);
+
+  fs.exists(dst, function(ex) {
+    if ( ex ) {
+      callback(false, 'Destination already exists!');
+    } else {
+      fs.rename(src, dst, function(err) {
+        callback(err ? false : true, err ? err : true);
+      });
+    }
+  });
+}
+
+function _cp(args, callback) {
+  // FIXME: Recursive
+  var src = mkpath(args.source);
+  var dst = mkpath(args.destination);
+
+  console.log("_cp", src, '->', dst);
+
+  fs.exists(dst, function(ex) {
+    if ( ex ) {
+      callback(false, 'Destination already exists!');
+    } else {
+      fs.rename(src, dst, function(err) {
+        callback(err ? false : true, err ? err : true);
+      });
     }
   });
 }
@@ -473,17 +514,17 @@ module.exports =
   touch     : _touch,
   'delete'  : _rm,
   rm        : _rm,
+  mv        : _mv,
+  rename    : _mv,
+  cp        : _cp,
+  copy      : _cp,
 
   // preview
-  // rename
-  // mv
   // put
   // write
   // file_info
   // fileinfo
   // readpdf
-  // cp
-  // copy
   // upload
   // ls_archive
   // extract_archive
