@@ -157,7 +157,7 @@ var _defaults = {
   "user.env.home" : {
     // Home directory
     "type"    : "string",
-    "value"   : "/User/Documents"
+    "value"   : "/User"
   },
 
   "user.session.confirm" : {

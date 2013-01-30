@@ -78,7 +78,7 @@ module.exports =
   MINIMIZE_CACHE      : path.join(__dirname, "src/build/minimize.cache"),
   FONT_CACHE          : path.join(__dirname, "src/build/fontcache.xml"),
   PACKAGE_BUILD       : path.join(__dirname, "src/build/packages.xml"),
-  PACKAGE_USER_BUILD  : path.join(__dirname, "VFS/%d/packages.xml"),
+  PACKAGE_USER_BUILD  : '/home/%s/.osjs/packages.xml',
   MIME_MAGIC          : path.join(__dirname, "vendor/mime.mgc"),
   VFS_TEMPLATE        : path.join(__dirname, "src/templates/vfs-user"),
 
@@ -101,9 +101,9 @@ module.exports =
   PATH_PUBLIC         : path.join(__dirname, 'public_html'),
   PATH_MEDIA          : path.join(__dirname, 'public_html/media'),
 
-  PATH_VFS            : path.join(__dirname, 'VFS'),
-  PATH_VFS_USER       : path.join(__dirname, 'VFS/%d'),
-  PATH_VFS_PACKAGES   : path.join(__dirname, 'VFS/%d/Packages'),
+  PATH_VFS            : '/home',
+  PATH_VFS_USER       : '/home/%s',
+  PATH_VFS_PACKAGES   : '/home/%s/.osjs/packages',
 
   URI_FONT            : '/media/System/Fonts'
 };

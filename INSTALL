@@ -4,7 +4,7 @@ This has only been tested on these Linux distributions:
 
 # Backend Dependencies:
 
-* Node.js with modules `xml2js sprintf express swig validator mime`
+* Node.js with modules (see `package.json`)
 * 'exiftool'  
   Debian users: `apt-get install exiftool`  
   Gentoo users: `emerge exiftool`  
@@ -39,7 +39,7 @@ This has only been tested on these Linux distributions:
 
 * Clone OS.js from Github (Use recursive clone or pull submodules after clone)
 * Set up `config.js`
-* Start Node.js server on 'main.js'
+* Run `npm install`
 
 ## Frontend Dependencies
 * Download **jQuery** (1.7.1 by default)  
@@ -61,9 +61,10 @@ This has only been tested on these Linux distributions:
   - Set 'COMPRESSOR' to 'gcc' in `config.js`
 
 ## Extras
-Needs the packages submodule
+* Make sure you got all the latest submodules
 * Compile all applications with `./bin/compile-all`  
 * Install all applications globally with `./bin/install-all`
+* Run `node main.js`
 
 ## Finishing steps
 * If you're in a production environment or doing testing procedures run `./bin/update-compression` to compress all scripts etc. (Optional)

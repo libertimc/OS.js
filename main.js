@@ -143,16 +143,6 @@ function generateIndex(req, res) {
   res.render('index', opts);
 }
 
-function mkpath(input) {
-  // FIXME Safe
-  if ( input.match(/^\/User/) ) {
-    var uid = 1; // FIXME
-    return sprintf(_config.PATH_VFS_USER, uid) + input.replace(/^\/User/, '');
-  }
-
-  return (_config.PATH_MEDIA + input);
-}
-
 
 ///////////////////////////////////////////////////////////////////////////////
 // CONFIGURATION
@@ -572,14 +562,14 @@ app.configure(function() {
   //app.get('/media/User/:filename', function(req, res) {
   app.get(/^\/media\/User\/(.*)/, function(req, res) {
     var filename = req.params[0];
-    var path = mkpath(filename);
+    var path = _vfs.mkpath('/User/' + filename);
     res.sendfile(path);
   });
 
   //app.get('/media-download/User/:filename', function(req, res) {
   app.get(/^\/media-download\/User\/(.*)/, function(req, res) {
     var filename = req.params[0];
-    var path = mkpath(filename);
+    var path = _vfs.mkpath('/User/' + filename);
     res.download(path);
   });
 

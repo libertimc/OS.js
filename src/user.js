@@ -32,19 +32,20 @@
 "use strict";
 
 var fs         = require('fs'),
-    sprintf    = require('sprintf').sprintf;
+    sprintf    = require('sprintf').sprintf,
+    pam        = require('authenticate-pam');
 
 var config     = require('../config.js');
 
 // Temporary stuff FIXME
 var _defaultLang = "en_US";
 var _defaultUser = {
-  uid       : 1,
+  uid       : -1,
   sid       : '',
   lock      : false,
   language  : _defaultLang,
   info      : {
-    "User ID"       : 1,
+    "User ID"       : -1,
     "Username"      : "nodejs",
     "Name"          : "Node.js user",
     "Groups"        : ["root"],
@@ -63,11 +64,19 @@ var _defaultUser = {
 module.exports =
 {
   login  : function(username, password, callback) {
-    if ( username == "test" && password == "test" ) {
-      callback(true, _defaultUser);
-    } else {
-      callback(false, "Invalid username or password!");
-    }
+    pam.authenticate(username, password, function(err) {
+      if ( err ) {
+        //callback(false, err);
+        callback(false, "Failed to log in!");
+      } else {
+        var user = _defaultUser;
+        user.info.username  = username;
+        user.info.name      = username;
+        user.info.groups    = [username];
+
+        callback(true, user);
+      }
+    });
   },
 
   resume : function(user, _callback) {

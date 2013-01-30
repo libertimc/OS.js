@@ -19,11 +19,12 @@
   },
 
   "dependencies": {
-    "xml2js"      : "0.2.2",
-    "sprintf"     : "0.1.1",
-    "express"     : "3.1.0",
-    "swig"        : "0.13.4",
-    "validator"   : "0.4.22",
-    "mime"        : "1.2.9"
+    "xml2js"            : "0.2.2",
+    "sprintf"           : "0.1.1",
+    "express"           : "3.1.0",
+    "swig"              : "0.13.4",
+    "validator"         : "0.4.22",
+    "mime"              : "1.2.9",
+    "authenticate-pam"  : "0.1.2"
   }
 }

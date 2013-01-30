@@ -153,31 +153,6 @@ var vfs_dirs = {
     "attr" : _config.VFS_ATTR_READ,
     "icon" : "places/folder-templates.png"
   },
-  "/User/Temp" : {
-    "type" : "user",
-    "attr" : _config.VFS_ATTR_RW,
-    "icon" : "places/folder-templates.png"
-  },
-  "/User/Packages" : {
-    "type" : "user_packages",
-    "attr" : _config.VFS_ATTR_RS,
-    "icon" : "places/folder-download.png"
-  },
-  "/User/Documents" : {
-    "type" : "user",
-    "attr" : _config.VFS_ATTR_RW,
-    "icon" : "places/folder-documents.png"
-  },
-  "/User/WebStorage" : {
-    "type" : "vfs",
-    "attr" : _config.VFS_ATTR_READ, // Browser overrides this
-    "icon" : "places/folder-documents.png"
-  },
-  "/User/Desktop" : {
-    "type" : "user",
-    "attr" : _config.VFS_ATTR_RW,
-    "icon" : "places/user-desktop.png"
-  },
   "/User" : {
     "type" : "chroot",
     "attr" : _config.VFS_ATTR_READ,
@@ -220,8 +195,8 @@ function sortObj(object, sortFunc) {
 function mkpath(input) {
   // FIXME Safe
   if ( input.match(/^\/User/) ) {
-    var uid = 1; // FIXME
-    return sprintf(_config.PATH_VFS_USER, uid) + input.replace(/^\/User/, '');
+    var username = "anti-s";
+    return sprintf(_config.PATH_VFS_USER, username) + input.replace(/^\/User/, '');
   }
 
   return (_config.PATH_MEDIA + input);
@@ -355,21 +330,22 @@ function _ls(args, callback) {
         } else {
           var fname = path + '/' + iter;
           var froot = args;
-          var fpath = args + '/' + iter;
+          var fpath = args == "/" ? ('/' + iter) : (args + '/' + iter);
 
           fs.stat(fname, function(err, stats) {
             if ( !err && stats ) {
               var fmime = mime.lookup(fname);
+              var isdir = stats.isDirectory();
               var fiter = {
-                path         : froot,
+                path         : fpath,
                 size         : stats.size,
                 mime         : fmime,
-                icon         : get_icon(iter, fmime),
-                type         : 'file',
+                icon         : isdir ? "places/folder.png" : get_icon(iter, fmime),
+                type         : isdir ? 'dir' : 'file',
                 'protected'  : is_protected(fpath) ? 1 : 0
               };
 
-              if ( stats.isDirectory() ) {
+              if ( isdir ) {
                 tree.dirs[iter] = fiter;
               } else {
                 tree.files[iter] = fiter;
@@ -429,9 +405,9 @@ function _mkdir(name, callback) {
 function _touch(filename, callback) {
   var path = mkpath(filename);
 
-  _exists(path, function(sucess, result) {
-    if ( success ) {
-      callback(true, false);
+  fs.exists(path, function(ex) {
+    if ( ex ) {
+      callback(false, "File exists!");
     } else {
       fs.writeFile(path, "", function(err) {
         if ( err ) {
@@ -448,8 +424,10 @@ function _rm(name, callback) {
   // FIXME: Recursive
   var path = mkpath(name);
 
-  _exists(path, function(sucess, result) {
-    if ( success ) {
+  fs.exists(path, function(ex) {
+    if ( ex ) {
+      callback(false, "File exists!");
+    } else {
       fs.unlink(path, function(err) {
         if ( err ) {
           callback(false, err);
@@ -457,8 +435,6 @@ function _rm(name, callback) {
           callback(true, true);
         }
       });
-    } else {
-      callback(true, false);
     }
   });
 }
@@ -562,6 +538,12 @@ function fileinfo(filename, callback) {
   });
 }
 
+function basename(path) {
+  var spl = path.split('/');
+  spl.pop();
+  return spl.join('/');
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // EXPORTS
 ///////////////////////////////////////////////////////////////////////////////
@@ -597,6 +579,9 @@ module.exports =
   // extract_archive
 
   // Wrappers
+
+  mkpath : mkpath,
+
   lswrap  : function(args, callback) {
     _ls(args.path, function(success, result) {
       if ( success ) {
@@ -628,7 +613,7 @@ module.exports =
           items : ls_items,
           total : ls_items.length,
           bytes : ls_bytes,
-          path  : ls_path == '/User/Documents' ? 'Home' : ls_path
+          path  : ls_path == '/User' ? 'Home' : ls_path
         };
 
         callback(true, data);
