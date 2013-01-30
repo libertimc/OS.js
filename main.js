@@ -258,7 +258,6 @@ app.configure(function() {
 
             req.session.user      = user;
             req.session.user.sid  = req.sessionID;
-            req.session.user.lock = true;
           };
 
           var _failure = function(msg) {
@@ -291,7 +290,6 @@ app.configure(function() {
 
             _user.login(username, password, function(success, data) {
               if ( success ) {
-                data.lock = false;
                 _proceed(data);
               } else {
                 _failure(data || "Failed to log in!");
@@ -328,8 +326,10 @@ app.configure(function() {
           defaultJSONResponse(req, res);
         break;
 
-        case 'settings' : // TODO
-          defaultJSONResponse(req, res);
+        case 'settings' :
+          _user.store(req.session.user, jsn.registry, null, function(err) {
+            res.json(200, {success: err ? false : true, result: err ? err : true});
+          });
         break;
 
         case 'user' : // TODO

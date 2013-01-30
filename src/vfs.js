@@ -201,7 +201,7 @@ function is_protected(input) {
 }
 
 function get_icon(filename, mimetype) {
-  if ( filename ) {
+  if ( typeof filename == 'string' ) {
     if ( mimetype ) {
       if ( icons_mimetype[mimetype] ) {
         return icons_mimetype[mimetype];
@@ -275,6 +275,22 @@ function mkpath(user, input) {
   return (_config.PATH_MEDIA + input);
 }
 
+function checkMIME(needle, haystack) {
+  var i = 0, l = haystack.length, x;
+  for ( i; i < l; i++ ) {
+    x = haystack[i];
+    if ( x.match(/\/\*/) ) {
+      if ( needle.split("/")[0] == x.split("/")[0] ) {
+        return true;
+      }
+    } else {
+      if ( needle == x )
+        return true;
+    }
+  }
+  return false;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // FS WRAPPERS
 ///////////////////////////////////////////////////////////////////////////////
@@ -284,12 +300,14 @@ var VFS = function(user) {
 };
 
 VFS.prototype = {
-  ls : function(args, callback) {
+  ls : function(args, mime_filter, callback) {
+    mime_filter = mime_filter || [];
+
     var path = mkpath(this.user, args);
     console.log("_ls", path);
 
     var tree  = {
-      dirs : {},
+      dirs  : {},
       files : {}
     };
 
@@ -344,10 +362,15 @@ VFS.prototype = {
             var fname = path + '/' + iter;
             var froot = args;
             var fpath = args == "/" ? ('/' + iter) : (args + '/' + iter);
+            var fmime = mime.lookup(fname);
+
+            if ( mime_filter.length && !checkMIME(fmime, mime_filter) ) {
+              __next();
+              return;
+            }
 
             fs.stat(fname, function(err, stats) {
               if ( !err && stats ) {
-                var fmime = mime.lookup(fname);
                 var isdir = stats.isDirectory();
                 var fiter = {
                   path         : fpath,
@@ -488,8 +511,7 @@ VFS.prototype = {
 
     fs.exists(path, function(ex) {
       if ( ex ) {
-
-        fs.stat(fname, function(err, stats) {
+        fs.stat(path, function(err, stats) {
           if ( err ) {
             callback(false, err);
           } else {
@@ -529,8 +551,8 @@ VFS.prototype = {
   //
   // Wrappers
   //
-  lswrap  : function(path, callback) {
-    this.ls(path, function(success, result) {
+  lswrap  : function(path, mime_filter, view, sort, callback) {
+    this.ls(path, mime_filter, function(success, result) {
       if ( success ) {
         var ls_items = [];
         var ls_bytes = 0;
@@ -614,7 +636,11 @@ module.exports =
     switch ( method ) {
       case 'ls'       :
       case 'readdir'  :
-        v.ls(args, callback);
+        if ( typeof args == 'string' ) {
+          v.ls(args, null, callback);
+        } else {
+          v.ls(args.path, args.mime, callback);
+        }
       break;
 
       case 'cat'      :
@@ -664,7 +690,7 @@ module.exports =
       break;
 
       case 'lswrap' :
-        v.lswrap(args.path, callback);
+        v.lswrap(args.path, args.mime, args.view, args.sort, callback);
       break;
 
 

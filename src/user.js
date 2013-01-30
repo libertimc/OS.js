@@ -33,7 +33,8 @@
 
 var fs         = require('fs'),
     sprintf    = require('sprintf').sprintf,
-    pam        = require('authenticate-pam');
+    pam        = require('authenticate-pam'),
+    xml2js     = require('xml2js');
 
 var config     = require('../config.js');
 
@@ -47,17 +48,11 @@ var _defaultUser = {
   username  : "nodejs",
   groups    : ["nodejs"],
   info      : {
-    "User ID"       : -1,
-    "Username"      : "nodejs",
-    "Name"          : "Node.js user",
-    "Groups"        : ["nodejs"],
-    "Registered"    : "2013-01-01 00:00:00",
-    "Last Modified" : "2013-01-01 00:00:00",
-    "Last Login"    : "2013-01-01 00:00:00",
-    "Browser"       : {
-      "platform"  : "Platform info",
-      "engine"    : "Engine info",
-      "version"   : "Version info"
+    name        : "Node.js user",
+    browser     : {
+      platform    : "Platform info",
+      engine      : "Engine info",
+      version     : "Version info"
     }
   }
 };
@@ -68,24 +63,77 @@ module.exports =
   login  : function(username, password, callback) {
     pam.authenticate(username, password, function(err) {
       if ( err ) {
-        //callback(false, err);
         callback(false, "Failed to log in!");
       } else {
-        var user = _defaultUser;
-        user.info.username  = username;
-        user.info.name      = username;
-        user.info.groups    = [username];
-        user.username       = username;
-        user.groups         = [username];
 
-        callback(true, user);
-      }
+        // Read user info
+        var ipath = sprintf(config.PATH_VFS_USERMETA, username);
+        fs.readFile(ipath, function(err, data) {
+          var info = null;
+
+          if ( !err ) {
+            var parser = new xml2js.Parser();
+            parser.parseString(data, function (err, doc) {
+              console.log(doc);
+
+              if ( !err ) {
+                var node = doc.user.property;
+                info = {};
+                for ( var i = 0; i < node.length; i++ ) {
+                  info[node[i]['$'].name] = node[i]['_'];
+                }
+
+                info.browser = {};
+              }
+            });
+          }
+
+          var user = _defaultUser;
+          user.username  = username;
+          user.groups    = [username];
+          user.lock      = false;
+          user.info      = info || user.info;
+
+          user.info.browser.platform = "Platform";
+          user.info.browser.engine   = "Engine";
+          user.info.browser.version  = "Version";
+
+          // Lock session
+          var lpath = sprintf(config.PATH_VFS_LOCK, user.username);
+          fs.exists(lpath, function(ex) {
+            if ( ex ) {
+              user.lock = true;
+              callback(true, user);
+              return;
+            }
+
+            fs.writeFile(lpath, (new Date()).toString(), function(err) {
+              callback(true, user);
+            });
+          });
+
+        });
+      } // if
+    });
+  },
+
+  logout : function(user, registry, session, save, duration, _callback) {
+    if ( !save ) {
+      session = {};
+    }
+
+    this.store(user, registry, session, function() {
+      // Remove session lock
+      var lpath = sprintf(config.PATH_VFS_LOCK, user.username);
+      fs.unlink(lpath, function(err) {
+        _callback(err);
+      });
     });
   },
 
   resume : function(user, _callback) {
     var _loadRegistry = function(callback) {
-      var path = sprintf(config.PATH_VFS_USER, user.uid) + '/.registry.osjs';
+      var path = sprintf(config.PATH_VFS_LAST_REGISTRY, user.username);
       fs.readFile(path, function(err, data) {
         if ( err ) {
           callback(false);
@@ -101,7 +149,7 @@ module.exports =
     };
 
     var _loadSession = function(callback) {
-      var path = sprintf(config.PATH_VFS_USER, user.uid) + '/.session.osjs';
+      var path = sprintf(config.PATH_VFS_LAST_SESSION, user.username);
       fs.readFile(path, function(err, data) {
         if ( err ) {
           callback(false);
@@ -123,28 +171,32 @@ module.exports =
     });
   },
 
-  logout : function(user, registry, session, save, duration, _callback) {
-    if ( !save ) {
-      session = {};
-    }
-
-    var _saveRegistry = function(callback) {
-      var path = sprintf(config.PATH_VFS_USER, user.uid) + '/.registry.osjs';
-      fs.writeFile(path, JSON.stringify(registry), function(err) {
-        callback(err);
-      });
+  store : function(user, registry, session, callback) {
+    var _saveRegistry = function(clb) {
+      if ( registry === null ) {
+        clb(null);
+      } else {
+        var path = sprintf(config.PATH_VFS_LAST_REGISTRY, user.username);
+        fs.writeFile(path, JSON.stringify(registry), function(err) {
+          clb(err);
+        });
+      }
     };
 
-    var _saveSession = function(callback) {
-      var path = sprintf(config.PATH_VFS_USER, user.uid) + '/.session.osjs';
-      fs.writeFile(path, JSON.stringify(session), function(err) {
-        callback(err);
-      });
+    var _saveSession = function(clb) {
+      if ( session === null ) {
+        clb(null);
+      } else {
+        var path = sprintf(config.PATH_VFS_LAST_SESSION, user.username);
+        fs.writeFile(path, JSON.stringify(session), function(err) {
+          clb(err);
+        });
+      }
     };
 
     _saveRegistry(function() {
       _saveSession(function() {
-        _callback();
+        callback();
       });
     });
   }

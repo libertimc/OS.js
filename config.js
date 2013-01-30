@@ -78,11 +78,7 @@ module.exports =
   MINIMIZE_CACHE      : path.join(__dirname, "src/build/minimize.cache"),
   FONT_CACHE          : path.join(__dirname, "src/build/fontcache.xml"),
   PACKAGE_BUILD       : path.join(__dirname, "src/build/packages.xml"),
-  PACKAGE_USER_BUILD  : '/home/%s/.osjs/packages.xml',
   MIME_MAGIC          : path.join(__dirname, "vendor/mime.mgc"),
-  VFS_TEMPLATE        : path.join(__dirname, "src/templates/vfs-user"),
-
-  VFS_MKDIR_PERM      : '0777',
 
   //
   // Paths
@@ -101,10 +97,26 @@ module.exports =
   PATH_PUBLIC         : path.join(__dirname, 'public_html'),
   PATH_MEDIA          : path.join(__dirname, 'public_html/media'),
 
-  PATH_VFS            : '/home',
-  PATH_VFS_USER       : '/home/%s',
-  PATH_VFS_PACKAGES   : '/home/%s/.osjs/packages',
+  //
+  // URIs
+  //
+  URI_FONT              : '/media/System/Fonts',
 
-  URI_FONT            : '/media/System/Fonts'
+  //
+  // VFS
+  //
+  PATH_VFS                : '/home',
+  PATH_VFS_USER           : '/home/%s',
+  PATH_VFS_PACKAGES       : '/home/%s/.osjs/packages',
+  PATH_VFS_PACKAGEMETA    : '/home/%s/.osjs/packages.xml',
+  PATH_VFS_LAST_REGISTRY  : '/home/%s/.osjs/last-registry.json',
+  PATH_VFS_LAST_SESSION   : '/home/%s/.osjs/last-session.json',
+  PATH_VFS_USERMETA       : '/home/%s/.osjs/user.xml',
+  PATH_VFS_TEMP           : '/home/%s/.osjs/temp',
+  PATH_VFS_LOCK           : '/home/%s/.osjs/lock',
+
+  VFS_TEMPLATE            : path.join(__dirname, "src/templates/vfs-user"),
+  VFS_MKDIR_PERM          : '0777'
+
 };
 
