@@ -43,7 +43,8 @@ var fs        = require('fs'),
     sprintf   = require('sprintf').sprintf,
     sanitize  = require('validator').sanitize,
     mime      = require('mime'),
-    util      = require('util');
+    util      = require('util'),
+    im        = require('imagemagick');
 
 var _config   = require('../config.js'),
     _packages = require(_config.PATH_SRC + '/packages.js');
@@ -52,12 +53,21 @@ var _config   = require('../config.js'),
 // CONFIGS
 ///////////////////////////////////////////////////////////////////////////////
 
+/**
+ * @var Files to ingnore in listings
+ */
 var ignore_files = [
   ".", ".gitignore", ".git", ".cvs"
 ];
 
+/**
+ * @var Default file icon
+ */
 var icon_default = 'emblems/emblem-unreadable.png';
 
+/**
+ * @var Icons mapping: MIME type
+ */
 var icons_mime = {
   "application/pdf"       : "mimetypes/gnome-mime-application-pdf.png",
   "application/x-dosexec" : "mimetypes/binary.png",
@@ -72,6 +82,9 @@ var icons_mime = {
   "text/plain"            : "mimetypes/gnome-mime-text.png"
 };
 
+/**
+ * @var Icons mapping: MIME category
+ */
 var icons_category = {
   "application" : "mimetypes/binary.png",
   "image"       : "mimetypes/image-x-generic.png",
@@ -79,6 +92,9 @@ var icons_category = {
   "text"        : "mimetypes/text-x-generic.png"
 };
 
+/**
+ * @var Icons mapping: File extension
+ */
 var icons_ext = {
   "pdf"    : "mimetypes/gnome-mime-application-pdf.png",
   "mp3"    : "mimetypes/audio-x-generic.png",
@@ -108,24 +124,13 @@ var icons_ext = {
   "tgz"    : "mimetypes/folder_tar.png",
   "xml"    : "mimetypes/text-x-opml+xml.png",
   "html"   : "mimetypes/text-html.png",
-  "txt"    : "mimetypes/gnome-mime-text.png"
+  "txt"    : "mimetypes/gnome-mime-text.png",
+  "m3u"    : "application/x-winamp-playlist"
 };
 
-/*var icons_static = {
-  "application/octet-stream" : {
-    "webm"  : "video/webm",
-    "ogv"   : "video/ogg",
-    "ogg"   : "video/ogg"
-  },
-  "application/ogg" : {
-    "ogv"   : "video/ogg",
-    "ogg"   : "video/ogg"
-  },
-  "text/plain" : {
-    "m3u"   : "application/x-winamp-playlist"
-  }
-};*/
-
+/**
+ * @var Virtual directories
+ */
 var vfs_dirs = {
   "/System/Packages" : {
     "type" : "system_packages",
@@ -305,11 +310,23 @@ function checkMIME(needle, haystack) {
 // FS WRAPPERS
 ///////////////////////////////////////////////////////////////////////////////
 
+/**
+ * VFS -- Virtual Filesystem helper library
+ * @class
+ */
 var VFS = function(user) {
   this.user = user;
 };
 
-VFS.prototype = {
+VFS.prototype =
+{
+  /**
+   * VFS::ls() -- List directory
+   * @param   String    args          Path
+   * @param   Array     mime_filter   MIME Filter
+   * @param   Function  callback      Callback function
+   * @return  void
+   */
   ls : function(args, mime_filter, callback) {
     mime_filter = mime_filter || [];
 
@@ -444,6 +461,13 @@ VFS.prototype = {
     }); // readdir
   },
 
+  /**
+   * VFS::cat() -- Get file(s) content
+   * FIXME: Multiples
+   * @param   String    filename      Source Filename/path
+   * @param   Function  callback      Callback function
+   * @return  void
+   */
   cat : function(filename, callback) {
     fs.readFile(mkpath(this.user, filename), function(err, data) {
       if ( err ) {
@@ -454,6 +478,12 @@ VFS.prototype = {
     });
   },
 
+  /**
+   * VFS::exist() -- Check if a file exists
+   * @param   String    filename      Source Filename/path
+   * @param   Function  callback      Callback function
+   * @return  void
+   */
   exists : function(filename, callback) {
     fs.exists(mkpath(this.user, filename), function(ex) {
       if ( ex ) {
@@ -464,6 +494,12 @@ VFS.prototype = {
     });
   },
 
+  /**
+   * VFS::mkdir() -- Create a new directory
+   * @param   String    name          Source Filename/path
+   * @param   Function  callback      Callback function
+   * @return  void
+   */
   mkdir : function(name, callback) {
     fs.mkdir(mkpath(this.user, name), _config.VFS_MKDIR_PERM, function(err) {
       if ( err ) {
@@ -474,6 +510,12 @@ VFS.prototype = {
     });
   },
 
+  /**
+   * VFS::touch() -- Create a new file
+   * @param   String    filename      Source Filename/path
+   * @param   Function  callback      Callback function
+   * @return  void
+   */
   touch : function(filename, callback) {
     var path = mkpath(this.user, filename);
     fs.exists(path, function(ex) {
@@ -491,6 +533,12 @@ VFS.prototype = {
     });
   },
 
+  /**
+   * VFS::rm() -- Remove/unlink a file
+   * @param   String    name          Source Filename/path
+   * @param   Function  callback      Callback function
+   * @return  void
+   */
   rm : function(name, callback) {
     // FIXME: Recursive
     var path = mkpath(this.user, name);
@@ -509,6 +557,13 @@ VFS.prototype = {
     });
   },
 
+  /**
+   * VFS::mv() -- Move a file
+   * @param   String    src           Source Filename/path
+   * @param   String    dst           Destination Filename/path
+   * @param   Function  callback      Callback function
+   * @return  void
+   */
   mv : function(src, dest, callback) {
     var psrc = mkpath(this.user, src);
     var pdest = mkpath(this.user, dest);
@@ -528,6 +583,13 @@ VFS.prototype = {
     });
   },
 
+  /**
+   * VFS::cp() -- Copy a file
+   * @param   String    src           Source Filename/path
+   * @param   String    dst           Destination Filename/path
+   * @param   Function  callback      Callback function
+   * @return  void
+   */
   cp : function(src, dst, callback) {
     var u = this.user;
     fs.exists(mkpath(u, dst), function(ex) {
@@ -551,6 +613,14 @@ VFS.prototype = {
     });
   },
 
+  /**
+   * VFS::put() -- Put something into a file
+   * @param   String    filename      Filename/path
+   * @param   String    content       Data to write
+   * @param   String    encoding      File encoding
+   * @param   Function  callback      Callback function
+   * @return  void
+   */
   put : function(filename, content, encoding, callback) {
     var path = mkpath(this.user, filename);
     fs.exists(path, function(ex) {
@@ -568,6 +638,12 @@ VFS.prototype = {
     });
   },
 
+  /**
+   * VFS::fileinfo() -- Get file information
+   * @param   String    filename      Filename/path
+   * @param   Function  callback      Callback function
+   * @return  void
+   */
   fileinfo : function(filename, callback) {
     var path = mkpath(this.user, filename);
 
@@ -613,6 +689,10 @@ VFS.prototype = {
   //
   // Wrappers
   //
+
+  /**
+   * @see VFS::ls()
+   */
   lswrap  : function(path, mime_filter, view, sort, callback) {
     this.ls(path, mime_filter, function(success, result) {
       if ( success ) {
@@ -654,6 +734,13 @@ VFS.prototype = {
     });
   },
 
+  /**
+   * VFS::upload() -- Upload a file to a directory
+   * @param   Object    ref           HTTP Request File
+   * @param   String    path          Destination path
+   * @param   Function  callback      Callback function
+   * @return  void
+   */
   upload : function(ref, path, callback) {
     if ( (typeof ref == 'object') && (typeof path == 'string') && (ref.path) ) {
       var psrc = ref.path;
@@ -708,6 +795,75 @@ VFS.prototype = {
       });
     } else {
       callback(false, "Invalid URL!");
+    }
+  },
+
+  preview : function(filename, mime, iframe, callback) {
+    var path = mkpath(this.user, filename);
+    var split = mime.split(/\//);
+    var result = false;
+    var max_width = 240, max_height = 240;
+
+    switch ( split[0] ) {
+      case 'audio' :
+        if ( iframe ) {
+          result = sprintf('<audio src="/media%s" width="%d" height="%d"></audio>', filename, max_width, max_height);
+        }
+      break;
+
+      case 'video' :
+        if ( iframe ) {
+          result = sprintf('<video src="/media%s" width="%d" height="%d"></video>', filename, max_width, max_height);
+        }
+      break;
+
+      case 'text' :
+        fs.readFile(path, function(err, data) {
+          if ( err ) {
+            callback(false, err);
+          } else {
+            callback(true, sprintf('<pre>%s</pre>', sanitize(data.toString().substr(0, 255)).entityEncode()));
+          }
+        });
+      break;
+
+      case 'image' :
+        fs.stat(path, function (err, stat) {
+          if ( err ) {
+            callback(false, err);
+          } else {
+            fs.readFile(path, 'binary', function (err, data) {
+              if ( err ) {
+                callback(false, err);
+              } else {
+                im.resize({
+                    srcData       : data,
+                    width         : max_width,
+                    //height        : max_height,
+                    format        : 'png',
+                    quality       : 0.7,
+                    progressive   : false
+                }, function (err, stdout, stderr) {
+                  if ( err ) {
+                    callback(false, err);
+                  } else {
+                    var data = (new Buffer(stdout, 'binary')).toString('base64');
+                    callback(true, sprintf('<img alt="%s" src="data:image/png;base64,%s" width="%d" />', filename, data, max_width));
+                  }
+                });
+              }
+            });
+          }
+        });
+      break;
+
+      default :
+        result = false;
+      break;
+    }
+
+    if ( result !== false ) {
+      callback(true, result);
     }
   }
 
@@ -787,6 +943,10 @@ module.exports =
         v.upload(args.file, args.path, callback);
       break;
 
+      case 'preview' :
+        v.preview(args.path, args.mime, args.iframe === true || args.iframe === 'true', callback);
+      break;
+
 
       default :
         return false;
@@ -796,11 +956,7 @@ module.exports =
     return true;
   }
 
-  // preview
-  // file_info
-  // fileinfo
   // readpdf
-  // upload
   // ls_archive
   // extract_archive
 };

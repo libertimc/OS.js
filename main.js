@@ -623,7 +623,7 @@ app.configure(function() {
   // USER MEDIA
   //
 
-  app.post('/API/upload', function(req, res) { // TODO
+  app.post('/API/upload', function(req, res) {
     var ok = _vfs.call(req.session.user, 'upload', {'file': req.files.upload, 'path': req.body.path}, function(vfssuccess, vfsresult) {
       if ( vfssuccess ) {
         res.json(200, { success: true, result: vfsresult });
