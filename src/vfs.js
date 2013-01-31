@@ -42,7 +42,8 @@ var fs        = require('fs'),
     url       = require('url'),
     sprintf   = require('sprintf').sprintf,
     sanitize  = require('validator').sanitize,
-    mime      = require('mime');
+    mime      = require('mime'),
+    util      = require('util');
 
 var _config = require('../config.js');
 
@@ -619,7 +620,12 @@ VFS.prototype = {
         if ( ex ) {
           callback(false, "File already exists!");
         } else {
-          fs.rename(psrc, pdest, function(err) {
+          var is = fs.createReadStream(psrc);
+          var os = fs.createWriteStream(pdest);
+
+          util.pump(is, os, function(err) {
+            fs.unlinkSync(psrc);
+
             if ( err ) {
               callback(false, err);
             } else {

@@ -659,6 +659,6 @@ app.configure(function() {
 // MAIN
 ///////////////////////////////////////////////////////////////////////////////
 
-app.listen(3000);
+app.listen(_config.WEBSERVER_PORT);
 console.log('>>> Listening on port 3000');
 
