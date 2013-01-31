@@ -40,7 +40,8 @@ var fs        = require('fs'),
     xml2js    = require('xml2js'),
     libxmljs  = require('libxmljs');
 
-var config = require('../config.js');
+var config  = require('../config.js'),
+    archive = require(PATH_SRC + '/archive.js');
 
 ///////////////////////////////////////////////////////////////////////////////
 // HELPERS

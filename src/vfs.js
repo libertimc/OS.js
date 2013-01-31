@@ -44,7 +44,8 @@ var fs        = require('fs'),
     im        = require('imagemagick');
 
 var _config   = require('../config.js'),
-    _packages = require(_config.PATH_SRC + '/packages.js');
+    _packages = require(_config.PATH_SRC + '/packages.js'),
+    _archive  = require(_config.PATH_SRC + '/archive.js');
 
 ///////////////////////////////////////////////////////////////////////////////
 // CONFIGS
@@ -336,7 +337,7 @@ VFS.prototype =
       }
 
       tree.dirs[".."] = {
-        path        : args,
+        path        : parentdir, //args,
         root        : parentdir,
         size        : 0,
         mime        : '',
@@ -658,8 +659,8 @@ VFS.prototype =
               }
 
               callback(true, {
-                filename  : path.basename(filename),
-                path      : path.dirname(filename),
+                filename  : _path.basename(filename),
+                path      : _path.dirname(filename),
                 size      : stats.size || 0,
                 mime      : fmime,
                 info      : media_info
