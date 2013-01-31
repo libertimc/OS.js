@@ -493,10 +493,6 @@ app.configure(function() {
           }
         break;
 
-        case 'service' : // TODO
-          defaultJSONResponse(req, res);
-        break;
-
         case 'call' :
           console.log("API::call()", jsn);
           if ( (jsn.method && jsn.args) ) {
@@ -520,6 +516,10 @@ app.configure(function() {
             res.json(200, { success: false, error: 'Invalid VFS arguments!', result: null });
           }
           return;
+        break;
+
+        case 'service' : // TODO
+          defaultJSONResponse(req, res);
         break;
 
         // TODO

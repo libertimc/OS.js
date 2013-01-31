@@ -33,10 +33,6 @@
  */
 "use strict";
 
-/*
- * TODO: Secure input
- */
-
 var fs        = require('fs'),
     http      = require('http'),
     url       = require('url'),
@@ -44,6 +40,7 @@ var fs        = require('fs'),
     sanitize  = require('validator').sanitize,
     mime      = require('mime'),
     util      = require('util'),
+    _path     = require('path'),
     im        = require('imagemagick');
 
 var _config   = require('../config.js'),
@@ -272,22 +269,11 @@ function in_array(element, array, cmp) {
   return false;
 }
 
-function dirname(path) {
-  var spl = path.split('/');
-  spl.pop();
-  return spl.join('/');
-}
-
-function basename(path) {
-  var spl = path.split('/');
-  return spl.pop();
-}
-
 function mkpath(user, input) {
   if ( input.match(/^\/User/) ) {
-    return sprintf(_config.PATH_VFS_USER, user.username) + input.replace(/^\/User/, '');
+    return _path.normalize(_path.join(sprintf(_config.PATH_VFS_USER, user.username), input.replace(/^\/User/, '')));
   }
-  return (_config.PATH_MEDIA + input);
+  return _path.normalize(_path.join(_config.PATH_MEDIA, input));
 }
 
 function checkMIME(needle, haystack) {
@@ -350,7 +336,8 @@ VFS.prototype =
       }
 
       tree.dirs[".."] = {
-        path        : parentdir,
+        path        : args,
+        root        : parentdir,
         size        : 0,
         mime        : '',
         icon        : 'status/folder-visiting.png',
@@ -385,6 +372,7 @@ VFS.prototype =
             if ( result.hasOwnProperty(i) ) {
               tree.files[i] = {
                 path         : args + '/' + i,
+                root         : args,
                 size         : 0,
                 mime         : 'OSjs/' + result[i].type,
                 icon         : result[i].icon,
@@ -434,6 +422,7 @@ VFS.prototype =
 
                 var fiter = {
                   path         : fpath,
+                  root         : froot,
                   size         : stats.size,
                   mime         : fmime,
                   icon         : ficon,
@@ -544,8 +533,6 @@ VFS.prototype =
     var path = mkpath(this.user, name);
     fs.exists(path, function(ex) {
       if ( ex ) {
-        callback(false, "File exists!");
-      } else {
         fs.unlink(path, function(err) {
           if ( err ) {
             callback(false, err);
@@ -553,6 +540,8 @@ VFS.prototype =
             callback(true, true);
           }
         });
+      } else {
+        callback(false, "File exists!");
       }
     });
   },
@@ -568,7 +557,7 @@ VFS.prototype =
     var psrc = mkpath(this.user, src);
     var pdest = mkpath(this.user, dest);
 
-    fs.exists(ppath, function(ex) {
+    fs.exists(pdest, function(ex) {
       if ( ex ) {
         callback(false, "File exists!");
       } else {
@@ -669,8 +658,8 @@ VFS.prototype =
               }
 
               callback(true, {
-                filename  : basename(filename),
-                path      : dirname(filename),
+                filename  : path.basename(filename),
+                path      : path.dirname(filename),
                 size      : stats.size || 0,
                 mime      : fmime,
                 info      : media_info
@@ -713,6 +702,7 @@ VFS.prototype =
                 mime        : sanitize(iter.mime).entityEncode(),
                 name        : sanitize(f).entityEncode(),
                 path        : iter.path,
+                root        : iter.root,
                 size        : iter.size,
                 hsize       : sprintf("%d%s", iter.size, "b"), // FIXME
                 'protected' : iter['protected']
@@ -772,6 +762,13 @@ VFS.prototype =
   //
   // Extern
   //
+
+  /**
+   * VFS::readurl() -- Read URL contents (GET request)
+   * @param   String      args          URL
+   * @param   Function    callback      Callback function
+   * @return  void
+   */
   readurl : function(args, callback) {
     if ( args !== null ) {
       var qdata   = url.parse(args, true);
@@ -798,6 +795,14 @@ VFS.prototype =
     }
   },
 
+  /**
+   * VFS::preview() -- Preview file contents
+   * @param   String      filename        Filename/path
+   * @param   String      mime            MIME Type
+   * @param   bool        iframe          Return IFrame type content
+   * @param   Function    callback        Callback function
+   * @return  void
+   */
   preview : function(filename, mime, iframe, callback) {
     var path = mkpath(this.user, filename);
     var split = mime.split(/\//);
