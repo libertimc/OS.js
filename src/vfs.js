@@ -55,30 +55,27 @@ var ignore_files = [
   ".", ".gitignore", ".git", ".cvs"
 ];
 
-var icons_mimetype = {
-  "application" : {
-    "application/ogg" : {
-      "ogv" : "mimetypes/video-x-generic.png",
-      "_"   : "mimetypes/audio-x-generic.png"
-    },
-    "application/pdf"       : "mimetypes/gnome-mime-application-pdf.png",
-    "application/x-dosexec" : "mimetypes/binary.png",
-    "application/xml"       : "mimetypes/text-x-opml+xml.png",
-    "application/zip"       : "mimetypes/folder_tar.png",
-    "application/x-tar"     : "mimetypes/folder_tar.png",
-    "application/x-bzip2"   : "mimetypes/folder_tar.png",
-    "application/x-bzip"    : "mimetypes/folder_tar.png",
-    "application/x-gzip"    : "mimetypes/folder_tar.png",
-    "application/x-rar"     : "mimetypes/folder_tar.png"
-  },
+var icon_default = 'emblems/emblem-unreadable.png';
 
-  "image" : "mimetypes/image-x-generic.png",
-  "video" : "mimetypes/video-x-generic.png",
-  "text"  : {
-    "text/html"   : "mimetypes/text-html.png",
-    "text/plain"  : "mimetypes/gnome-mime-text.png",
-    "_"           : "mimetypes/text-x-generic.png"
-  }
+var icons_mime = {
+  "application/pdf"       : "mimetypes/gnome-mime-application-pdf.png",
+  "application/x-dosexec" : "mimetypes/binary.png",
+  "application/xml"       : "mimetypes/text-x-opml+xml.png",
+  "application/zip"       : "mimetypes/folder_tar.png",
+  "application/x-tar"     : "mimetypes/folder_tar.png",
+  "application/x-bzip2"   : "mimetypes/folder_tar.png",
+  "application/x-bzip"    : "mimetypes/folder_tar.png",
+  "application/x-gzip"    : "mimetypes/folder_tar.png",
+  "application/x-rar"     : "mimetypes/folder_tar.png",
+  "text/html"             : "mimetypes/text-html.png",
+  "text/plain"            : "mimetypes/gnome-mime-text.png"
+};
+
+var icons_category = {
+  "application" : "mimetypes/binary.png",
+  "image"       : "mimetypes/image-x-generic.png",
+  "video"       : "mimetypes/video-x-generic.png",
+  "text"        : "mimetypes/text-x-generic.png"
 };
 
 var icons_ext = {
@@ -107,10 +104,26 @@ var icons_ext = {
   "bz2"    : "mimetypes/folder_tar.png",
   "bz"     : "mimetypes/folder_tar.png",
   "tar"    : "mimetypes/folder_tar.png",
+  "tgz"    : "mimetypes/folder_tar.png",
   "xml"    : "mimetypes/text-x-opml+xml.png",
   "html"   : "mimetypes/text-html.png",
   "txt"    : "mimetypes/gnome-mime-text.png"
 };
+
+/*var icons_static = {
+  "application/octet-stream" : {
+    "webm"  : "video/webm",
+    "ogv"   : "video/ogg",
+    "ogg"   : "video/ogg"
+  },
+  "application/ogg" : {
+    "ogv"   : "video/ogg",
+    "ogg"   : "video/ogg"
+  },
+  "text/plain" : {
+    "m3u"   : "application/x-winamp-playlist"
+  }
+};*/
 
 var vfs_dirs = {
   "/System/Packages" : {
@@ -202,34 +215,6 @@ function is_protected(input) {
 
 function get_icon(filename, mimetype) {
   if ( typeof filename == 'string' ) {
-    if ( mimetype ) {
-      if ( icons_mimetype[mimetype] ) {
-        return icons_mimetype[mimetype];
-      }
-
-      var msplit = mimetype.split("/");
-      if ( msplit.length && icons_mimetype[msplit[0]] ) {
-        if ( typeof icons_mimetype[msplit[0]] == 'object' ) {
-          if ( (msplit.length > 1) && icons_mimetype[msplit[0]][msplit[1]] ) {
-            return icons_mimetype[msplit[0]][msplit[1]];
-          } else {
-            if ( icons_mimetype[msplit[0]]['_'] ) {
-              return icons_mimetype[msplit[0]]['_'];
-            }
-          }
-        } else {
-          return icons_mimetype[msplit[0]];
-        }
-      }
-
-      /*var mext = mime.extension(mimetype);
-      if ( mext ) {
-        if ( icons_ext[mext] ) {
-          return icons_ext[mext];
-        }
-      }*/
-    }
-
     if ( filename.match(/\.([A-z]{2,4})$/) ) {
       var ext = filename.split(/\.([A-z]{2,4})$/);
       if ( ext.length > 1 ) {
@@ -238,9 +223,20 @@ function get_icon(filename, mimetype) {
         }
       }
     }
+
+    if ( mimetype ) {
+      var msplit = mimetype.split("/");
+      if ( icons_mime[mimetype] ) {
+        return icons_mime[mimetype];
+      } else {
+        if ( icons_category[msplit[0]] ) {
+          return icons_category[msplit[0]];
+        }
+      }
+    }
   }
 
-  return 'emblems/emblem-unreadable.png';
+  return icon_default;
 }
 
 function in_array(element, array, cmp) {
