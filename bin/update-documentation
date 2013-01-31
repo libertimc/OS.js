@@ -5,5 +5,4 @@
 # @author Anders Evenrud <andersevenrud@gmail.com>
 # @licence Simplified BSD License
 #
-doxygen doc/doxygen.conf
 ./bin/joxygen
