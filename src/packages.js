@@ -207,7 +207,7 @@ module.exports =
 
     getSystemPackages(language, function(success, result) {
       if ( success ) {
-        _finished(result, []);
+        _finished(result);
       } else {
         _failed(result);
       }
@@ -231,7 +231,7 @@ module.exports =
 
     getUserPackages(username, language, function(success, result) {
       if ( success ) {
-        _finished(result, []);
+        _finished(result);
       } else {
         _failed(result);
       }

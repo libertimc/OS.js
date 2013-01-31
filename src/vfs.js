@@ -45,7 +45,8 @@ var fs        = require('fs'),
     mime      = require('mime'),
     util      = require('util');
 
-var _config = require('../config.js');
+var _config   = require('../config.js'),
+    _packages = require(_config.PATH_SRC + '/packages.js');
 
 ///////////////////////////////////////////////////////////////////////////////
 // CONFIGS
@@ -205,12 +206,25 @@ function sortObj(object, sortFunc) {
   return rv;
 }
 
-function is_protected(input) {
-  // TODO: Permissions
+function is_protected(input) { // FIXME
   if ( input.match(/^\/User/) ) {
     return false;
   }
   return true;
+}
+
+function get_vfs_type(vfspath) {
+  if ( vfspath && vfs_dirs[vfspath] ) {
+    return vfs_dirs[vfspath].type;
+  }
+  return null;
+}
+
+function get_folder_icon(vfspath) {
+  if ( vfspath && vfs_dirs[vfspath] ) {
+    return vfs_dirs[vfspath].icon;
+  }
+  return 'places/folder.png';
 }
 
 function get_icon(filename, mimetype) {
@@ -299,7 +313,9 @@ VFS.prototype = {
   ls : function(args, mime_filter, callback) {
     mime_filter = mime_filter || [];
 
-    var path = mkpath(this.user, args);
+    var vtype = get_vfs_type(args.replace(/\/$/, ''));
+    var path  = mkpath(this.user, args);
+
     console.log("_ls", path);
 
     var tree  = {
@@ -341,6 +357,35 @@ VFS.prototype = {
       callback(true, result);
     };
 
+
+    //
+    // VFS directories
+    //
+    if ( vtype === "system_packages" ) {
+      _packages.getInstalledSystemPackages(this.user.language, function(success, result) {
+        if ( success && result ) {
+          for ( var i in result ) {
+            if ( result.hasOwnProperty(i) ) {
+              tree.files[i] = {
+                path         : args + '/' + i,
+                size         : 0,
+                mime         : 'OSjs/' + result[i].type,
+                icon         : result[i].icon,
+                type         : 'file',
+                'protected'  : 1
+              };
+            }
+          }
+        }
+        __callback();
+      });
+
+      return;
+    }
+
+    //
+    // Normal directory
+    //
     fs.readdir(path, function(err, files) {
       if ( err ) {
         callback(false, err);
@@ -355,7 +400,7 @@ VFS.prototype = {
           if ( in_array(iter, ignore_files) ) {
             __next();
           } else {
-            var fname = path + '/' + iter;
+            var fname = (path + '/' + iter).replace(/\/$/, '');
             var froot = args;
             var fpath = args == "/" ? ('/' + iter) : (args + '/' + iter);
             var fmime = mime.lookup(fname);
@@ -368,11 +413,13 @@ VFS.prototype = {
             fs.stat(fname, function(err, stats) {
               if ( !err && stats ) {
                 var isdir = stats.isDirectory();
+                var ficon = isdir ? get_folder_icon(fpath) : get_icon(iter, fmime);
+
                 var fiter = {
                   path         : fpath,
                   size         : stats.size,
                   mime         : fmime,
-                  icon         : isdir ? "places/folder.png" : get_icon(iter, fmime),
+                  icon         : ficon,
                   type         : isdir ? 'dir' : 'file',
                   'protected'  : is_protected(fpath) ? 1 : 0
                 };
