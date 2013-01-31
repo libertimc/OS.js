@@ -41,7 +41,7 @@ var fs        = require('fs'),
     libxmljs  = require('libxmljs');
 
 var config  = require('../config.js'),
-    archive = require(PATH_SRC + '/archive.js');
+    archive = require(config.PATH_SRC + '/archive.js');
 
 ///////////////////////////////////////////////////////////////////////////////
 // HELPERS
