@@ -1,5 +1,4 @@
-#!/usr/bin/env php
-<?php
+#!/usr/bin/env node
 /*!
  * @file
  * OS.js - JavaScript Operating System - install-all
@@ -35,12 +34,9 @@
  * @created 2012-01-04
  */
 
-if ( isset($argv) && isset($argv[1]) ) {
-  require "header.php";
-  var_dump(PackageManager::RefreshMetadata(User::getById($argv[1])));
-} else {
-  define("NODB", true);
-  require "header.php";
-  var_dump(PackageManager::RefreshMetadata());
-}
-?>
+var _config   = require('../config.js'),
+    _packages = require(_config.PATH_SRC + '/packages.js');
+
+_packages.createPackageMetadata(null, function(success, result) {
+  console.log(success, result);
+});

@@ -491,8 +491,6 @@ app.configure(function() {
           if ( failed ) {
             res.json(200, { success: false, error: 'Invalid package operation!', result: null });
           }
-
-          defaultJSONResponse(req, res);
         break;
 
         case 'service' : // TODO

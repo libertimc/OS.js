@@ -37,7 +37,8 @@
 
 var fs        = require('fs'),
     sprintf   = require('sprintf').sprintf,
-    xml2js    = require('xml2js');
+    xml2js    = require('xml2js'),
+    libxmljs  = require('libxmljs');
 
 var config = require('../config.js');
 
@@ -185,12 +186,126 @@ function getUserPackages(username, language, callback) {
   _GetPackages(language, filename, callback);
 }
 
+/**
+ * _UpdatePackageMeta() -- Abstract for updating xml package file
+ */
+function _UpdatePackageMeta(outfile, readdir, callback) {
+  var doc       = libxmljs.Document(); //parseXmlString('<packages></packages>');
+  var rootNode  = doc.node('packages'); //libxmljs.Element(doc, 'packages');
+
+  fs.readdir(readdir, function(err, files) {
+    if ( err ) {
+      callback(false, err);
+    } else {
+      var queue = files;
+      var installed = 0;
+
+      var __finished = function() {
+        fs.writeFile(outfile, doc.toString(), function(err) {
+          if ( err ) {
+            callback(false, err);
+          } else {
+            callback(true, "Installed " + installed + " packages");
+          }
+        });
+      };
+
+      var __next = function() {
+        if ( queue.length ) {
+          var iter  = queue.pop();
+          var ipath = readdir + '/' + iter;
+          var mpath = ipath + '/' + 'metadata.xml';
+
+          fs.stat(mpath, function(err, stats) {
+            if ( !err ) {
+              if ( !stats.isDirectory() ) {
+                fs.readFile(mpath, function(err, data) {
+                  if ( err ) {
+                    callback(false, err);
+                  } else {
+                    var loadedoc = libxmljs.parseXmlString(data.toString());
+                    var childs = loadedoc.root().childNodes();
+                    for ( var i = 0; i < childs.length; i++ ) {
+                      try {
+                        if ( childs[i].attr('name').value() == 'enabled' ) {
+                          if ( childs[i].value() === 'false' ) {
+                            __next();
+                            return;
+                            //break;
+                          }
+                        }
+                      } catch ( err ) {}
+                    }
+
+                    console.log(mpath);
+
+                    var addChild = loadedoc.root();
+                    addChild.attr('packagename', iter); // FIXME ?!
+                    rootNode.addChild(addChild);
+
+                    installed++;
+                  }
+
+                  __next();
+                });
+              }
+              return;
+            }
+            __next();
+          });
+        } else {
+          __finished();
+        }
+      };
+
+      __next();
+    }
+  });
+}
+
+/**
+ * updateUserPackageMetadata() -- Create/Update a user package.xml list
+ * @param   Object      user        User
+ * @param   Function    callback    Callback function
+ * @return  void
+ */
+function updateUserPackageMetadata(user, callback) {
+  var outfile   = sprintf(config.PATH_VFS_PACKAGEMETA, user.username);
+  var readdir   = sprintf(config.PATH_VFS_PACKAGES, user.username);
+  _UpdatePackageMeta(outfile, readdir, callback);
+}
+
+/**
+ * updateSystemPackageMetadata() -- Create/Update a system package.xml list
+ * @param   Function    callback    Callback function
+ * @return  void
+ */
+function updateSystemPackageMetadata(callback) {
+  var outfile   = config.PACKAGE_BUILD;
+  var readdir   = config.PATH_PACKAGES;
+  _UpdatePackageMeta(outfile, readdir, callback);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // EXPORTS
 ///////////////////////////////////////////////////////////////////////////////
 
 module.exports =
 {
+  /**
+   * packages::createPackageMeta() -- Create package metafile(s)
+   * @see     updateUserPackageMetadata()
+   * @see     updateSystemPackageMetadata()
+   * @return  void
+   */
+  createPackageMetadata : function(user, callback) {
+    if ( (typeof user === 'object') && (user !== null) ) {
+      updateUserPackageMetadata(user, callback);
+    } else {
+      updateSystemPackageMetadata(callback);
+    }
+  },
+
   /**
    * packages::getInstalledSystemPackages() -- Get installed system packages
    * @param   String    language    Current language
