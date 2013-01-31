@@ -357,8 +357,16 @@ app.configure(function() {
 
         break;
 
-        case 'updateCache' : // TODO
-          defaultJSONResponse(req, res);
+        case 'updateCache' :
+          _packages.getInstalledPackages(req.session.user, function(success, result) {
+            if ( success ) {
+              res.json(200, {success: true, result: {
+                packages : result
+              }});
+            } else {
+              res.json(200, {success: false, error: result, result: null});
+            }
+          });
         break;
 
         case 'settings' :
@@ -660,5 +668,5 @@ app.configure(function() {
 ///////////////////////////////////////////////////////////////////////////////
 
 app.listen(_config.WEBSERVER_PORT);
-console.log('>>> Listening on port 3000');
+console.log('>>> Listening on port ' + _config.WEBSERVER_PORT);
 
