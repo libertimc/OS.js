@@ -38,7 +38,6 @@
  *       - FS perms
  * TODO: WebServices
  * TODO: WebSockets
- * TODO: Snapshots
  * TODO: Locales (i18n)
  */
 
@@ -56,7 +55,8 @@ var _config    = require('./config.js'),
     _ui        = require(_config.PATH_SRC + '/ui.js'),
     _user      = require(_config.PATH_SRC + '/user.js'),
     _services  = require(_config.PATH_SRC + '/services.js'),
-    _locale    = require(_config.PATH_SRC + '/locale.js');
+    _locale    = require(_config.PATH_SRC + '/locale.js'),
+    _session   = require(_config.PATH_SRC + '/session.js');
 
 // External
 var express = require('express'),
@@ -557,25 +557,60 @@ app.configure(function() {
           defaultJSONResponse(req, res);
         break;
 
-        // TODO
-        case 'snapshotList'   :
+        case 'bug' : // TODO
           defaultJSONResponse(req, res);
+        break;
+
+        case 'snapshotList'   :
+          _session.snapshotList(logged_in, function(success, result) {
+            if ( success ) {
+              _respond(200, {success: true, result: result});
+            } else {
+              _respond(200, {success: false, result: null, error: result});
+            }
+          });
         break;
 
         case 'snapshotSave'   :
-          defaultJSONResponse(req, res);
+          if ( jsn.session && jsn.session.name && jsn.session.data ) {
+            _session.snapshotSave(logged_in, jsn.session.name, jsn.session.data, function(success, result) {
+              if ( success ) {
+                _respond(200, {success: true, result: result});
+              } else {
+                _respond(200, {success: false, result: null, error: result});
+              }
+            });
+          } else {
+            _respond(200, {success: false, result: null, error: 'Invalid snapshot save operation!'});
+          }
         break;
 
         case 'snapshotLoad'   :
-          defaultJSONResponse(req, res);
+          if ( jsn.session && jsn.session.name ) {
+            _session.snapshotLoad(logged_in, jsn.session.name, function(success, result) {
+              if ( success ) {
+                _respond(200, {success: true, result: result});
+              } else {
+                _respond(200, {success: false, result: null, error: result});
+              }
+            });
+          } else {
+            _respond(200, {success: false, result: null, error: 'Invalid snapshot load operation!'});
+          }
         break;
 
         case 'snapshotDelete' :
-          defaultJSONResponse(req, res);
-        break;
-
-        case 'bug' : // TODO
-          defaultJSONResponse(req, res);
+          if ( jsn.session && jsn.session.name ) {
+            _session.snapshotDelete(logged_in, jsn.session.name, function(success, result) {
+              if ( success ) {
+                _respond(200, {success: true, result: result});
+              } else {
+                _respond(200, {success: false, result: null, error: result});
+              }
+            });
+          } else {
+            _respond(200, {success: false, result: null, error: 'Invalid snapshot delete operation!'});
+          }
         break;
 
         default :
