@@ -42,8 +42,7 @@ var fs        = require('fs'),
     _path     = require('path');
 
 var config  = require('../config.js'),
-    archive = require(config.PATH_SRC + '/archive.js'),
-    vfs     = require(config.PATH_SRC + '/vfs.js');
+    archive = require(config.PATH_SRC + '/archive.js');
 
 ///////////////////////////////////////////////////////////////////////////////
 // HELPERS
@@ -443,7 +442,8 @@ module.exports =
    * @return  void
    */
   installPackage : function(user, archive_path, fcallback) {
-    archive_path = vfs.mkpath(user, archive_path);
+    var _vfs = require(config.PATH_SRC + '/vfs.js');
+    archive_path = _vfs.mkpath(user, archive_path);
 
     var archive_filename  = _path.basename(archive_path);
     var destination       = _path.join(sprintf(config.PATH_VFS_PACKAGES, user.username), archive_filename.split('.').shift());
@@ -504,7 +504,9 @@ module.exports =
       var destination = _path.join(sprintf(config.PATH_VFS_PACKAGES, user.username), pkg.name);
       fs.exists(destination, function(ex) {
         if ( ex ) {
-          vfs.removeRecursive(destination, function(err) {
+          var _vfs = require(config.PATH_SRC + '/vfs.js');
+
+          _vfs.removeRecursive(destination, function(err) {
             if ( err ) {
               callback(false, err);
             } else {

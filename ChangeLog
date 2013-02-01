@@ -4,6 +4,7 @@ Node.js backend
 
 * PAM Authentication
 * DBUS Implementation
+* Client-Server model
 * Default home moved to /home (VFS)
 * New templating
 * New bin/ files

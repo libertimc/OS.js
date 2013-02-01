@@ -38,9 +38,8 @@ This has only been tested on these Linux distributions:
 * Create users
   - Add yourself a new user to test with using `./bin/add-user <username>`.
   - Or copy `src/template/vfs-user/.osjs` into users already on system
-* Start server
-  - Run `node main.js`
-  - You are up and running on `http://localhost:3000` :)
+* Install system service and start it up
+  -- TODO --
 
 ## Running a production envoironment
 * **ALTERNATIVE 1: ** Yahoo YUI Compressor

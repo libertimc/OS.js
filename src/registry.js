@@ -196,7 +196,7 @@ module.exports =
           "icon" : "places/user-home.png",
           "launch" : "ApplicationFileManager",
           "arguments" : {
-            "path" : "/User/Documents"
+            "path" : "/User"
           },
           "protected" : true
         },
