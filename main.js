@@ -32,7 +32,12 @@
 "use strict";
 
 /*
+ * TODO: Custom session managment
+ *       - Keep in memory
+ *       - Keep-alive and timeout
+ *       - FS perms
  * TODO: WebServices
+ * TODO: WebSockets
  * TODO: Snapshots
  * TODO: Locales (i18n)
  */
@@ -214,6 +219,11 @@ app.configure(function() {
         logged_in = req.session.user;
       }
 
+      var _respond = function(http_code, http_data) {
+        // FIXME: Check for 'error' and pull out message if it's an object
+        res.json(http_code, http_data);
+      };
+
       // First check if we need a user
       var need_auth = [
         "snapshotList", "snapshotLoad", "snapshotSave", "snapshotDelete", "updateCache",
@@ -223,7 +233,7 @@ app.configure(function() {
       var i = 0, l = need_auth.length;
       for ( i; i < l; i++ ) {
         if ( (need_auth[i] == action) && (logged_in === false) ) {
-          res.json(200,  {
+          _respond(200,  {
               success : false,
               error   : 'You are not logged in!',
               result  : null
@@ -266,7 +276,7 @@ app.configure(function() {
             }
           };
 
-          res.json(200,  response);
+          _respond(200,  response);
         break;
 
         /*case 'logout' :
@@ -300,7 +310,7 @@ app.configure(function() {
             };
 
 
-            res.json(200, {success: true, result: response});
+            _respond(200, {success: true, result: response});
 
             req.session.user      = user;
 
@@ -315,7 +325,7 @@ app.configure(function() {
             req.session.user = null;
             res.cookie('osjs_sessionid', null);
 
-            res.json(200, {success: false, error: msg, result: null});
+            _respond(200, {success: false, error: msg, result: null});
           };
 
           var _proceed = function(puser) {
@@ -355,7 +365,7 @@ app.configure(function() {
           var duration = jsn.duration;
 
           var __done = function() {
-            res.json(200, {success: true, result: true});
+            _respond(200, {success: true, result: true});
 
             try {
               syslog.log(syslog.LOG_INFO, "client[" + req.session.user.username + "] shutdown complete");
@@ -382,11 +392,11 @@ app.configure(function() {
         case 'updateCache' :
           _packages.getInstalledPackages(req.session.user, function(success, result) {
             if ( success ) {
-              res.json(200, {success: true, result: {
+              _respond(200, {success: true, result: {
                 packages : result
               }});
             } else {
-              res.json(200, {success: false, error: result, result: null});
+              _respond(200, {success: false, error: result, result: null});
             }
           });
         break;
@@ -395,7 +405,7 @@ app.configure(function() {
           syslog.log(syslog.LOG_INFO, "saving client[" + req.session.user.username + "] settings");
 
           _user.store(req.session.user, jsn.registry, null, function(err) {
-            res.json(200, {success: err ? false : true, result: err ? err : true});
+            _respond(200, {success: err ? false : true, result: err ? err : true});
           });
         break;
 
@@ -416,7 +426,7 @@ app.configure(function() {
 
             case 'info' :
             default     :
-              res.json(200, {success: true, result: req.session.user.info});
+              _respond(200, {success: true, result: req.session.user.info});
               return;
               break;
           }
@@ -433,7 +443,7 @@ app.configure(function() {
           var user = req.session.user;
 
           if ( ev_action === null || ev_instance === null || ev_name === null ) {
-            res.json(200, { success: false, error: "Invalid event!", result: null });
+            _respond(200, { success: false, error: "Invalid event!", result: null });
           } else {
             _packages.getInstalledSystemPackages(user.language, function(success, result) {
               if ( success ) {
@@ -449,7 +459,7 @@ app.configure(function() {
                 }
 
                 if ( load_class === false ) {
-                  res.json(200, { success: false, error: 'Cannot handle this event!', result: null });
+                  _respond(200, { success: false, error: 'Cannot handle this event!', result: null });
                 } else {
                   var _cpath = ([_config.PATH_PACKAGES, load_class]).join("/");
                   var _class = null;
@@ -457,7 +467,7 @@ app.configure(function() {
                     _class = require(_cpath);
                   } catch ( err ) {
                     console.error('event', err);
-                    res.json(200, { success: false, error: err.message, result: null });
+                    _respond(200, { success: false, error: err.message, result: null });
                     return;
                   }
 
@@ -465,19 +475,19 @@ app.configure(function() {
                     try {
                       _class.Event(ev_action, ev_args, function(esuccess, eresult) {
                         if ( esuccess ) {
-                          res.json(200, { success: true, result: eresult });
+                          _respond(200, { success: true, result: eresult });
                         } else {
-                          res.json(200, { success: false, error: eresult, result: null });
+                          _respond(200, { success: false, error: eresult, result: null });
                         }
                       });
                     } catch ( err ) {
                       console.error('event', err);
-                      res.json(200, { success: false, error: err.message, result: null });
+                      _respond(200, { success: false, error: err.message, result: null });
                     }
                   }
                 }
               } else {
-                res.json(200, { success: false, error: result, result: null });
+                _respond(200, { success: false, error: result, result: null });
               }
             });
           }
@@ -490,9 +500,9 @@ app.configure(function() {
               case 'install' :
                 _packages.installPackage(req.session.user, jsn['archive'], function(success, result) {
                   if ( success ) {
-                    res.json(200, { success: true, result: result });
+                    _respond(200, { success: true, result: result });
                   } else {
-                    res.json(200, { success: false, error: result, result: null });
+                    _respond(200, { success: false, error: result, result: null });
                   }
                 });
               break;
@@ -500,9 +510,9 @@ app.configure(function() {
               case 'uninstall' :
                 _packages.uninstallPackage(req.session.user, jsn['package'], function(success, result) {
                   if ( success ) {
-                    res.json(200, { success: true, result: result });
+                    _respond(200, { success: true, result: result });
                   } else {
-                    res.json(200, { success: false, error: result, result: null });
+                    _respond(200, { success: false, error: result, result: null });
                   }
                 });
               break;
@@ -514,7 +524,7 @@ app.configure(function() {
           }
 
           if ( failed ) {
-            res.json(200, { success: false, error: 'Invalid package operation!', result: null });
+            _respond(200, { success: false, error: 'Invalid package operation!', result: null });
           }
         break;
 
@@ -524,21 +534,21 @@ app.configure(function() {
             try {
               var ok = _vfs.call(req.session.user, jsn.method, (jsn.args || []), function(vfssuccess, vfsresult) {
                 if ( vfssuccess ) {
-                  res.json(200, { success: true, result: vfsresult });
+                  _respond(200, { success: true, result: vfsresult });
                 } else {
-                  res.json(200, { success: false, error: vfsresult, result: null });
+                  _respond(200, { success: false, error: vfsresult, result: null });
                 }
               });
 
               if ( !ok ) {
-                res.json(200, { success: false, error: 'Invalid VFS action!', result: null });
+                _respond(200, { success: false, error: 'Invalid VFS action!', result: null });
               }
             } catch ( err ) {
               console.error('call', err);
-              res.json(200, { success: false, error: err.message, result: null });
+              _respond(200, { success: false, error: err.message, result: null });
             }
           } else {
-            res.json(200, { success: false, error: 'Invalid VFS arguments!', result: null });
+            _respond(200, { success: false, error: 'Invalid VFS arguments!', result: null });
           }
           return;
         break;
@@ -549,8 +559,17 @@ app.configure(function() {
 
         // TODO
         case 'snapshotList'   :
+          defaultJSONResponse(req, res);
+        break;
+
         case 'snapshotSave'   :
+          defaultJSONResponse(req, res);
+        break;
+
         case 'snapshotLoad'   :
+          defaultJSONResponse(req, res);
+        break;
+
         case 'snapshotDelete' :
           defaultJSONResponse(req, res);
         break;
@@ -560,7 +579,7 @@ app.configure(function() {
         break;
 
         default :
-          res.json(200, { success: false, error: 'Invalid action!', result: null });
+          _respond(200, { success: false, error: 'Invalid action!', result: null });
         break;
       }
     }
