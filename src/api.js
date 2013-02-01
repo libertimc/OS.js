@@ -48,9 +48,7 @@ var _config    = require('../config.js'),
     _session   = require(_config.PATH_SRC + '/session.js');
 
 // External
-var express = require('express'),
-    sprintf = require('sprintf').sprintf,
-    swig    = require('swig'),
+var sprintf = require('sprintf').sprintf,
     syslog  = require('node-syslog');
 
 ///////////////////////////////////////////////////////////////////////////////

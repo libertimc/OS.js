@@ -67,7 +67,7 @@
   var WEBSOCKET_URI    = "localhost:8888";          //!< WebSocket URI (Dynamic)
   var ROOT_URL         = "http://localhost:3000";       //!< URL: Dynamic content
   var STATIC_URL       = "http://localhost:3000";       //!< URL: Static content
-  var AJAX_URI         = "/";                       //!< AJAX URI (POST)
+  var AJAX_URI         = "/API";                    //!< AJAX URI (POST)
   var RESOURCE_URI     = "/VFS/resource/";          //!< Resource loading URI (GET)
   var THEME_URI        = "/VFS/theme/";             //!< Themes loading URI (GET)
   var FONT_URI         = "/VFS/font/";              //!< Font loading URI (GET)

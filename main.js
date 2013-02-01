@@ -190,10 +190,25 @@ app.configure(function() {
   });
 
   //
-  // AJAX
+  // XHR
   //
-  app.post('/', function(req, res) {
+
+  app.post('/API', function(req, res) {
     _api.request(req, res);
+  });
+
+  app.post('/API/upload', function(req, res) {
+    var ok = _vfs.call(req.session.user, 'upload', {'file': req.files.upload, 'path': req.body.path}, function(vfssuccess, vfsresult) {
+      if ( vfssuccess ) {
+        res.json(200, { success: true, result: vfsresult });
+      } else {
+        res.json(200, { success: false, error: vfsresult, result: null });
+      }
+    });
+
+    if ( !ok ) {
+      res.json(200, { success: false, error: 'Upload error!', result: null });
+    }
   });
 
   //
@@ -273,20 +288,6 @@ app.configure(function() {
   //
   // USER MEDIA
   //
-
-  app.post('/API/upload', function(req, res) {
-    var ok = _vfs.call(req.session.user, 'upload', {'file': req.files.upload, 'path': req.body.path}, function(vfssuccess, vfsresult) {
-      if ( vfssuccess ) {
-        res.json(200, { success: true, result: vfsresult });
-      } else {
-        res.json(200, { success: false, error: vfsresult, result: null });
-      }
-    });
-
-    if ( !ok ) {
-      res.json(200, { success: false, error: 'Upload error!', result: null });
-    }
-  });
 
   //app.get('/media/User/:filename', function(req, res) {
   app.get(/^\/media\/User\/(.*)/, function(req, res) {
