@@ -38,14 +38,61 @@
 var fs        = require('fs'),
     sprintf   = require('sprintf').sprintf,
     xml2js    = require('xml2js'),
-    libxmljs  = require('libxmljs');
+    libxmljs  = require('libxmljs'),
+    _path     = require('path');
 
 var config  = require('../config.js'),
-    archive = require(config.PATH_SRC + '/archive.js');
+    archive = require(config.PATH_SRC + '/archive.js'),
+    vfs     = require(config.PATH_SRC + '/vfs.js');
 
 ///////////////////////////////////////////////////////////////////////////////
 // HELPERS
 ///////////////////////////////////////////////////////////////////////////////
+
+/**
+ * validateMetadata() -- Validate a package.xml
+ * @param   String      filename    Filename to validate
+ * @param   Function    callback    Callback function
+ * @return  void
+ */
+function validateMetadata(filename, callback) {
+  var parser = new xml2js.Parser();
+  var root   = _path.dirname(filename);
+
+  var _validate = function(xmldata) {
+    var valid = false;
+    var check = [];
+
+    if ( xmldata && xmldata['package'] ) {
+      valid = true;
+
+      // TODO: Validate existance
+      var resources = xmldata['package'].resource;
+      if ( resources ) {
+        var i = 0, l = resources.length;
+        for ( i; i < l; i++ ) {
+          check.push(_path.join(root, resources[i]));
+        }
+      }
+    }
+
+    callback(valid, valid || 'Validation failed!');
+  };
+
+  fs.readFile(filename, function(err, data) {
+    if ( err ) {
+      callback(false, err);
+    } else {
+      parser.parseString(data, function (err, result) {
+        if ( err ) {
+          callback(false, err);
+        } else {
+          _validate(result);
+        }
+      });
+    }
+  });
+}
 
 /**
  * parseList() -- Parse a package.xml list
@@ -206,7 +253,7 @@ function _UpdatePackageMeta(outfile, readdir, callback) {
           if ( err ) {
             callback(false, err);
           } else {
-            callback(true, "Installed " + installed + " packages");
+            callback(true, "Pulled " + installed + " packages");
           }
         });
       };
@@ -214,8 +261,8 @@ function _UpdatePackageMeta(outfile, readdir, callback) {
       var __next = function() {
         if ( queue.length ) {
           var iter  = queue.pop();
-          var ipath = readdir + '/' + iter;
-          var mpath = ipath + '/' + 'metadata.xml';
+          var ipath = _path.join(readdir, iter);
+          var mpath = _path.join(ipath, 'metadata.xml');
 
           fs.stat(mpath, function(err, stats) {
             if ( !err ) {
@@ -387,22 +434,90 @@ module.exports =
 
   /**
    * packages::installPackage() -- Install a User package
-   * @param   Object    archive   Package archive
-   * @param   Function  callback  Callback function
+   * @param   Object    user            User
+   * @param   Object    archive_path    Package archive file
+   * @param   Function  fcallback       Callback function
    * @return  void
    */
-  installPackage : function(archive, callback) {
-    callback(false, "TODO");
+  installPackage : function(user, archive_path, fcallback) {
+    archive_path = vfs.mkpath(user, archive_path);
+
+    var archive_filename  = _path.basename(archive_path);
+    var destination       = _path.join(sprintf(config.PATH_VFS_PACKAGES, user.username), archive_filename.split('.').shift());
+    var metadata          = _path.join(destination, 'metadata.xml');
+
+    var callback = function(success, result) {
+      /* FIXME: Cleanup
+      if ( !success ) {
+        return;
+      }
+      */
+      fcallback(success, result);
+    };
+
+    fs.mkdir(destination, function(err) {
+      if ( err ) {
+        callback(false, err);
+      } else {
+        fs.stat(archive_path, function(err, stat) {
+          if ( err ) {
+            callback(false, err);
+          } else {
+            try {
+              archive.extract(archive_path, destination, function(success, result, errors) {
+                if ( success ) {
+                  validateMetadata(metadata, function(validated, validate_result) {
+                    if ( validated ) {
+                      updateUserPackageMetadata(user, function(updated, message) {
+                        callback(updated, message);
+                      });
+                    } else {
+                      callback(false, validate_result);
+                    }
+                  });
+                } else {
+                  callback(false, result || errors.join(',') );
+                }
+              });
+            } catch ( err ) {
+              callback(false, err);
+            }
+          }
+        });
+      }
+    });
+
   },
 
   /**
    * packages::uninstallPackage() -- Uninstall a User package
+   * @param   Object    user      User
    * @param   Object    pkg       Package info
    * @param   Function  callback  Callback function
    * @return  void
    */
-  uninstallPackage : function(pkg, callback) {
-    callback(false, "TODO");
+  uninstallPackage : function(user, pkg, callback) {
+    if ( pkg && pkg.name ) {
+      var destination = _path.join(sprintf(config.PATH_VFS_PACKAGES, user.username), pkg.name);
+      fs.exists(destination, function(ex) {
+        if ( ex ) {
+          vfs.removeRecursive(destination, function(err) {
+            if ( err ) {
+              callback(false, err);
+            } else {
+              updateUserPackageMetadata(user, function(updated, message) {
+                callback(updated, updated ? pkg : message);
+              });
+            }
+          });
+        } else {
+          callback(false, "Could not find package install directory!");
+        }
+      });
+      return;
+    }
+
+    callback(false, "Invalid package requested!");
   }
 };
 

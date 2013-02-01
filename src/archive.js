@@ -37,17 +37,27 @@
 
 var spawn = require('child_process').spawn,
     exec  = require('child_process').exec,
-    fs    = require('fs');
+    _fs   = require('fs'),
+    _mime = require('mime');
 
 ///////////////////////////////////////////////////////////////////////////////
 // CLASSES
 ///////////////////////////////////////////////////////////////////////////////
 
+/**
+ * Zip -- ZIP Archive handler
+ * @class
+ */
 var Zip = function(filename) {
   this.filename = filename;
 };
 
-Zip.prototype = {
+Zip.prototype = 
+{
+  /**
+   * Create a new archive
+   * @return  void
+   */
   create : function(path, callback) {
     var destination = this.filename;
     var zdata = [];
@@ -76,7 +86,7 @@ Zip.prototype = {
           pos += data[i].length;
         }
 
-        fs.writeFile(destination, 'binary', buf.toString('binary'), function(err) {
+        _fs.writeFile(destination, 'binary', buf.toString('binary'), function(err) {
           if ( err ) {
             callback(false, err, errors);
           } else {
@@ -87,6 +97,10 @@ Zip.prototype = {
     });
   },
 
+  /**
+   * Extract archive to a path
+   * @return  void
+   */
   extract : function(destination, callback) {
     var source = this.filename;
     var errors = [];
@@ -94,6 +108,7 @@ Zip.prototype = {
     var zip = spawn('unzip', [source, '-d', destination]);
 
     zip.stdout.on('chunk', function (chunk) {
+      //console.log(chunk);
     });
 
     zip.stderr.on('data', function (data) {
@@ -110,6 +125,10 @@ Zip.prototype = {
     });
   },
 
+  /**
+   * List archive contents
+   * @return  void
+   */
   ls : function(callback) {
     var source = this.filename;
 
@@ -160,16 +179,57 @@ Zip.prototype = {
 module.exports = {
   Zip : Zip,
 
+  /**
+   * archive::ls() -- List archive contents
+   * @param   String    filename      Archive path
+   * @param   Function  callback      Callback function
+   * @return  void
+   */
   ls : function(filename, callback) {
-    (new Zip(filename)).ls(callback);
+    switch ( _mime.lookup(filename) ) {
+      case 'application/zip' :
+        (new Zip(filename)).ls(callback);
+      break;
+
+      default:
+        throw "Unsupported archive file!";
+      break;
+    }
   },
 
+  /**
+   * archive::create() -- Create new archive file
+   * @param   String    path          Path to file(s)
+   * @param   String    destination   Destination archive filename
+   * @param   Function  callback      Callback function
+   * @return  void
+   */
   create : function(path, destination, callback) {
-    (new Zip(destination)).create(path, callback);
+    if ( destination.toLowerCase().match(/\.zip$/) ) {
+      (new Zip(destination)).create(path, callback);
+    } else {
+      throw "Unsupported archive file!";
+    }
   },
 
+  /**
+   * archive::extract() -- Extract archive contents
+   * @param   String    filename      Archive path
+   * @param   String    destination   Destination path
+   * @param   Function  callback      Callback function
+   * @return  void
+   */
   extract : function(filename, destination, callback) {
-    (new Zip(filename)).extract(destination, callback);
+    switch ( _mime.lookup(filename) ) {
+      case 'application/zip' :
+        (new Zip(filename)).extract(destination, callback);
+      break;
+
+      default:
+        throw "Unsupported archive file!";
+      break;
+    }
   }
 
 };
+

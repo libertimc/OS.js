@@ -463,7 +463,7 @@ app.configure(function() {
             var failed = false;
             switch ( jsn.operation ) {
               case 'install' :
-                _package.installPackage(jsn['archive'], function(success, result) {
+                _packages.installPackage(req.session.user, jsn['archive'], function(success, result) {
                   if ( success ) {
                     res.json(200, { success: true, result: result });
                   } else {
@@ -473,7 +473,7 @@ app.configure(function() {
               break;
 
               case 'uninstall' :
-                _packages.uninstallPackage(jsn['package'], function(success, result) {
+                _packages.uninstallPackage(req.session.user, jsn['package'], function(success, result) {
                   if ( success ) {
                     res.json(200, { success: true, result: result });
                   } else {

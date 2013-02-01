@@ -3102,6 +3102,7 @@
      */
     global_endsession : function(ev, sid) {
       //console.info("Session valid", _SessionValid, "Registered", _SessionId, "Current", sid);
+      /* FIXME
       if ( !_Connection ) {
         if ( _SessionValid ) {
           if ( !sid || (_SessionId != sid) ) {
@@ -3114,6 +3115,7 @@
           }
         }
       }
+      */
     },
 
     /**
