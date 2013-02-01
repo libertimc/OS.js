@@ -1,6 +1,6 @@
 /*!
  * @file
- * OS.js - JavaScript Operating System - main node server
+ * OS.js - JavaScript Operating System - User process
  *
  * Copyright (c) 2011-2012, Anders Evenrud <andersevenrud@gmail.com>
  * All rights reserved.
@@ -32,14 +32,20 @@
 "use strict";
 
 /*
- * TODO: Custom session managment
- *       - Keep in memory
- *       - Keep-alive and timeout
- *       - FS perms
  * TODO: WebServices
  * TODO: WebSockets
  * TODO: Locales (i18n)
  */
+
+var __port = 0;
+if ( process.argv && process.argv.length > 2 ) {
+  __port = parseInt(process.argv[2], 10);
+}
+
+if ( isNaN(__port) || __port <= 0 ) {
+  console.error("Cannot open client on port ", __port);
+  process.exit(1);
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 // IMPORTS
@@ -194,7 +200,7 @@ app.configure(function() {
   //
 
   app.post('/API', function(req, res) {
-    _api.request(req, res);
+    _api.request(__port, req, res);
   });
 
   app.post('/API/upload', function(req, res) {
@@ -311,6 +317,6 @@ app.configure(function() {
 // MAIN
 ///////////////////////////////////////////////////////////////////////////////
 
-app.listen(_config.WEBSERVER_PORT);
-console.log('>>> Listening on port ' + _config.WEBSERVER_PORT);
+app.listen(__port);
+console.log('>>> Listening on port ' + __port);
 

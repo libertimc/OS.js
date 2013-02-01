@@ -38,10 +38,9 @@ module.exports =
   // Host
   //
   WEBSERVER_PORT      : 3000,
+  CLIENT_PORT_START   : 3010,
+  CLIENT_USER_TMP     : 'anti-s', // FIXME FIXME FIXME
   WEBSOCKET_PORT      : -1,
-
-  HOST_FRONTEND       : 'localhost:3000',
-  HOST_STATIC         : 'localhost:3000',
 
   //
   // Frontend Settings
@@ -84,6 +83,7 @@ module.exports =
   //
   // Paths
   //
+  PATH                : __dirname,
   PATH_VENDOR         : path.join(__dirname, 'vendor'),
   PATH_LIB            : path.join(__dirname, 'lib'),
   PATH_LOGS           : path.join(__dirname, 'logs'),

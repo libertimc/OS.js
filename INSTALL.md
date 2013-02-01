@@ -53,3 +53,15 @@ This has only been tested on these Linux distributions:
   - Set `COMPRESSOR` to `gcc` in `config.js`
 * Run `./bin/update-compression` to compress all scripts etc
 * Set `ENV_PRODUCTION` in `config.js` and restart node-server
+
+# IMPORTANT INFORMATION ABOUT THIS BRANCH -- HOW TO RUN
+
+You can only run as a designated user at this moment because XHR calls
+are not finished.
+
+* Set the user you will use in 'config.js' in 'CLIENT_USER_TMP'.
+* Run 'sudo node ./server.js'
+* Launch browser in 'localhost:3000'
+  - You will be redirected to your process
+* Kill the server like normal to quit all running clients
+

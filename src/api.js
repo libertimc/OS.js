@@ -52,11 +52,25 @@ var sprintf = require('sprintf').sprintf,
     syslog  = require('node-syslog');
 
 ///////////////////////////////////////////////////////////////////////////////
-// CLASSES
+// HELPERS
 ///////////////////////////////////////////////////////////////////////////////
 
+function defaultResponse(req, res) {
+  var body = req.url;
+  res.setHeader('Content-Type', 'text/plain');
+  res.setHeader('Content-Length', body.length);
+  res.end(body);
+}
 
-function request(req, res) {
+function defaultJSONResponse(req, res) {
+  res.json(200, { url: req.url });
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// MAIN
+///////////////////////////////////////////////////////////////////////////////
+
+function request(pport, req, res) {
   console.log('POST /');
 
   var jsn, action, response = null;
@@ -128,8 +142,7 @@ function request(req, res) {
               autologin    : _config.AUTOLOGIN_ENABLE,
               restored     : restore,
               hosts        : {
-                frontend      : _config.HOST_FRONTEND,
-                'static'      : _config.HOST_STATIC
+                frontend      : 'localhost' + pport
               }
             }
           }

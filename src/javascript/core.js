@@ -66,7 +66,6 @@
    */
   var WEBSOCKET_URI    = "localhost:8888";          //!< WebSocket URI (Dynamic)
   var ROOT_URL         = "http://localhost:3000";       //!< URL: Dynamic content
-  var STATIC_URL       = "http://localhost:3000";       //!< URL: Static content
   var AJAX_URI         = "/API";                    //!< AJAX URI (POST)
   var RESOURCE_URI     = "/VFS/resource/";          //!< Resource loading URI (GET)
   var THEME_URI        = "/VFS/theme/";             //!< Themes loading URI (GET)
@@ -2742,21 +2741,6 @@
 
         WEBSOCKET_URI   = env.hosts.server;
         ROOT_URL        = (env.ssl ? "https://" : "http://") + env.hosts.frontend;
-        STATIC_URL      = (env.ssl ? "https://" : "http://") + env.hosts['static'];
-
-        /*
-        ICON_URI        = STATIC_URL + ICON_URI;
-        SOUND_URI       = STATIC_URL + SOUND_URI;
-        THEME_URI       = STATIC_URL + THEME_URI;
-        FONT_URI        = STATIC_URL + FONT_URI;
-        CURSOR_URI      = STATIC_URL + CURSOR_URI;
-        LANGUAGE_URI    = STATIC_URL + LANGUAGE_URI;
-        */
-
-        /*
-        RESOURCE_URI    = STATIC_URL + RESOURCE_URI;
-        PKG_RES_URI     = STATIC_URL + PKG_RES_URI;
-        */
 
         if ( ENV_DEMO ) {
           $("#LoginDemoNotice").show();
