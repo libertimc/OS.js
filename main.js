@@ -257,7 +257,7 @@ app.configure(function() {
 
           var _success = function(user, packages, resume_registry, resume_session) {
             user.sid = req.sessionID;
-            res.cookie('osjs_sessionid', user.sid);
+            res.cookie('osjs_sessionid', req.sessionID);
 
             response = {
               user          : user,

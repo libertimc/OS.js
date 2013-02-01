@@ -2920,7 +2920,7 @@
 
       this.ichecker = setInterval(function(ev) {
         self.global_offline(ev, !(navigator.onLine === false));
-        //self.global_endsession(ev, GetCookie(SESSION_KEY)); // TODO: node.js
+        self.global_endsession(ev, GetCookie(SESSION_KEY));
       }, SESSION_CHECK);
 
       OSjs.Classes.ProgressBar($("#LoadingBar"), 50);
