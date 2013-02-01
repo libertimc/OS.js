@@ -32,11 +32,9 @@
 "use strict";
 
 /*
- * TODO: Package managment
  * TODO: WebServices
  * TODO: Snapshots
  * TODO: Locales (i18n)
- * FIXME: Safe paths (escaping)
  */
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -211,12 +209,36 @@ app.configure(function() {
     if ( action === null  ) {
       defaultJSONResponse(req, res);
     } else {
-      // TODO: Implement array-check for which methods require user/session
-      switch ( jsn.action ) {
+      var logged_in = false;
+      if ( (req.session && req.session.user) && (typeof req.session.user == 'object') ) {
+        logged_in = req.session.user;
+      }
+
+      // First check if we need a user
+      var need_auth = [
+        "snapshotList", "snapshotLoad", "snapshotSave", "snapshotDelete", "updateCache",
+        "init", "settings", "logout", "shutdown","user", "event", "package", "service", "call"
+      ];
+
+      var i = 0, l = need_auth.length;
+      for ( i; i < l; i++ ) {
+        if ( (need_auth[i] == action) && (logged_in === false) ) {
+          res.json(200,  {
+              success : false,
+              error   : 'You are not logged in!',
+              result  : null
+          });
+          return;
+          //break;
+        }
+      }
+
+      // Call API
+      switch ( action ) {
         case 'boot' :
           var restore = false;
 
-          if ( (req.session && req.session.user) && (typeof req.session.user == 'object') ) {
+          if ( logged_in !== false ) {
             if ( req.session.user.lock ) {
               restore = true;
             }
@@ -377,16 +399,19 @@ app.configure(function() {
           });
         break;
 
-        case 'user' : // TODO
+        case 'user' :
           var uid = parseInt(jsn.uid, 10) || 0;
           switch ( jsn.method ) {
             case 'list' :
+              // TODO
               break;
 
             case 'update':
+              // TODO
               break;
 
             case 'delete':
+              // TODO
               break;
 
             case 'info' :
@@ -547,10 +572,8 @@ app.configure(function() {
 
   //app.get('/UI/:type/:filename', function(req, res) {
   app.get(/^\/UI\/(sound|icon)\/(.*)/, function(req, res) {
-    //var type = req.params.type.replace(/[^a-zA-Z0-9]/, '');
-    var type = req.params[0].replace(/[^a-zA-Z0-9]/, '');
-    //var filename = req.params.filename.replace(/[^a-zA-Z0-9-\_]/, '');
-    var filename = req.params[1].replace(/[^a-zA-Z0-9-\_\/\.]/, '');
+    var type      = req.params[0];//.replace(/[^a-zA-Z0-9]/, '');
+    var filename  = req.params[1];//.replace(/[^a-zA-Z0-9-\_\/\.]/, '');
 
     console.log('/UI/:type/:filename', type, filename);
 
@@ -572,22 +595,14 @@ app.configure(function() {
     var pkg = req.params['package'];
 
     console.log('/VFS/resource/:package/:filename', pkg, filename);
-    if ( req.params.filename.match(/\.js|\.css|\.png|\.jpe?g|\.gif$/) ) { // FIXME
-      res.sendfile(sprintf('%s/%s/%s', _config.PATH_PACKAGES, pkg, filename));
-    } else {
-      throw "Invalid file";
-    }
+    res.sendfile(sprintf('%s/%s/%s', _config.PATH_PACKAGES, pkg, filename));
   });
 
   app.get('/VFS/resource/:filename', function(req, res) {
     var filename = req.params.filename;
 
     console.log('/VFS/resource/:filename', filename);
-    if ( req.params.filename.match(/\.js|\.css$/) ) {
-      res.sendfile(sprintf('%s/%s', _config.PATH_JAVASCRIPT, filename));
-    } else {
-      throw "Invalid file";
-    }
+    res.sendfile(sprintf('%s/%s', _config.PATH_JAVASCRIPT, filename));
   });
 
   app.get('/VFS/:resource/:filename', function(req, res) {

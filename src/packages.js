@@ -262,7 +262,7 @@ function _UpdatePackageMeta(outfile, readdir, callback) {
         if ( queue.length ) {
           var iter  = queue.pop();
           var ipath = _path.join(readdir, iter);
-          var mpath = _path.join(ipath, 'metadata.xml');
+          var mpath = _path.join(ipath, config.METADATA_FILENAME);
 
           fs.stat(mpath, function(err, stats) {
             if ( !err ) {
@@ -434,6 +434,9 @@ module.exports =
 
   /**
    * packages::installPackage() -- Install a User package
+   *
+   * TODO Check for collisions
+   *
    * @param   Object    user            User
    * @param   Object    archive_path    Package archive file
    * @param   Function  fcallback       Callback function
@@ -444,7 +447,7 @@ module.exports =
 
     var archive_filename  = _path.basename(archive_path);
     var destination       = _path.join(sprintf(config.PATH_VFS_PACKAGES, user.username), archive_filename.split('.').shift());
-    var metadata          = _path.join(destination, 'metadata.xml');
+    var metadata          = _path.join(destination, config.METADATA_FILENAME);
 
     var callback = function(success, result) {
       /* FIXME: Cleanup

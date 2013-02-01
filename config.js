@@ -79,6 +79,7 @@ module.exports =
   FONT_CACHE          : path.join(__dirname, ".build/fontcache.xml"),
   PACKAGE_BUILD       : path.join(__dirname, ".build/packages.xml"),
   MIME_MAGIC          : path.join(__dirname, ".build/mime.mgc"),
+  METADATA_FILENAME   : 'metadata.xml',
 
   //
   // Paths
