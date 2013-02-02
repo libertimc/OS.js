@@ -60,9 +60,6 @@ module.exports =
   PROJECT_COPYRIGHT   : "Copyright 2013 Anders Evenrud",
   PROJECT_AUTHOR      : "Anders Evenrud <andersevenrud@gmail.com>",
 
-  GA_ENABLE           : false,
-  GA_ACCOUNT_ID       : "",
-
   //
   // Environment
   //

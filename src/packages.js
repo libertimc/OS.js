@@ -458,20 +458,20 @@ module.exports =
       fcallback(success, result);
     };
 
-    fs.mkdir(destination, function(err) {
+    fs.mkdir(destination, function installPackageMkdir(err) {
       if ( err ) {
         callback(false, err);
       } else {
-        fs.stat(archive_path, function(err, stat) {
+        fs.stat(archive_path, function installPackageCheck(err, stat) {
           if ( err ) {
             callback(false, err);
           } else {
             try {
-              archive.extract(archive_path, destination, function(success, result, errors) {
+              archive.extract(archive_path, destination, function installPackageArchive(success, result, errors) {
                 if ( success ) {
-                  validateMetadata(metadata, function(validated, validate_result) {
+                  validateMetadata(metadata, function installPackageValidate(validated, validate_result) {
                     if ( validated ) {
-                      updateUserPackageMetadata(user, function(updated, message) {
+                      updateUserPackageMetadata(user, function installPackagePost(updated, message) {
                         callback(updated, message);
                       });
                     } else {
@@ -502,15 +502,15 @@ module.exports =
   uninstallPackage : function(user, pkg, callback) {
     if ( pkg && pkg.name ) {
       var destination = _path.join(sprintf(config.PATH_VFS_PACKAGES, user.username), pkg.name);
-      fs.exists(destination, function(ex) {
+      fs.exists(destination, function uninstallPackageCheck(ex) {
         if ( ex ) {
           var _vfs = require(config.PATH_SRC + '/vfs.js');
 
-          _vfs.removeRecursive(destination, function(err) {
+          _vfs.removeRecursive(destination, function uninstallPackageCleanup(err) {
             if ( err ) {
               callback(false, err);
             } else {
-              updateUserPackageMetadata(user, function(updated, message) {
+              updateUserPackageMetadata(user, function uninstallPackagePost(updated, message) {
                 callback(updated, updated ? pkg : message);
               });
             }

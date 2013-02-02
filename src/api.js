@@ -31,6 +31,9 @@
  */
 "use strict";
 
+var RESPONSE_OK     = 200;
+var RESPONSE_ERROR  = 500;
+
 ///////////////////////////////////////////////////////////////////////////////
 // IMPORTS
 ///////////////////////////////////////////////////////////////////////////////
@@ -106,7 +109,7 @@ function request(pport, req, res) {
     var i = 0, l = need_auth.length;
     for ( i; i < l; i++ ) {
       if ( (need_auth[i] == action) && (logged_in === false) ) {
-        _respond(200,  {
+        _respond(RESPONSE_OK,  {
             success : false,
             error   : 'You are not logged in!',
             result  : null
@@ -148,7 +151,7 @@ function request(pport, req, res) {
           }
         };
 
-        _respond(200,  response);
+        _respond(RESPONSE_OK,  response);
       break;
 
       /*case 'logout' :
@@ -182,7 +185,7 @@ function request(pport, req, res) {
           };
 
 
-          _respond(200, {success: true, result: response});
+          _respond(RESPONSE_OK, {success: true, result: response});
 
           req.session.user      = user;
 
@@ -197,7 +200,7 @@ function request(pport, req, res) {
           req.session.user = null;
           res.cookie('osjs_sessionid', null);
 
-          _respond(200, {success: false, error: msg, result: null});
+          _respond(RESPONSE_OK, {success: false, error: msg, result: null});
         };
 
         var _proceed = function(puser) {
@@ -237,7 +240,7 @@ function request(pport, req, res) {
         var duration = jsn.duration;
 
         var __done = function() {
-          _respond(200, {success: true, result: true});
+          _respond(RESPONSE_OK, {success: true, result: true});
 
           try {
             syslog.log(syslog.LOG_INFO, "client[" + req.session.user.username + "] shutdown complete");
@@ -264,11 +267,11 @@ function request(pport, req, res) {
       case 'updateCache' :
         _packages.getInstalledPackages(req.session.user, function(success, result) {
           if ( success ) {
-            _respond(200, {success: true, result: {
+            _respond(RESPONSE_OK, {success: true, result: {
               packages : result
             }});
           } else {
-            _respond(200, {success: false, error: result, result: null});
+            _respond(RESPONSE_OK, {success: false, error: result, result: null});
           }
         });
       break;
@@ -277,7 +280,7 @@ function request(pport, req, res) {
         syslog.log(syslog.LOG_INFO, "saving client[" + req.session.user.username + "] settings");
 
         _user.store(req.session.user, jsn.registry, null, function(err) {
-          _respond(200, {success: err ? false : true, result: err ? err : true});
+          _respond(RESPONSE_OK, {success: err ? false : true, result: err ? err : true});
         });
       break;
 
@@ -298,7 +301,7 @@ function request(pport, req, res) {
 
           case 'info' :
           default     :
-            _respond(200, {success: true, result: req.session.user.info});
+            _respond(RESPONSE_OK, {success: true, result: req.session.user.info});
             return;
             break;
         }
@@ -315,7 +318,7 @@ function request(pport, req, res) {
         var user = req.session.user;
 
         if ( ev_action === null || ev_instance === null || ev_name === null ) {
-          _respond(200, { success: false, error: "Invalid event!", result: null });
+          _respond(RESPONSE_OK, { success: false, error: "Invalid event!", result: null });
         } else {
           _packages.getInstalledSystemPackages(user.language, function(success, result) {
             if ( success ) {
@@ -331,7 +334,7 @@ function request(pport, req, res) {
               }
 
               if ( load_class === false ) {
-                _respond(200, { success: false, error: 'Cannot handle this event!', result: null });
+                _respond(RESPONSE_OK, { success: false, error: 'Cannot handle this event!', result: null });
               } else {
                 var _cpath = ([_config.PATH_PACKAGES, load_class]).join("/");
                 var _class = null;
@@ -339,7 +342,7 @@ function request(pport, req, res) {
                   _class = require(_cpath);
                 } catch ( err ) {
                   console.error('event', err);
-                  _respond(200, { success: false, error: err.message, result: null });
+                  _respond(RESPONSE_OK, { success: false, error: err.message, result: null });
                   return;
                 }
 
@@ -347,19 +350,19 @@ function request(pport, req, res) {
                   try {
                     _class.Event(ev_action, ev_args, function(esuccess, eresult) {
                       if ( esuccess ) {
-                        _respond(200, { success: true, result: eresult });
+                        _respond(RESPONSE_OK, { success: true, result: eresult });
                       } else {
-                        _respond(200, { success: false, error: eresult, result: null });
+                        _respond(RESPONSE_OK, { success: false, error: eresult, result: null });
                       }
                     });
                   } catch ( err ) {
                     console.error('event', err);
-                    _respond(200, { success: false, error: err.message, result: null });
+                    _respond(RESPONSE_OK, { success: false, error: err.message, result: null });
                   }
                 }
               }
             } else {
-              _respond(200, { success: false, error: result, result: null });
+              _respond(RESPONSE_OK, { success: false, error: result, result: null });
             }
           });
         }
@@ -372,9 +375,9 @@ function request(pport, req, res) {
             case 'install' :
               _packages.installPackage(req.session.user, jsn['archive'], function(success, result) {
                 if ( success ) {
-                  _respond(200, { success: true, result: result });
+                  _respond(RESPONSE_OK, { success: true, result: result });
                 } else {
-                  _respond(200, { success: false, error: result, result: null });
+                  _respond(RESPONSE_OK, { success: false, error: result, result: null });
                 }
               });
             break;
@@ -382,9 +385,9 @@ function request(pport, req, res) {
             case 'uninstall' :
               _packages.uninstallPackage(req.session.user, jsn['package'], function(success, result) {
                 if ( success ) {
-                  _respond(200, { success: true, result: result });
+                  _respond(RESPONSE_OK, { success: true, result: result });
                 } else {
-                  _respond(200, { success: false, error: result, result: null });
+                  _respond(RESPONSE_OK, { success: false, error: result, result: null });
                 }
               });
             break;
@@ -396,7 +399,7 @@ function request(pport, req, res) {
         }
 
         if ( failed ) {
-          _respond(200, { success: false, error: 'Invalid package operation!', result: null });
+          _respond(RESPONSE_OK, { success: false, error: 'Invalid package operation!', result: null });
         }
       break;
 
@@ -406,21 +409,21 @@ function request(pport, req, res) {
           try {
             var ok = _vfs.call(req.session.user, jsn.method, (jsn.args || []), function(vfssuccess, vfsresult) {
               if ( vfssuccess ) {
-                _respond(200, { success: true, result: vfsresult });
+                _respond(RESPONSE_OK, { success: true, result: vfsresult });
               } else {
-                _respond(200, { success: false, error: vfsresult, result: null });
+                _respond(RESPONSE_OK, { success: false, error: vfsresult, result: null });
               }
             });
 
             if ( !ok ) {
-              _respond(200, { success: false, error: 'Invalid VFS action!', result: null });
+              _respond(RESPONSE_OK, { success: false, error: 'Invalid VFS action!', result: null });
             }
           } catch ( err ) {
             console.error('call', err);
-            _respond(200, { success: false, error: err.message, result: null });
+            _respond(RESPONSE_OK, { success: false, error: err.message, result: null });
           }
         } else {
-          _respond(200, { success: false, error: 'Invalid VFS arguments!', result: null });
+          _respond(RESPONSE_OK, { success: false, error: 'Invalid VFS arguments!', result: null });
         }
         return;
       break;
@@ -436,9 +439,9 @@ function request(pport, req, res) {
       case 'snapshotList'   :
         _session.snapshotList(logged_in, function(success, result) {
           if ( success ) {
-            _respond(200, {success: true, result: result});
+            _respond(RESPONSE_OK, {success: true, result: result});
           } else {
-            _respond(200, {success: false, result: null, error: result});
+            _respond(RESPONSE_OK, {success: false, result: null, error: result});
           }
         });
       break;
@@ -447,13 +450,13 @@ function request(pport, req, res) {
         if ( jsn.session && jsn.session.name && jsn.session.data ) {
           _session.snapshotSave(logged_in, jsn.session.name, jsn.session.data, function(success, result) {
             if ( success ) {
-              _respond(200, {success: true, result: result});
+              _respond(RESPONSE_OK, {success: true, result: result});
             } else {
-              _respond(200, {success: false, result: null, error: result});
+              _respond(RESPONSE_OK, {success: false, result: null, error: result});
             }
           });
         } else {
-          _respond(200, {success: false, result: null, error: 'Invalid snapshot save operation!'});
+          _respond(RESPONSE_OK, {success: false, result: null, error: 'Invalid snapshot save operation!'});
         }
       break;
 
@@ -461,13 +464,13 @@ function request(pport, req, res) {
         if ( jsn.session && jsn.session.name ) {
           _session.snapshotLoad(logged_in, jsn.session.name, function(success, result) {
             if ( success ) {
-              _respond(200, {success: true, result: result});
+              _respond(RESPONSE_OK, {success: true, result: result});
             } else {
-              _respond(200, {success: false, result: null, error: result});
+              _respond(RESPONSE_OK, {success: false, result: null, error: result});
             }
           });
         } else {
-          _respond(200, {success: false, result: null, error: 'Invalid snapshot load operation!'});
+          _respond(RESPONSE_OK, {success: false, result: null, error: 'Invalid snapshot load operation!'});
         }
       break;
 
@@ -475,18 +478,18 @@ function request(pport, req, res) {
         if ( jsn.session && jsn.session.name ) {
           _session.snapshotDelete(logged_in, jsn.session.name, function(success, result) {
             if ( success ) {
-              _respond(200, {success: true, result: result});
+              _respond(RESPONSE_OK, {success: true, result: result});
             } else {
-              _respond(200, {success: false, result: null, error: result});
+              _respond(RESPONSE_OK, {success: false, result: null, error: result});
             }
           });
         } else {
-          _respond(200, {success: false, result: null, error: 'Invalid snapshot delete operation!'});
+          _respond(RESPONSE_OK, {success: false, result: null, error: 'Invalid snapshot delete operation!'});
         }
       break;
 
       default :
-        _respond(200, { success: false, error: 'Invalid action!', result: null });
+        _respond(RESPONSE_OK, { success: false, error: 'Invalid action!', result: null });
       break;
     }
   }

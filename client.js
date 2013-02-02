@@ -182,7 +182,7 @@ app.configure(function() {
   //
   // INDEX
   //
-  app.get('/', function(req, res) {
+  app.get('/', function getIndex(req, res) {
     console.log('GET /');
 
     var opts     = _config;
@@ -199,11 +199,11 @@ app.configure(function() {
   // XHR
   //
 
-  app.post('/API', function(req, res) {
+  app.post('/API', function postAPI(req, res) {
     _api.request(__port, req, res);
   });
 
-  app.post('/API/upload', function(req, res) {
+  app.post('/API/upload', function postAPIUpload(req, res) {
     var ok = _vfs.call(req.session.user, 'upload', {'file': req.files.upload, 'path': req.body.path}, function(vfssuccess, vfsresult) {
       if ( vfssuccess ) {
         res.json(200, { success: true, result: vfsresult });
@@ -222,7 +222,7 @@ app.configure(function() {
   //
 
   //app.get('/UI/:type/:filename', function(req, res) {
-  app.get(/^\/UI\/(sound|icon)\/(.*)/, function(req, res) {
+  app.get(/^\/UI\/(sound|icon)\/(.*)/, function getSharedResource(req, res) {
     var type      = req.params[0];//.replace(/[^a-zA-Z0-9]/, '');
     var filename  = req.params[1];//.replace(/[^a-zA-Z0-9-\_\/\.]/, '');
 
@@ -241,7 +241,7 @@ app.configure(function() {
     }
   });
 
-  app.get('/VFS/resource/:package/:filename', function(req, res) {
+  app.get('/VFS/resource/:package/:filename', function getPackageResource(req, res) {
     var filename = req.params.filename;
     var pkg = req.params['package'];
 
@@ -249,14 +249,14 @@ app.configure(function() {
     res.sendfile(sprintf('%s/%s/%s', _config.PATH_PACKAGES, pkg, filename));
   });
 
-  app.get('/VFS/resource/:filename', function(req, res) {
+  app.get('/VFS/resource/:filename', function getResource(req, res) {
     var filename = req.params.filename;
 
     console.log('/VFS/resource/:filename', filename);
     res.sendfile(sprintf('%s/%s', _config.PATH_JAVASCRIPT, filename));
   });
 
-  app.get('/VFS/:resource/:filename', function(req, res) {
+  app.get('/VFS/:resource/:filename', function getResourceByType(req, res) {
     var filename = req.params.filename;
     var type = req.params.resource;
 
@@ -296,14 +296,14 @@ app.configure(function() {
   //
 
   //app.get('/media/User/:filename', function(req, res) {
-  app.get(/^\/media\/User\/(.*)/, function(req, res) {
+  app.get(/^\/media\/User\/(.*)/, function getUserMedia(req, res) {
     var filename = req.params[0];
     var path = _vfs.mkpath(req.session.user, '/User/' + filename);
     res.sendfile(path);
   });
 
   //app.get('/media-download/User/:filename', function(req, res) {
-  app.get(/^\/media-download\/User\/(.*)/, function(req, res) {
+  app.get(/^\/media-download\/User\/(.*)/, function getUserMediaDownload(req, res) {
     var filename = req.params[0];
     var path = _vfs.mkpath(req.session.user, '/User/' + filename);
     res.download(path);

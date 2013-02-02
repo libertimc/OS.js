@@ -31,12 +31,18 @@
  */
 "use strict";
 
+/*
+ * TODO: Implement lock-file for client sessions
+ * TODO: Every x second loop through clients and terminate timed out sessions
+ */
+
 ///////////////////////////////////////////////////////////////////////////////
 // IMPORTS
 ///////////////////////////////////////////////////////////////////////////////
 
 // Internal
-var _config = require('./config.js');
+var _config = require('./config.js'),
+    _user   = require(_config.PATH_SRC + '/user.js');
 
 // External
 var express = require('express'),
@@ -87,7 +93,7 @@ var createClient = function() {
 
 var app = express();
 app.configure(function() {
-  app.get('/', function(req, res) {
+  app.get('/', function getIndex(req, res) {
     res.header("Content-Type", "text/html");
 
     var p = createClient();
@@ -96,6 +102,10 @@ app.configure(function() {
 
     //res.redirect('http://localhost:' + __port);
     res.end('<html><head><title>Launching client...</title><meta http-equiv="refresh" content="' + t + ';URL=\'http://localhost:' + p + '\'" /></head><body>Launching client...</body></html>');
+  });
+
+  app.post('/', function postLogin(req, res) {
+  
   });
 });
 
