@@ -37,7 +37,7 @@ if [ $# -eq 0 ]; then
   exit 1
 fi
 
-sudo useradd -m -G users $1
+sudo useradd -m -s /sbin/nologin -G users $1
 if [ "$?" == "0" ]; then
   sudo mkdir /home/$1/.osjs
   sudo cp -Rvf src/templates/vfs-user/* /home/$1/
