@@ -3,26 +3,20 @@ This has only been tested on these Linux distributions:
 * Ubuntu Linux
 
 # Backend Dependencies:
-
-* Node.js with modules (see `package.json`)
+* Node.js 0.8+
 * _exiftool_
-  - Debian users: `apt-get install exiftool`  
-  - Gentoo users: `emerge exiftool`  
-  - Download: `http://www.sno.phy.queensu.ca/~phil/exiftool/`  
-* _pdf2svg_ (Optional, for use with PDF applications)  
-  - Debian users: `apt-get install pdf2svg`  
-  - Gentoo users: `emerge pdf2svg`  
-  - Download: `http://www.cityinthesky.co.uk/opensource/pdf2svg`  
-* _ffmpeg_ (Optional, for converting samples from OGG to MPEG)  
-  - Download: `http://ffmpeg.org/download.html`
+* _pdf2svg_ (Optional, for use with PDF applications)
+* _ffmpeg_ (Optional, for converting samples from OGG to MPEG)
 
 # Frontend Dependencies:
 * jQuery and jQuery UI
-* Yahoo YUI Compressor _or_ Google Closure Compiler
-* JSON2 by Douglas Crockford (_Git submodule_)
-* Sprintf by Alexandru Marasteanu (_Git submodule_)
-* Gnome 2.x icon pack(s) (_Git submodule_)
-* Freedesktop Sound Theme (_Git submodule_)
+* Yahoo YUI Compressor _or_ Google Closure Compiler (For production environments)
+
+# Automatic Installation:
+* Clone repository
+  - `git clone --recursive -b node.js git@github.com:andersevenrud/OS.js.git`
+* Start installer
+  - `./bin/installer`
 
 # Manual Installation:
 * Clone repository
@@ -37,10 +31,21 @@ This has only been tested on these Linux distributions:
 * Create users
   - Add yourself a new user to test with using `./bin/add-user <username>`.
   - Or copy `src/template/vfs-user/.osjs` into users already on system
-* Install system service and start it up
-  - Startup service scripts are located in doc/
+* Install system service (Optional)
+  - Located in doc/rc.d
 
-## Running a production envoironment
+# Running:
+
+## Testing
+* Run 'sudo node ./server.js'
+* Launch browser in 'localhost:3000'
+* Kill the server like normal to quit all running clients
+
+## Development
+* For development you can start the client fo your user with:
+  'node ./client.js 3000 `whoami`'
+
+## Production evironment
 * **ALTERNATIVE 1: ** Yahoo YUI Compressor
   - `http://developer.yahoo.com/yui/compressor/
   - Drop `jar` file into `vendor/yui-compressor
@@ -51,15 +56,12 @@ This has only been tested on these Linux distributions:
   - Set `COMPRESSOR` to `gcc` in `config.js`
 * Run `./bin/update-compression` to compress all scripts etc
 * Set `ENV_PRODUCTION` in `config.js` and restart node-server
+* Start system-wide service (or start using `sudo node server.js`)
 
-# IMPORTANT INFORMATION ABOUT THIS BRANCH -- HOW TO RUN
-
-You can only run as a designated user at this moment because XHR calls
-are not finished.
-
-* Run 'sudo node ./server.js'
-* Launch browser in 'localhost:3000'
-* Kill the server like normal to quit all running clients
-
-For development you can start the client fo your user with:
-'node ./client.js 3000 `whoami`'
+# Upgrading
+* `git pull`
+* `git submodules update`
+* `npm install`
+* `./bin/install-all`
+* Check (and correct) user ~/.osjs directories (This is temporary, you need directories located in src/templates/vfs-user/.osjs)
+* Restart server/clients
