@@ -1,6 +1,3 @@
-[submodule "vendor/JSON-js"]
-	path = vendor/JSON-js
-	url = https://github.com/douglascrockford/JSON-js.git
 [submodule "vendor/packages"]
 	path = vendor/packages
 	url = git@github.com:andersevenrud/OS.js-Packages.git

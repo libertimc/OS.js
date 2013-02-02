@@ -110,7 +110,6 @@ var _resources = {
 };
 
 var _vendor = [
-  {"script" : 'json.js'},
   {"script" : 'sprintf.js'},
   {"script" : 'jquery.js'},
   {"script" : 'jquery-ui.js'},
