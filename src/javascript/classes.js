@@ -550,7 +550,7 @@
       el.addClass("GUIProgress");
     }
 
-    el.find("span > span").html(value + "%");
+    el.find("span > span").html(parseInt(value, 10) + "%");
     el.find("> span").css("width", value + "%");
   };
 

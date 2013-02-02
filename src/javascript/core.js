@@ -2727,6 +2727,7 @@
       this._initializeDesktop(function() {
         if ( self.running )
           return;
+
         self.running = true;
 
         OSjs.Classes.ProgressBar($("#LoadingBar"), 80);
@@ -2754,6 +2755,9 @@
      * @return  void
      */
     complete : function() {
+      setTimeout(function() {
+        $("#LoadingBarContainer").hide();
+      }, 300);
     },
 
     //
@@ -3354,8 +3358,11 @@
       };
 
       var cur  = 10;
-      var diff = (50 - cur);
-      var step = parseInt(Math.min(cur / diff), 10) || 1;
+      var step = 1;
+
+      try {
+        step = Math.min(100 - (80 - (50 - cur))) / _list.length;
+      } catch ( eee ) {}
 
       _loader = new OSjs.Classes.Preloader({
         "list"        : _list,

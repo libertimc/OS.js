@@ -71,20 +71,6 @@ body {
   border : 0 none;
 }
 
-  #LoadingBarContainer {
-    position : absolute;
-    width : 412px;
-    height : 20px;
-    padding : 0;
-    bottom : 12px;
-    left : 20px;
-    z-index : 100;
-    display : none;
-    background : #fff;
-    padding : 5px;
-    margin : -5px;
-  }
-
 #Login {
   position : absolute;
   top : 20px;
