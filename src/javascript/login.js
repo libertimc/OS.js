@@ -131,7 +131,9 @@
           dcallback();
         }
       } else {
-        _Core.login(response);
+        setTimeout(function() {
+          window.location = response.href;
+        }, response.timeout);
       }
     },
 
