@@ -1,5 +1,6 @@
 NODE.JS
 -------------------------------------------------------------------------------
+* Glade parser and package compiler conversion from old codebase
 * Translations (i18n)
 * WebSockets
 * Finish up server.js (sessions etc)
