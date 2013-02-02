@@ -319,15 +319,25 @@ app.configure(function() {
   //
 
   //app.get('/media/User/:filename', function(req, res) {
-  app.get(/^\/media\/User\/(.*)/, function getUserMedia(req, res) {
-    var filename = req.params[0];
+  app.get(/^\/media\/*User\/(.*)/, function getUserMedia(req, res) {
+    if ( !req.session.user ) {
+      defaultResponse(req, res);
+      return;
+    }
+
+    var filename = req.params[0].replace(/^\//, '');
     var path = _vfs.mkpath(req.session.user, '/User/' + filename);
     res.sendfile(path);
   });
 
   //app.get('/media-download/User/:filename', function(req, res) {
-  app.get(/^\/media-download\/User\/(.*)/, function getUserMediaDownload(req, res) {
-    var filename = req.params[0];
+  app.get(/^\/media-download\/*User\/(.*)/, function getUserMediaDownload(req, res) {
+    if ( !req.session.user ) {
+      defaultResponse(req, res);
+      return;
+    }
+
+    var filename = req.params[0].replace(/^\//, '');
     var path = _vfs.mkpath(req.session.user, '/User/' + filename);
     res.download(path);
   });

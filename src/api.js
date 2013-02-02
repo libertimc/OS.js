@@ -101,6 +101,13 @@ function request(pport, suser, req, res) {
       res.json(http_code, http_data);
     };
 
+    if ( action != 'boot' ) {
+      if ( !(typeof req.session.user === 'object') ) {
+        _respond(500, {success: false, error: 'No running session found!'});
+        return;
+      }
+    }
+
     // Call API
     switch ( action ) {
       case 'boot' :
