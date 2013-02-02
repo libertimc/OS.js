@@ -1,4 +1,4 @@
 #!/bin/sh
-echo "su -c 'node $1 $2' $3"
-su -c "node $1 $2" $3
+echo "su -c 'node $1 $2 $3' $4"
+su -c "node $1 $2 $3" $4
 # 2>&1

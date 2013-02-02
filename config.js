@@ -39,7 +39,6 @@ module.exports =
   //
   WEBSERVER_PORT      : 3000,
   CLIENT_PORT_START   : 3010,
-  CLIENT_USER_TMP     : 'anti-s', // FIXME FIXME FIXME
   WEBSOCKET_PORT      : -1,
 
   //

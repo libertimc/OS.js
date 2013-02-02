@@ -130,7 +130,7 @@
   var _TopIndex        = (ZINDEX_WINDOW + 1);             //!< OnTop z-index
   var _OnTopIndex      = (ZINDEX_WINDOW_ONTOP + 1);       //!< OnTop instances index
   var _StartStamp      = -1;                              //!< Starting timestamp
-  var _UserId          = -1;                              //!< Server user id
+  var _UserId          = 'null';                          //!< Server user id
   var _SessionId       = "";                              //!< Server session id
   var _SessionValid    = true;                            //!< Session is valid
   var _HasCrashed      = false;                           //!< If system has crashed
@@ -2027,170 +2027,6 @@
   }); // @endclass
 
   /////////////////////////////////////////////////////////////////////////////
-  // LOGIN
-  /////////////////////////////////////////////////////////////////////////////
-
-  /**
-   * LoginManager -- Login Manager
-   * @class
-   */
-  var LoginManager = {
-
-    confirmation : true, // Confirm dialog on session crash
-
-    /**
-     * LoginManager::disableInputs() -- Disable Input Buttons
-     * @return void
-     */
-    disableInputs : function() {
-      $("#LoginButton").attr("disabled", "disabled");
-      $("#CreateLoginButton").attr("disabled", "disabled");
-      $("#LoginUsername").attr("disabled", "disabled").addClass("loading");
-      $("#LoginPassword").attr("disabled", "disabled").addClass("loading");
-    },
-
-    /**
-     * LoginManager::enableInputs() -- Enable Input Buttons
-     * @return void
-     */
-    enableInputs : function() {
-      $("#LoginButton").removeAttr("disabled");
-      $("#CreateLoginButton").removeAttr("disabled");
-      $("#LoginUsername").removeAttr("disabled").removeClass("loading");
-      $("#LoginPassword").removeAttr("disabled").removeClass("loading");
-    },
-
-    /**
-     * LoginManager::handleLogin() -- Handle a login POST result
-     * @return void
-     */
-    handleLogin : function(response, dcallback) {
-      dcallback = dcallback || function() {};
-
-      if ( response.user.lock ) {
-        var con = !this.confirmation || confirm(OSjs.Labels.LoginConfirm);
-        if ( con ) {
-          _Core.login(response);
-        } else {
-          dcallback();
-        }
-      } else {
-        _Core.login(response);
-      }
-    },
-
-    /**
-     * LoginManager::postLogin() -- POST a login form
-     * @return void
-     */
-    postLogin : function(form, resume, ecallback) {
-      ecallback = ecallback || function() {};
-
-      LoginManager.disableInputs();
-
-      console.group("Core::_login()");
-      console.log("Login data:", form);
-      console.groupEnd();
-
-      DoPost({'action' : 'login', 'form' : form, 'resume' : resume}, function(data) {
-        console.log("Login success:", data.success);
-        console.log("Login result:", data.result);
-
-        if ( data.success ) {
-          $("#LoginForm").get(0).onsubmit = null;
-          LoginManager.handleLogin(data.result, function() {
-            LoginManager.enableInputs();
-          });
-        } else {
-          LoginManager.enableInputs();
-          MessageBox(sprintf(OSjs.Labels.LoginFailure, data.error));
-          ecallback();
-        }
-
-      }, function() {
-        MessageBox(OSjs.Labels.LoginFailureOther);
-        LoginManager.enableInputs();
-        ecallback();
-      });
-    },
-
-    /**
-     * LoginManager::run() -- Init the Login
-     * @return void
-     */
-    run : function(autologin, resume) {
-      $("#LoginWindow").show();
-
-      $("#LoginButton").on("click", function() {
-        LoginManager.postLogin({
-          "username" : $("#LoginUsername").val(),
-          "password" : $("#LoginPassword").val()
-        }, false);
-      });
-
-      $("#LoginUsername").on("keydown", function(ev) {
-        var key = ev.keyCode || ev.which;
-        if ( key == KEYCODES.enter ) {
-          $("#LoginPassword").focus();
-          ev.preventDefault();
-          ev.stopPropagation();
-        }
-      });
-
-      $("#LoginPassword").on("keydown", function(ev) {
-        var key = ev.keyCode || ev.which;
-        if ( key == KEYCODES.enter ) {
-          $("#LoginButton").click();
-          ev.preventDefault();
-          ev.stopPropagation();
-        }
-      });
-
-      LoginManager.enableInputs();
-      $("#LoginUsername").val("");
-      $("#LoginPassword").val("");
-      $("#LoginUsername").focus();
-
-      if ( resume ) {
-        this.confirmation = false;
-        $("#LoginUsername").val("Resuming ..."); // FIXME: Locale
-        $("#LoginPassword").attr("placeholder", "");
-        LoginManager.disableInputs();
-        LoginManager.postLogin({}, true, function() {
-          LoginManager.disableInputs();
-        });
-        return;
-      }
-      if ( autologin ) {
-        this.confirmation = false;
-        $("#LoginUsername").val("Automatic login ..."); // FIXME: Locale
-        $("#LoginPassword").attr("placeholder", "");
-        LoginManager.disableInputs();
-        LoginManager.postLogin({}, false, function() {
-          LoginManager.disableInputs();
-        });
-        return;
-      }
-
-    },
-
-    /**
-     * LoginManager::hide() -- Hide and destroy login window
-     * @return void
-     */
-    hide : function() {
-      if ( GetEffectsEnabled() ) {
-        $("#LoginWindow").fadeOut(ANIMATION_SPEED, function() {
-          $("#LoginWindow").remove();
-        });
-      } else {
-        $("#LoginWindow").hide().remove();
-      }
-    }
-
-  };
-
-  /////////////////////////////////////////////////////////////////////////////
   // CORE
   /////////////////////////////////////////////////////////////////////////////
 
@@ -2716,8 +2552,7 @@
      * Core::boot() -- Main booting procedure
      *
      * Sends browser information to the backend. The response
-     * is the base configuration. After environment is set-up
-     * the LoginManager is run.
+     * is the base configuration.
      *
      * @return void
      */
@@ -2727,12 +2562,37 @@
         return;
       }
 
+      var _run = function(response) { // TODO
+        $("#LoadingBarContainer").show();
+
+        // Globals
+        _UserId           = response.user.username;
+        _SessionId        = response.user.sid;
+        _DefaultLanguage  = response.locale.system;
+        _BrowserLanguage  = response.locale.browser;
+
+        // Initialize base classes
+        _Settings   = new SettingsManager(response.registry.settings);
+        _Resources  = new ResourceManager();
+        _PackMan    = new PackageManager();
+        _VFS        = new CoreVFS();
+
+        OSjs.Classes.ProgressBar($("#LoadingBar"), 10);
+
+        // Now fire them up
+        _VFS.run(function() {
+          _Settings.run(response.restore.registry, response.registry.revision);
+          _PackMan.run(response.registry.packages);
+          _Resources.run(response.registry.preload, function() {
+            self.run(response.restore.session);
+          });
+        });
+      };
+
 
       DoPost({'action' : 'boot', 'navigator' : OSjs.Navigator, 'compability' : OSjs.Compability}, function(response) {
         var data    = response.result;
         var env     = data.environment;
-        var clogin  = env.restored;
-        var alogin  = env.autologin;
 
         ENV_BUGREPORT   = env.bugreporting;
         ENV_CACHE       = env.cache;
@@ -2742,70 +2602,20 @@
         WEBSOCKET_URI   = env.hosts.server;
         ROOT_URL        = (env.ssl ? "https://" : "http://") + env.hosts.frontend;
 
-        if ( ENV_DEMO ) {
-          $("#LoginDemoNotice").show();
-        }
-
         if ( env.connection ) {
           _Connection = new CoreConnection(function(result) {
             if ( result ) {
-              LoginManager.run(alogin, clogin);
+              _run(data.session);
             } else {
               alert(OSjs.Labels.CoreSocketFail);
             }
           });
         } else {
-          LoginManager.run(alogin, clogin);
+          _run(data.session);
         }
       }, function(xhr, ajaxOptions, thrownError) {
         alert("A network error occured while booting OS.js: " + thrownError);
         throw("Initialization error: " + thrownError);
-      });
-    },
-
-    /**
-     * Core::login() -- Main login procedure
-     *
-     * This function is called after the backend has sucessfully
-     * registered the user into session. The response is the
-     * session data tree.
-     *
-     * All base instances are created and initialized here.
-     *
-     * @param  Object   response      Response from LoginManager
-     * @see LoginManager
-     * @return void
-     */
-    login : function(response) {
-      var self = this;
-      if ( this.running ) {
-        return;
-      }
-
-      $("#LoginDemoNotice").hide();
-      $("#LoadingBarContainer").show();
-
-      // Globals
-      _UserId           = response.user.id;
-      _SessionId        = response.user.sid;
-      _DefaultLanguage  = response.locale.system;
-      _BrowserLanguage  = response.locale.browser;
-
-      // Initialize base classes
-      _Settings   = new SettingsManager(response.registry.settings);
-      _Resources  = new ResourceManager();
-      _PackMan    = new PackageManager();
-      _VFS        = new CoreVFS();
-
-      OSjs.Classes.ProgressBar($("#LoadingBar"), 10);
-
-      // Now fire them up
-      _VFS.run(function() {
-        _Settings.run(response.restore.registry, response.registry.revision);
-        _PackMan.run(response.registry.packages);
-        _Resources.run(response.registry.preload, function() {
-          self.run(response.restore.session);
-        });
       });
     },
 
@@ -2874,10 +2684,10 @@
      *
      * This function is called when all base instances are running,
      * resources fully loaded and the used has logged in.
-     * The session is from the login response.
+     * The session is from the boot response.
      *
      * @param  Object   session       Session to restore (if any)
-     * @see    Core::login()
+     * @see    Core::boot()
      * @return void
      */
     run : function(session) {
@@ -2934,10 +2744,6 @@
         self._initializeSession(session);
 
         OSjs.Classes.ProgressBar($("#LoadingBar"), 100);
-
-        setTimeout(function() {
-          LoginManager.hide();
-        }, 50);
 
         self.complete();
       });

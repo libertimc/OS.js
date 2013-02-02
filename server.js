@@ -49,6 +49,7 @@ var express = require('express'),
     sprintf = require('sprintf').sprintf,
     syslog  = require('node-syslog'),
     spawn   = require("child_process").spawn,
+    swig    = require('swig'),
     path    = require('path');
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -66,13 +67,13 @@ var killClients = function() {
   return 0;
 };
 
-var createClient = function() {
+var createClient = function(username) {
   __port++;
 
   var a1 = path.join(_config.PATH_BIN, 'launch-client');
   var a2 = path.join(_config.PATH, 'client.js');
 
-  var proc = spawn(a1, [a2, __port, _config.CLIENT_USER_TMP]); // FIXME
+  var proc = spawn(a1, [a2, __port, username, username]);
 
   proc.stdout.on('data', function (data) {
     console.log('stdout: ' + data);
@@ -91,27 +92,137 @@ var createClient = function() {
   return __port;
 };
 
-var app = express();
-app.configure(function() {
-  app.get('/', function getIndex(req, res) {
-    res.header("Content-Type", "text/html");
-
-    var p = createClient();
-    var t = 3;
-    console.log("Started new client on :" + p);
-
-    //res.redirect('http://localhost:' + __port);
-    res.end('<html><head><title>Launching client...</title><meta http-equiv="refresh" content="' + t + ';URL=\'http://localhost:' + p + '\'" /></head><body>Launching client...</body></html>');
-  });
-
-  app.post('/', function postLogin(req, res) {
-  
-  });
-});
-
 ///////////////////////////////////////////////////////////////////////////////
 // MAIN
 ///////////////////////////////////////////////////////////////////////////////
+
+swig._cache = {};
+swig.express3 = function (path, options, fn) {
+  swig._read(path, options, function (err, str) {
+    if ( err ) {
+      return fn(err);
+    }
+
+    try {
+      options.filename = path;
+      var tmpl = swig.compile(str, options);
+      fn(null, tmpl(options));
+    } catch (error) {
+      fn(error);
+      console.error(error);
+    }
+
+    return true;
+  });
+};
+
+swig._read = function (path, options, fn) {
+  var str = swig._cache[path];
+
+  // cached (only if cached is a string and not a compiled template function)
+  if (options.cache && str && typeof str === 'string') {
+    return fn(null, str);
+  }
+
+  // read
+  require('fs').readFile(path, 'utf8', function (err, str) {
+    if (err) {
+      return fn(err);
+    }
+    if (options.cache) {
+      swig._cache[path] = str;
+    }
+    fn(null, str);
+
+    return true;
+  });
+
+  return true;
+};
+
+var app = express();
+
+app.configure(function() {
+  console.log('>>> Configuring Express');
+  app.use(express.bodyParser());
+  app.use(express.cookieParser());
+  app.use(express.session({ secret:'yodawgyo', cookie: { path: '/', httpOnly: true, maxAge: null} }));
+  app.use(express.limit('1024mb'));
+
+  app.engine('html',      swig.express3);
+  app.set('view engine',  'html');
+  app.set('views',        _config.PATH_TEMPLATES);
+  app.set('view options', { layout: false });
+  app.set('view cache',   false);
+
+  app.get('/', function getIndex(req, res) {
+    console.log('GET /');
+
+    var opts     = _config;
+    var language = "en_US"; // FIXME
+
+    opts.locale   = language;
+    opts.language = language.split("_").shift();
+
+    res.render('login', opts);
+  });
+
+  app.get('/VFS/resource/:filename', function getResource(req, res) {
+    var filename = req.params.filename;
+
+    console.log('/VFS/resource/:filename', filename);
+    res.sendfile(sprintf('%s/%s', _config.PATH_JAVASCRIPT, filename));
+  });
+
+  app.post('/', function postLogin(req, res) {
+    var jsn, action, response = null;
+    try {
+      jsn     = req.body;//.objectData;
+      action  = jsn.action;
+
+      console.log('AJAX /', action);
+    } catch ( e ) {
+      jsn = {};
+      console.error(e);
+    }
+
+    if  ( !jsn || !action) {
+      res.json(200, {'success': false, 'error': 'Invalid action!', 'result': null});
+    } else {
+      if ( action == "login" ) {
+        var username = jsn.form ? (jsn.form.username || "") : "";
+        var password = jsn.form ? (jsn.form.password || "") : "";
+        var resume   = (jsn.resume === true || jsn.resume === "true");
+
+        if ( _config.AUTOLOGIN_ENABLE ) {
+          username = _config.AUTOLOGIN_USERNAME;
+          password = _config.AUTOLOGIN_PASSWORD;
+        }
+
+        _user.login(username, password, function(success, data) {
+          if ( success ) {
+            var p = createClient(username);
+            console.log("Started new client on :" + p);
+
+            var result = {
+              user    : data,
+              href    : 'http://localhost:' + p,
+              timeout : 3000
+            };
+
+            res.json(200, {'success': true, 'result': result});
+          } else {
+            res.json(200, {'success': false, 'error': 'Failed to log in!', 'result': null});
+          }
+        });
+      } else {
+        res.json(200, {'success': false, 'error': 'Invalid action!', 'result': null});
+      }
+    }
+  });
+
+  app.use("/", express['static'](_config.PATH_PUBLIC));
+});
 
 process.on("uncaughtException", killClients);
 /*process.on("SIGINT", killClients);

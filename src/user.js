@@ -86,8 +86,6 @@ module.exports =
           if ( !err ) {
             var parser = new xml2js.Parser();
             parser.parseString(data, function (err, doc) {
-              console.log(doc);
-
               if ( !err ) {
                 var node = doc.user.property;
                 info = {};

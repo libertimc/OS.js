@@ -38,12 +38,19 @@
  */
 
 var __port = 0;
-if ( process.argv && process.argv.length > 2 ) {
+var __user = null;
+
+if ( process.argv && process.argv.length > 3 ) {
   __port = parseInt(process.argv[2], 10);
+  __user = process.argv[3];
 }
 
 if ( isNaN(__port) || __port <= 0 ) {
   console.error("Cannot open client on port ", __port);
+  process.exit(1);
+}
+if ( __user === null ) {
+  console.error("You need to specify a username");
   process.exit(1);
 }
 
@@ -200,7 +207,7 @@ app.configure(function() {
   //
 
   app.post('/API', function postAPI(req, res) {
-    _api.request(__port, req, res);
+    _api.request(__port, __user, req, res);
   });
 
   app.post('/API/upload', function postAPIUpload(req, res) {

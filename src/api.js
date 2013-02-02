@@ -73,7 +73,7 @@ function defaultJSONResponse(req, res) {
 // MAIN
 ///////////////////////////////////////////////////////////////////////////////
 
-function request(pport, req, res) {
+function request(pport, suser, req, res) {
   console.log('POST /');
 
   var jsn, action, response = null;
@@ -90,7 +90,7 @@ function request(pport, req, res) {
   if ( action === null  ) {
     defaultJSONResponse(req, res);
   } else {
-    var logged_in = false;
+    var logged_in = false; // TODO REMOVE! after login split
     if ( (req.session && req.session.user) && (typeof req.session.user == 'object') ) {
       logged_in = req.session.user;
     }
@@ -124,17 +124,24 @@ function request(pport, req, res) {
       case 'boot' :
         var restore = false;
 
-        if ( logged_in !== false ) {
+        /*if ( logged_in !== false ) { // FIXME after login split
           if ( req.session.user.lock ) {
             restore = true;
           }
-        }
+        }*/
+
+        var user = {
+          'username' : suser,
+          'sid'      : ''
+        };
 
         syslog.log(syslog.LOG_INFO, "starting up a new client");
 
-        response = {
-          success : true,
-          result  : {
+        var _success = function(user, packages, resume_registry, resume_session) {
+          user.sid = req.sessionID;
+          res.cookie('osjs_sessionid', req.sessionID);
+
+          response = {
             environment : {
               bugreporting : _config.BUGREPORT_ENABLE,
               production   : _config.ENV_PRODUCTION,
@@ -142,48 +149,30 @@ function request(pport, req, res) {
               cache        : _config.ENABLE_CACHE,
               connection   : _config.ENV_PLATFORM,
               ssl          : _config.ENV_SSL,
-              autologin    : _config.AUTOLOGIN_ENABLE,
               restored     : restore,
               hosts        : {
                 frontend      : 'localhost' + pport
               }
-            }
-          }
-        };
-
-        _respond(RESPONSE_OK,  response);
-      break;
-
-      /*case 'logout' :
-      break;*/
-
-      case 'login' :
-        var username = jsn.form ? (jsn.form.username || "") : "";
-        var password = jsn.form ? (jsn.form.password || "") : "";
-        var resume   = (jsn.resume === true || jsn.resume === "true");
-
-        var _success = function(user, packages, resume_registry, resume_session) {
-          user.sid = req.sessionID;
-          res.cookie('osjs_sessionid', req.sessionID);
-
-          response = {
-            user          : user,
-            registry      : {
-              revision      : _config.SETTINGS_REVISION,
-              settings      : _settings.getDefaultSettings(_registry.defaults),
-              packages      : packages,
-              preload       : _preload.getPreloadFiles()
             },
-            restore      : {
-              registry      : resume_registry,
-              session       : resume_session
-            },
-            locale       : {
-              system        : _config.DEFAULT_LANGUAGE,
-              browser       : user.language
+
+            session : {
+              user          : user,
+              registry      : {
+                revision      : _config.SETTINGS_REVISION,
+                settings      : _settings.getDefaultSettings(_registry.defaults),
+                packages      : packages,
+                preload       : _preload.getPreloadFiles()
+              },
+              restore      : {
+                registry      : resume_registry,
+                session       : resume_session
+              },
+              locale       : {
+                system        : _config.DEFAULT_LANGUAGE,
+                browser       : user.language
+              }
             }
           };
-
 
           _respond(RESPONSE_OK, {success: true, result: response});
 
@@ -193,9 +182,9 @@ function request(pport, req, res) {
         };
 
         var _failure = function(msg) {
-          syslog.log(syslog.LOG_ERROR, "Login failed: " + msg);
+          syslog.log(syslog.LOG_ERROR, "Boot failed: " + msg);
 
-          console.error('login::_failure()', msg);
+          console.error('Boot::_failure()', msg);
 
           req.session.user = null;
           res.cookie('osjs_sessionid', null);
@@ -203,34 +192,15 @@ function request(pport, req, res) {
           _respond(RESPONSE_OK, {success: false, error: msg, result: null});
         };
 
-        var _proceed = function(puser) {
-          _packages.getInstalledPackages(puser, function(success, result) {
-            if ( success ) {
-              _user.resume(puser, function(resume_registry, resume_session) {
-                _success(puser, result, resume_registry, resume_session);
-              });
-            } else {
-              _failure(result);
-            }
-          });
-        };
-
-        if ( resume ) {
-          _proceed(req.session.user);
-        } else {
-          if ( _config.AUTOLOGIN_ENABLE ) {
-            username = _config.AUTOLOGIN_USERNAME;
-            password = _config.AUTOLOGIN_PASSWORD;
+        _packages.getInstalledPackages(user, function(success, result) {
+          if ( success ) {
+            _user.resume(user, function(resume_registry, resume_session) {
+              _success(user, result, resume_registry, resume_session);
+            });
+          } else {
+            _failure(result);
           }
-
-          _user.login(username, password, function(success, data) {
-            if ( success ) {
-              _proceed(data);
-            } else {
-              _failure(data || "Failed to log in!");
-            }
-          });
-        }
+        });
       break;
 
       case 'shutdown' :
@@ -315,12 +285,12 @@ function request(pport, req, res) {
         var ev_args     = ev_instance.args || [];
         var ev_name     = ev_instance.name ? ev_instance.name.replace(/[^A-z0-9]/, '') : null;
 
-        var user = req.session.user;
+        var puser = req.session.user;
 
         if ( ev_action === null || ev_instance === null || ev_name === null ) {
           _respond(RESPONSE_OK, { success: false, error: "Invalid event!", result: null });
         } else {
-          _packages.getInstalledSystemPackages(user.language, function(success, result) {
+          _packages.getInstalledSystemPackages(puser.language, function(success, result) {
             if ( success ) {
               var load_class = false;
 
