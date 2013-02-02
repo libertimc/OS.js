@@ -2,6 +2,8 @@
 
 Node.js backend
 
+Now runs either as a system service (server.js) or just a normal web client (client.js).
+
 * PAM Authentication
 * DBUS Implementation
 * Client-Server model (System service, sessions)

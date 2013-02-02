@@ -34,6 +34,7 @@
 /*
  * TODO: Implement lock-file for client sessions
  * TODO: Every x second loop through clients and terminate timed out sessions
+ * TODO: Locales (i18n)
  */
 
 ///////////////////////////////////////////////////////////////////////////////

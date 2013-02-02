@@ -32,9 +32,10 @@
 "use strict";
 
 /*
- * TODO: WebServices
  * TODO: WebSockets
  * TODO: Locales (i18n)
+ *
+ * TODO: WebServices (ignore for now)
  */
 
 var __port = 0;
