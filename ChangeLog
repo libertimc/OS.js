@@ -4,7 +4,8 @@ Node.js backend
 
 * PAM Authentication
 * DBUS Implementation
-* Client-Server model
+* Client-Server model (System service, sessions)
+* Metadata is now in JSON format
 * Default home moved to /home (VFS)
 * New templating
 * New bin/ files
