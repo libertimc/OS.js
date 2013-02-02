@@ -108,7 +108,7 @@ function _GetPackages(language, filename, callback) {
         if ( iter.type == 'Application' ) {
           pinfo.schema    = iter.schema || null;
           pinfo.category  = iter.category || "unknown";
-          pinfo.mimes     = iter.mimes || [];
+          pinfo.mimes     = iter.mime || [];
         } else {
           pinfo.description = iter.description[language];
           pinfo.descriptions = iter.description;
