@@ -15,5 +15,5 @@ vendor/*
 
 # Build files
 .build/minimize.cache
-.build/packages.xml
 .build/fontcache.xml
+.build/packages.json

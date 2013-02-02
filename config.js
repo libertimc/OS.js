@@ -72,9 +72,9 @@ module.exports =
   SETTINGS_CONFIG     : path.join(__dirname, "config.js"),
   MINIMIZE_CACHE      : path.join(__dirname, ".build/minimize.cache"),
   FONT_CACHE          : path.join(__dirname, ".build/fontcache.xml"),
-  PACKAGE_BUILD       : path.join(__dirname, ".build/packages.xml"),
+  PACKAGE_BUILD       : path.join(__dirname, ".build/packages.json"),
   MIME_MAGIC          : path.join(__dirname, ".build/mime.mgc"),
-  METADATA_FILENAME   : 'metadata.xml',
+  METADATA_FILENAME   : 'metadata.json',
 
   //
   // Paths
@@ -106,7 +106,7 @@ module.exports =
   PATH_VFS_USER           : '/home/%s',
   PATH_VFS_SNAPSHOTS      : '/home/%s/.osjs/snapshots',
   PATH_VFS_PACKAGES       : '/home/%s/.osjs/packages',
-  PATH_VFS_PACKAGEMETA    : '/home/%s/.osjs/packages.xml',
+  PATH_VFS_PACKAGEMETA    : '/home/%s/.osjs/packages.json',
   PATH_VFS_LAST_REGISTRY  : '/home/%s/.osjs/last-registry.json',
   PATH_VFS_LAST_SESSION   : '/home/%s/.osjs/last-session.json',
   PATH_VFS_USERMETA       : '/home/%s/.osjs/user.xml',

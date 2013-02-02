@@ -37,8 +37,6 @@
 
 var fs        = require('fs'),
     sprintf   = require('sprintf').sprintf,
-    xml2js    = require('xml2js'),
-    libxmljs  = require('libxmljs'),
     _path     = require('path');
 
 var config  = require('../config.js'),
@@ -49,32 +47,18 @@ var config  = require('../config.js'),
 ///////////////////////////////////////////////////////////////////////////////
 
 /**
- * validateMetadata() -- Validate a package.xml
+ * validateMetadata() -- Validate a package.json
  * @param   String      filename    Filename to validate
  * @param   Function    callback    Callback function
  * @return  void
  */
 function validateMetadata(filename, callback) {
-  var parser = new xml2js.Parser();
   var root   = _path.dirname(filename);
 
-  var _validate = function(xmldata) {
-    var valid = false;
+  var _validate = function(jsn) {
+    var valid = true;
     var check = [];
-
-    if ( xmldata && xmldata['package'] ) {
-      valid = true;
-
-      // TODO: Validate existance
-      var resources = xmldata['package'].resource;
-      if ( resources ) {
-        var i = 0, l = resources.length;
-        for ( i; i < l; i++ ) {
-          check.push(_path.join(root, resources[i]));
-        }
-      }
-    }
-
+    // TODO
     callback(valid, valid || 'Validation failed!');
   };
 
@@ -82,131 +66,58 @@ function validateMetadata(filename, callback) {
     if ( err ) {
       callback(false, err);
     } else {
-      parser.parseString(data, function (err, result) {
-        if ( err ) {
-          callback(false, err);
-        } else {
-          _validate(result);
-        }
-      });
+      _validate(JSON.parse(data.toString()));
     }
   });
 }
 
 /**
- * parseList() -- Parse a package.xml list
- * @param   String      language    Current language
- * @param   Object      result      The xml2js parsed data
- * @param   Function    callback    Callback function
- * @return  void
- */
-function parseList(language, result, callback) {
-  var packages = {};
-
-  if ( result && result.packages && result.packages['package'] ) {
-    var items = result.packages['package'];
-    var p, i = 0, l = items.length, iter, prop;
-    var pname, ptype, pinfo, psys, enabled;
-
-    for ( i; i < l; i++ ) {
-      iter          = items[i];
-      pname         = iter['$'].packagename;
-      ptype         = iter['$'].type;
-      psys          = false;
-      enabled       = true;
-
-      pinfo         = {
-        type        : ptype,
-        packagename : pname,
-        name        : iter['$'].name,
-        title       : ptype,
-        titles      : {},
-        icon        : 'emblems/emblem-unreadable.png',
-        resources   : iter.resource
-      };
-
-      for ( p = 0; p < iter.property.length; p++) {
-        prop = iter.property[p];
-
-        if ( prop['$'].name == 'title' ) {
-          if ( prop['$'].language ) {
-            pinfo.titles[prop['$'].language] = prop['_'];
-          } else {
-            pinfo.titles[language] = prop['_'];
-            pinfo.title = pinfo.titles[language];
-          }
-        } else if ( prop['$'].name == 'description' ) {
-          if ( !pinfo.descriptions ) pinfo.descriptions = {};
-
-          if ( prop['$'].language ) {
-            pinfo.descriptions[prop['$'].language] = prop['_'];
-          } else {
-            pinfo.descriptions[language] = prop['_'];
-            pinfo.description = pinfo.descriptions[language];
-          }
-        } else if ( prop['$'].name == 'icon' ) {
-          pinfo.icon = prop['_'];
-        } else if ( prop['$'].name == 'system' ) {
-          if ( prop['_'] === true || prop['_'] === "true" ) {
-            psys = true;
-          }
-        } else if ( prop['$'].name == 'enabled' ) {
-          if ( prop['_'] === false || prop['_'] === "false" ) {
-            enabled = false;
-          }
-        }
-      }
-
-      if ( !enabled ) continue;
-
-      if ( !pinfo.titles[language] ) {
-        pinfo.titles[language] = pinfo.title || pname;
-      }
-      if ( pinfo.descriptions && !pinfo.descriptions[language] && pinfo.description ) {
-        pinfo.descriptions[language] = pinfo.description;
-      }
-
-
-      switch ( ptype ) {
-        case 'Service'            :
-        case 'BackgroundService'  :
-        case 'PanelItem'          :
-          pinfo.description  = pinfo.description || pinfo.title || pname;
-          pinfo.descriptions = pinfo.descriptions || {};
-        break;
-
-        case 'Application'        :
-        default                   :
-          pinfo.schema      = iter['$'].schema || null;
-          pinfo.category    = psys ? "system" : (iter['$'].category || "unknown");
-          pinfo.mimes       = iter.mime;
-        break;
-      }
-
-      packages[pname] = pinfo;
-    }
-  }
-
-  callback(true, packages);
-}
-
-/**
- * _GetPackages() -- Abstract for reading xml package file
+ * _GetPackages() -- Abstract for reading JSON package file
  */
 function _GetPackages(language, filename, callback) {
-  var parser = new xml2js.Parser();
-
   fs.readFile(filename, function(err, data) {
     if ( err ) {
       callback(false, err);
     } else {
-      parser.parseString(data, function (err, result) {
-        if ( err ) {
-          callback(false, err);
+      var packages = {}; // result
+      var pkgs = JSON.parse(data.toString());
+      var list = {};
+
+      var i = 0, l = pkgs.length, iter, pinfo;
+      for ( i; i < l; i++ ) {
+        iter = pkgs[i];
+
+        iter.title = iter.title || {};
+        iter.description = iter.description || {};
+
+        if ( !iter.title[language] )
+          iter.title[language] = iter.name;
+        if ( !iter.description[language] )
+          iter.description[language] = iter.name;
+
+        pinfo = {
+          type          : iter.type,
+          packagename   : iter.type + iter.name,
+          name          : iter.name,
+          title         : iter.title[language],
+          titles        : iter.title,
+          icon          : iter.icon,
+          resources     : iter.resource || []
+        };
+
+        if ( iter.type == 'Application' ) {
+          pinfo.schema    = iter.schema || null;
+          pinfo.category  = iter.category || "unknown";
+          pinfo.mimes     = iter.mimes || [];
         } else {
-          parseList(language, result, callback);
+          pinfo.description = iter.description[language];
+          pinfo.descriptions = iter.description;
         }
-      });
+
+        packages[pinfo.packagename] = pinfo;
+      }
+
+      callback(true, packages);
     }
   });
 }
@@ -234,11 +145,10 @@ function getUserPackages(username, language, callback) {
 }
 
 /**
- * _UpdatePackageMeta() -- Abstract for updating xml package file
+ * _UpdatePackageMeta() -- Abstract for updating JSON package file
  */
 function _UpdatePackageMeta(outfile, readdir, callback) {
-  var doc       = libxmljs.Document(); //parseXmlString('<packages></packages>');
-  var rootNode  = doc.node('packages'); //libxmljs.Element(doc, 'packages');
+  var doc = [];
 
   fs.readdir(readdir, function(err, files) {
     if ( err ) {
@@ -248,7 +158,7 @@ function _UpdatePackageMeta(outfile, readdir, callback) {
       var installed = 0;
 
       var __finished = function() {
-        fs.writeFile(outfile, doc.toString(), function(err) {
+        fs.writeFile(outfile, JSON.stringify(doc), function(err) {
           if ( err ) {
             callback(false, err);
           } else {
@@ -270,27 +180,15 @@ function _UpdatePackageMeta(outfile, readdir, callback) {
                   if ( err ) {
                     callback(false, err);
                   } else {
-                    var loadedoc = libxmljs.parseXmlString(data.toString());
-                    var childs = loadedoc.root().childNodes();
-                    for ( var i = 0; i < childs.length; i++ ) {
-                      try {
-                        if ( childs[i].attr('name').value() == 'enabled' ) {
-                          if ( childs[i].value() === 'false' ) {
-                            __next();
-                            return;
-                            //break;
-                          }
-                        }
-                      } catch ( err ) {}
+                    console.log(">", mpath);
+                    var pdoc = JSON.parse(data.toString());
+                    if ( typeof pdoc == 'object' ) {
+                      if ( pdoc.enabled === true ) {
+                        console.log('... installing');
+                        doc.push(pdoc);
+                        installed++;
+                      }
                     }
-
-                    console.log(mpath);
-
-                    var addChild = loadedoc.root();
-                    addChild.attr('packagename', iter); // FIXME ?!
-                    rootNode.addChild(addChild);
-
-                    installed++;
                   }
 
                   __next();
@@ -311,7 +209,7 @@ function _UpdatePackageMeta(outfile, readdir, callback) {
 }
 
 /**
- * updateUserPackageMetadata() -- Create/Update a user package.xml list
+ * updateUserPackageMetadata() -- Create/Update a user package.json list
  * @param   Object      user        User
  * @param   Function    callback    Callback function
  * @return  void
@@ -323,7 +221,7 @@ function updateUserPackageMetadata(user, callback) {
 }
 
 /**
- * updateSystemPackageMetadata() -- Create/Update a system package.xml list
+ * updateSystemPackageMetadata() -- Create/Update a system package.json list
  * @param   Function    callback    Callback function
  * @return  void
  */
