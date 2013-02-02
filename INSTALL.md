@@ -55,8 +55,11 @@ This has only been tested on these Linux distributions:
   - Drop `jar` file into `vendor/closure-compiler/`
   - Set `COMPRESSOR` to `gcc` in `config.js`
 * Run `./bin/update-compression` to compress all scripts etc
-* Set `ENV_PRODUCTION` in `config.js` and restart node-server
+* Set `ENV_SYSTEM` to _production_ in `config.js` and restart node-server
 * Start system-wide service (or start using `sudo node server.js`)
+
+## Standalone / WebSocket
+* Set `ENV_STANDALONE` in `config.js`
 
 # Upgrading
 * `git pull`

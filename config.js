@@ -63,11 +63,8 @@ module.exports =
   // Environment
   //
   BUGREPORT_ENABLE    : false,
-  ENV_PRODUCTION      : false,
-  ENV_DEMO            : false,
-  ENV_PLATFORM        : false,
-  ENV_SSL             : false,
-  ENABLE_CACHE        : false,
+  ENV_SETUP           : 'development',
+  ENV_STANDALONE      : false,
 
   SETTINGS_CONFIG     : path.join(__dirname, "config.js"),
   MINIMIZE_CACHE      : path.join(__dirname, ".build/minimize.cache"),

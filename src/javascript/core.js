@@ -54,9 +54,7 @@
   var MAX_PROCESSES          = 50;                  //!< Max processes running (except core procs)
   var SESSION_CHECK          = 5000;                //!< Connection by session check freq
   var SESSION_KEY            = "osjs_sessionid";    //!< The Server session cookie-key
-  var ENV_CACHE              = undefined;           //!< Server-side cache enabled state
-  var ENV_PRODUCTION         = undefined;           //!< Server-side production env. state
-  var ENV_DEMO               = undefined;           //!< Server-side demo env. state
+  var ENV_SETUP              = 'development';       //!< Server-side environment
   var ENV_BUGREPORT          = false;               //!< Enable posting of errors (reporting, server-side mailing)
   var STORAGE_ENABLE         = false;               //!< Enable WebStorage for files
   // @endconstants
@@ -2595,14 +2593,12 @@
         var env     = data.environment;
 
         ENV_BUGREPORT   = env.bugreporting;
-        ENV_CACHE       = env.cache;
-        ENV_PRODUCTION  = env.production;
-        ENV_DEMO        = env.demo;
+        ENV_SETUP       = env.setup;
 
         WEBSOCKET_URI   = env.hosts.server;
         ROOT_URL        = (env.ssl ? "https://" : "http://") + env.hosts.frontend;
 
-        if ( env.connection ) {
+        if ( env.standalone ) {
           _Connection = new CoreConnection(function(result) {
             if ( result ) {
               _run(data.session);
@@ -2839,7 +2835,7 @@
         LaunchString("API::CompabilityDialog");
         _Settings._set("user.first-run", false);
 
-        if ( ENV_DEMO ) {
+        if ( ENV_SETUP == 'demo' ) {
           setTimeout(function() {
             var _l = OSjs.Labels.FirstRun;
             var _i = GetIcon("emotes/face-smile-big.png", "32x32");

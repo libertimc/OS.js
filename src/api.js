@@ -90,11 +90,6 @@ function request(pport, suser, req, res) {
   if ( action === null  ) {
     defaultJSONResponse(req, res);
   } else {
-    var logged_in = false; // TODO REMOVE! after login split
-    if ( (req.session && req.session.user) && (typeof req.session.user == 'object') ) {
-      logged_in = req.session.user;
-    }
-
     var _respond = function(http_code, http_data) {
       if ( http_data.success === false && (typeof http_data.error === 'object') ) {
         var msg = ["Node.js Exception occured: "];
@@ -121,12 +116,8 @@ function request(pport, suser, req, res) {
           response = {
             environment : {
               bugreporting : _config.BUGREPORT_ENABLE,
-              production   : _config.ENV_PRODUCTION,
-              demo         : _config.ENV_DEMO,
-              cache        : _config.ENABLE_CACHE,
-              connection   : _config.ENV_PLATFORM,
-              ssl          : _config.ENV_SSL,
-              restored     : false, // FIXME
+              setup        : _config.ENV_SETUP,
+              standalone   : _config.ENV_STANDALONE,
               hosts        : {
                 frontend      : 'localhost' + pport
               }
@@ -384,7 +375,7 @@ function request(pport, suser, req, res) {
       break;
 
       case 'snapshotList'   :
-        _session.snapshotList(logged_in, function(success, result) {
+        _session.snapshotList(req.session.user, function(success, result) {
           if ( success ) {
             _respond(RESPONSE_OK, {success: true, result: result});
           } else {
@@ -395,7 +386,7 @@ function request(pport, suser, req, res) {
 
       case 'snapshotSave'   :
         if ( jsn.session && jsn.session.name && jsn.session.data ) {
-          _session.snapshotSave(logged_in, jsn.session.name, jsn.session.data, function(success, result) {
+          _session.snapshotSave(req.session.user, jsn.session.name, jsn.session.data, function(success, result) {
             if ( success ) {
               _respond(RESPONSE_OK, {success: true, result: result});
             } else {
@@ -409,7 +400,7 @@ function request(pport, suser, req, res) {
 
       case 'snapshotLoad'   :
         if ( jsn.session && jsn.session.name ) {
-          _session.snapshotLoad(logged_in, jsn.session.name, function(success, result) {
+          _session.snapshotLoad(req.session.user, jsn.session.name, function(success, result) {
             if ( success ) {
               _respond(RESPONSE_OK, {success: true, result: result});
             } else {
@@ -423,7 +414,7 @@ function request(pport, suser, req, res) {
 
       case 'snapshotDelete' :
         if ( jsn.session && jsn.session.name ) {
-          _session.snapshotDelete(logged_in, jsn.session.name, function(success, result) {
+          _session.snapshotDelete(req.session.user, jsn.session.name, function(success, result) {
             if ( success ) {
               _respond(RESPONSE_OK, {success: true, result: result});
             } else {
