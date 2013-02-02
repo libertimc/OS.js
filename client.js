@@ -207,7 +207,22 @@ app.configure(function() {
   //
 
   app.post('/API', function postAPI(req, res) {
-    _api.request(__port, __user, req, res);
+    try {
+      _api.request(__port, __user, req, res);
+    } catch ( err ) {
+      var msg = ["Node.js Exception occured: "];
+
+      if ( (typeof err === 'object') ) {
+        msg.push('Filename: ' + err.filename);
+        msg.push('Line: ' + err.lineno);
+        msg.push('Message: ' + err.message);
+      } else {
+        msg.push(err);
+      }
+
+      var message = msg.join('<br />');
+      res.json(200, {success: false, error: message});
+    }
   });
 
   app.post('/API/upload', function postAPIUpload(req, res) {

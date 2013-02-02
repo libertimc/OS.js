@@ -96,28 +96,15 @@ function request(pport, suser, req, res) {
     }
 
     var _respond = function(http_code, http_data) {
-      // FIXME: Check for 'error' and pull out message if it's an object
+      if ( http_data.success === false && (typeof http_data.error === 'object') ) {
+        var msg = ["Node.js Exception occured: "];
+        msg.push('Filename: ' + err.filename);
+        msg.push('Line: ' + err.lineno);
+        msg.push('Message: ' + err.message);
+        http_data.error = msg.join('<br />');
+      }
       res.json(http_code, http_data);
     };
-
-    // First check if we need a user
-    var need_auth = [
-      "snapshotList", "snapshotLoad", "snapshotSave", "snapshotDelete", "updateCache",
-      "init", "settings", "logout", "shutdown","user", "event", "package", "service", "call"
-    ];
-
-    var i = 0, l = need_auth.length;
-    for ( i; i < l; i++ ) {
-      if ( (need_auth[i] == action) && (logged_in === false) ) {
-        _respond(RESPONSE_OK,  {
-            success : false,
-            error   : 'You are not logged in!',
-            result  : null
-        });
-        return;
-        //break;
-      }
-    }
 
     // Call API
     switch ( action ) {

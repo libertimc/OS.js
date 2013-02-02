@@ -98,7 +98,6 @@ function _GetPackages(language, filename, callback) {
 
         pinfo = {
           type          : iter.type,
-          packagename   : iter.type + iter.name,
           name          : iter.name,
           title         : iter.title[language],
           titles        : iter.title,
@@ -115,7 +114,7 @@ function _GetPackages(language, filename, callback) {
           pinfo.descriptions = iter.description;
         }
 
-        packages[pinfo.packagename] = pinfo;
+        packages[iter.packagename] = pinfo; // packagename is from _UpdatePackageMetadata()
       }
 
       callback(true, packages);
@@ -184,6 +183,8 @@ function _UpdatePackageMeta(outfile, readdir, callback) {
                     console.log(">", mpath);
                     var pdoc = JSON.parse(data.toString());
                     if ( typeof pdoc == 'object' ) {
+                      pdoc.packagename = iter;
+
                       if ( pdoc.enabled === true ) {
                         console.log('... installing');
                         doc.push(pdoc);
