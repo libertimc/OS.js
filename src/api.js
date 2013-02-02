@@ -122,22 +122,12 @@ function request(pport, suser, req, res) {
     // Call API
     switch ( action ) {
       case 'boot' :
-        var restore = false;
+        syslog.log(syslog.LOG_INFO, "booting up...");
 
-        /*if ( logged_in !== false ) { // FIXME after login split
-          if ( req.session.user.lock ) {
-            restore = true;
-          }
-        }*/
+        var user = _user.defaultUser;
+        user.username = suser;
 
-        var user = {
-          'username' : suser,
-          'sid'      : ''
-        };
-
-        syslog.log(syslog.LOG_INFO, "starting up a new client");
-
-        var _success = function(user, packages, resume_registry, resume_session) {
+        var _success = function(packages, resume_registry, resume_session) {
           user.sid = req.sessionID;
           res.cookie('osjs_sessionid', req.sessionID);
 
@@ -149,7 +139,7 @@ function request(pport, suser, req, res) {
               cache        : _config.ENABLE_CACHE,
               connection   : _config.ENV_PLATFORM,
               ssl          : _config.ENV_SSL,
-              restored     : restore,
+              restored     : false, // FIXME
               hosts        : {
                 frontend      : 'localhost' + pport
               }
@@ -195,7 +185,7 @@ function request(pport, suser, req, res) {
         _packages.getInstalledPackages(user, function(success, result) {
           if ( success ) {
             _user.resume(user, function(resume_registry, resume_session) {
-              _success(user, result, resume_registry, resume_session);
+              _success(result, resume_registry, resume_session);
             });
           } else {
             _failure(result);

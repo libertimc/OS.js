@@ -109,7 +109,7 @@ module.exports =
   PATH_VFS_PACKAGEMETA    : '/home/%s/.osjs/packages.json',
   PATH_VFS_LAST_REGISTRY  : '/home/%s/.osjs/last-registry.json',
   PATH_VFS_LAST_SESSION   : '/home/%s/.osjs/last-session.json',
-  PATH_VFS_USERMETA       : '/home/%s/.osjs/user.xml',
+  PATH_VFS_USERMETA       : '/home/%s/.osjs/user.json',
   PATH_VFS_TEMP           : '/home/%s/.osjs/tmp',
   PATH_VFS_LOCK           : '/home/%s/.osjs/lock',
 

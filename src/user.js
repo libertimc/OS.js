@@ -37,8 +37,7 @@
 
 var fs         = require('fs'),
     sprintf    = require('sprintf').sprintf,
-    pam        = require('authenticate-pam'),
-    xml2js     = require('xml2js');
+    pam        = require('authenticate-pam');
 
 var config     = require('../config.js');
 
@@ -65,6 +64,8 @@ var _defaultUser = {
 
 module.exports =
 {
+  defaultUser : _defaultUser,
+
   /**
    * user::login() -- Log in with PAM
    * @param   String    username      Username
@@ -81,26 +82,24 @@ module.exports =
         // Read user info
         var ipath = sprintf(config.PATH_VFS_USERMETA, username);
         fs.readFile(ipath, function(err, data) {
-          var info = null;
+          var user = _defaultUser;
 
           if ( !err ) {
-            var parser = new xml2js.Parser();
-            parser.parseString(data, function (err, doc) {
+            fs.readFile(ipath, function(err, data) {
               if ( !err ) {
-                var node = doc.user.property;
-                info = {};
-                for ( var i = 0; i < node.length; i++ ) {
-                  info[node[i]['$'].name] = node[i]['_'];
+                var i, idata = JSON.parse(data.toString());
+                for ( i in idata ) {
+                  if ( idata.hasOwnProperty(i) ) {
+                    user[i] = idata[i];
+                  }
                 }
               }
             });
           }
 
-          var user = _defaultUser;
           user.username  = username;
           user.groups    = [username];
           user.lock      = false;
-          user.info      = info || user.info;
 
           // Lock session
           var lpath = sprintf(config.PATH_VFS_LOCK, user.username);

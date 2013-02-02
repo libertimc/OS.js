@@ -86,12 +86,13 @@ function _GetPackages(language, filename, callback) {
       var i = 0, l = pkgs.length, iter, pinfo;
       for ( i; i < l; i++ ) {
         iter = pkgs[i];
+        console.log(iter.title, language);
 
         iter.title = iter.title || {};
-        iter.description = iter.description || {};
-
         if ( !iter.title[language] )
           iter.title[language] = iter.name;
+
+        iter.description = iter.description || {};
         if ( !iter.description[language] )
           iter.description[language] = iter.name;
 
