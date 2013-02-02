@@ -32,14 +32,13 @@ This has only been tested on these Linux distributions:
   - `http://jqueryui.com/download/jquery-ui-1.8.17.custom.zip`
 * Install Node dependencies
   - `npm install`
-* Compile and install all applications
-  - `./bin/compile-all`
+* Install Packages from vendor repository
   - `./bin/install-all`
 * Create users
   - Add yourself a new user to test with using `./bin/add-user <username>`.
   - Or copy `src/template/vfs-user/.osjs` into users already on system
 * Install system service and start it up
-  -- TODO --
+  - Startup service scripts are located in doc/
 
 ## Running a production envoironment
 * **ALTERNATIVE 1: ** Yahoo YUI Compressor
@@ -58,9 +57,9 @@ This has only been tested on these Linux distributions:
 You can only run as a designated user at this moment because XHR calls
 are not finished.
 
-* Set the user you will use in 'config.js' in 'CLIENT_USER_TMP'.
 * Run 'sudo node ./server.js'
 * Launch browser in 'localhost:3000'
-  - You will be redirected to your process
 * Kill the server like normal to quit all running clients
 
+For development you can start the client fo your user with:
+'node ./client.js 3000 `whoami`'
