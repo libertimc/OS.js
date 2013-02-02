@@ -28,6 +28,8 @@
  * @author  Anders Evenrud <andersevenrud@gmail.com>
  * @licence Simplified BSD License
  */
+"use strict";
+
 (function($, undefined) {
 
   /////////////////////////////////////////////////////////////////////////////
@@ -332,7 +334,7 @@
       }
     }
 
-    delete list;
+    //delete list;
 
     // Check if we exceed the process conut limit
     if ( count >= MAX_PROCESSES ) {
@@ -636,7 +638,8 @@
           }
         }
       }
-      delete defs;
+      //delete defs;
+      defs = null;
     }
 
     // If no application was launched we continue with the default dialog
@@ -658,9 +661,9 @@
     }
 
     if ( list.length ) {
-      function __run(mapp) {
+      var __run = function(mapp) {
         API.system.launch(mapp, {'path' : path, 'mime' : mime});
-      }
+      };
 
       if ( list.length == 1 ) {
         __run(list[0].name);
@@ -3347,7 +3350,8 @@
       var _loader_done = function() {
         try {
           _loader.destroy();
-          delete _loader;
+          //delete _loader;
+          _loader = null;
         } catch ( eee ) {}
 
         callback();
@@ -3425,7 +3429,8 @@
         var _loader_done = function(failed) {
           try {
             _loader.destroy();
-            delete _loader;
+            //delete _loader;
+            _loader = null;
           } catch ( eee ) {}
 
           callback(failed);
@@ -3499,6 +3504,7 @@
 
       this._super("(SettingsManager)", "apps/system-software-update.png", true);
 
+      var j, iter;
       for ( j in registry ) {
         if ( registry.hasOwnProperty(j) ) {
           iter = registry[j];
@@ -3952,7 +3958,6 @@
                   label     : item.titles[GetLanguage()] || item.title,
                   type      : 'Application',
                   locked    : cat == "System",
-                  icon      : item.icon,
                   icon      : (icons ? GetIcon(item.icon, icons, iter) : item.icon),
                   category  : item.category
                 });
@@ -8658,7 +8663,7 @@
       var div = $("<div class=\"GUIMenu\"></div>");
       var ul  = $("<ul class=\"GUIMenuList\"></ul>");
 
-      var i = 0, l = menu.length;
+      var i = 0, l = menu.length, iter;
       for ( i; i < l; i++ ) {
         iter = menu[i];
         if ( menu[i] == "---" ) {
@@ -9137,7 +9142,8 @@
       _Core     = null;
 
       try {
-        delete OSjs;
+        //delete OSjs;
+        delete window.OSjs;
       } catch (e) {}
 
       window.onbeforeunload = null;
