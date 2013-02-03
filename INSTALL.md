@@ -4,13 +4,10 @@ This has only been tested on these Linux distributions:
 
 # Backend Dependencies:
 * Node.js 0.8+
-* _exiftool_
+* PAM development libraries (libpam0g-dev on debian)
+* Sudo to use administration utilities
+* _exiftool_ (Optional, for media file information)
 * _pdf2svg_ (Optional, for use with PDF applications)
-* _ffmpeg_ (Optional, for converting samples from OGG to MPEG)
-
-# Frontend Dependencies:
-* jQuery and jQuery UI
-* Yahoo YUI Compressor _or_ Google Closure Compiler (For production environments)
 
 # Automatic Installation:
 * Clone repository
@@ -43,16 +40,8 @@ This has only been tested on these Linux distributions:
   'node ./client.js 3000 `whoami`'
 
 ## Production evironment
-* **ALTERNATIVE 1: ** Yahoo YUI Compressor
-  - `http://developer.yahoo.com/yui/compressor/
-  - Drop `jar` file into `vendor/yui-compressor
-  - Synmlink/copy/move the jar to `vendor/yui-compressor/yuicompressor.jar`
-* **ALTERNATIVE 2: ** Google Closure Compiler
-  - `https://developers.google.com/closure/`
-  - Drop `jar` file into `vendor/closure-compiler/`
-  - Set `COMPRESSOR` to `gcc` in `config.js`
 * Set your compressor of choice in `config.js`
-  - gcc: Google Closure Compiler
+  - gcc: Google Closure Compiler (Manual download)
   - yui: Yahoo Compressor
 * Run `./bin/update-compression` to compress all scripts etc
 * Set `ENV_SYSTEM` to _production_ in `config.js` and restart node-server
