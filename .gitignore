@@ -10,6 +10,7 @@ public_html/media/Public/*
 *.php
 
 # Build files
+.compress
 .build/minimize.cache
 .build/fontcache.xml
 .build/packages.json

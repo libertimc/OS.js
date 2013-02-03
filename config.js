@@ -95,6 +95,7 @@ module.exports =
   // URIs
   //
   URI_FONT              : '/media/System/Fonts',
+  COMPRESS_DIRNAME      : '.compress',
 
   //
   // VFS

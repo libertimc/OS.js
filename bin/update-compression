@@ -1,0 +1,151 @@
+#!/usr/bin/env node
+/*!
+ * @file
+ * OS.js - JavaScript Operating System - update-compression
+ *
+ * This script compresses all JavaScript and CSS for the frontend (core)
+ * for using in a production environment
+ *
+ * Copyright (c) 2011-2012, Anders Evenrud <andersevenrud@gmail.com>
+ * All rights reserved.
+ * 
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met: 
+ * 
+ * 1. Redistributions of source code must retain the above copyright notice, this
+ *    list of conditions and the following disclaimer. 
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution. 
+ * 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
+ * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * @author Anders Evenrud <andersevenrud@gmail.com>
+ * @licence Simplified BSD License
+ * @created 2012-01-04
+ */
+
+var _config     = require('../config'),
+    _preload    = require(_config.PATH_SRC + '/preload.js'),
+    _packages   = require(_config.PATH_SRC + '/packages.js');
+
+var _path     = require('path'),
+    _fs       = require('fs'),
+    _cp       = require("child_process");
+
+var compressor = 'java -jar ' + _path.join(_config.PATH_VENDOR, 'yui.jar'); // FIXME
+
+var languages = ["en_US", "nb_NO"]; // FIXME
+
+function enumCoreResources(callback) {
+  var i, j;
+  var list = [];
+
+  for ( i = 0; i < languages.length; i++ ) {
+    list.push(_path.join(_config.PATH_JSLOCALE, languages[i] + '.js'));
+  }
+
+  for ( i = 0; i < _preload.coreResources.length; i++ ) {
+    list.push(_path.join(_config.PATH_JAVASCRIPT, _preload.coreResources[i]));
+  }
+
+  for ( i in _preload.dialogResources ) {
+    if ( _preload.dialogResources.hasOwnProperty(i) ) {
+      for ( j = 0; j < _preload.dialogResources[i].resources.length; j++ ) {
+        list.push(_path.join(_config.PATH_JAVASCRIPT, _preload.dialogResources[i].resources[j]));
+      }
+    }
+  }
+
+  _packages.getInstalledSystemPackages('en_US', function(success, result) {
+    if ( success ) {
+      for ( i in result ) {
+        if ( result.hasOwnProperty(i) ) {
+          for ( j = 0; j < result[i].resources.length; j++ ) {
+            list.push(_path.join(_config.PATH_PACKAGES, i, result[i].resources[j]));
+          }
+        }
+      }
+    }
+
+    callback(list);
+  });
+}
+
+function _compress(type, src, dest, callback) {
+  console.log('>', src);
+
+  var time = (new Date()).getTime();
+  var cmd = [compressor, '--preserve-semi', '--charset', 'utf-8', '--type', type, src, '-o', dest].join(' ');
+  var proc = _cp.exec(cmd, function(err, stdout, stderr) {
+    var diff = (((new Date()).getTime()) - time) / 1000;
+    console.log('In', diff, 'second(s)');
+    console.log('');
+
+    if ( err !== null ) {
+      console.log('child process exited with code ' + err);
+      console.log('stdout: ' + stdout);
+      console.log('stderr: ' + stderr);
+      callback(false, src);
+    } else {
+      callback(true, src);
+    }
+  });
+}
+
+function compressJavaScript(src, dest, callback) {
+  _compress('js', src, dest, callback);
+}
+
+function compressCSS(src, dest, callback) {
+  _compress('css', src, dest, callback);
+}
+
+function done(list) {
+  console.log("Compressed", list.length, "file(s)")
+}
+
+enumCoreResources(function(list) {
+  var successes = [];
+
+  var __next = function() {
+    var src  = list.pop();
+    var path = _path.join(_path.dirname(src), _config.COMPRESS_DIRNAME);
+    var dest = _path.join(path, _path.basename(src));
+
+    try {
+      _fs.mkdirSync(path);
+    } catch ( err ) {}
+
+    if ( src.match(/\.js$/) ) {
+      compressJavaScript(src, dest, __finished);
+    } else if ( src.match(/\.css$/) ) {
+      compressCSS(src, dest, __finished);
+    }
+  };
+
+  var __finished = function(result, filename) {
+    if ( result ) {
+      successes.push(filename);
+    }
+
+    if ( list.length ) {
+      __next();
+    } else {
+      done(successes);
+    }
+  };
+
+  console.log("Got", list.length, "file(s)...\n\n");
+  __finished();
+});
+

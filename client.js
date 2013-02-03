@@ -198,7 +198,7 @@ app.configure(function() {
 
     opts.locale   = language;
     opts.language = language.split("_").shift();
-    opts.preloads = _preload.vendor_dependencies;
+    opts.preloads = _preload.vendorDependencies;
 
     res.render('index', opts);
   });

@@ -64,7 +64,7 @@ var _defaults = {
     ]
 };
 
-var _resources = {
+var _dialogResources = {
   "ColorOperationDialog" : {
     "resources" : ["dialog.color.js"]
   },
@@ -109,11 +109,29 @@ var _resources = {
   }
 };
 
-var _vendor = [
+var _vendorResources = [
   {"script" : 'sprintf.js'},
   {"script" : 'jquery.js'},
   {"script" : 'jquery-ui.js'},
   {"style"  : 'jquery-ui-theme.css'}
+];
+
+var _coreResources = [
+  'dialogs.css',
+  'glade.css',
+  'iframe.css',
+  'login.css',
+  'main.css',
+  'theme.dark.css',
+  'theme.default.css',
+  'theme.light.css',
+  'theme.none.css',
+  'classes.js',
+  'core.js',
+  'iframe.js',
+  'init.js',
+  'login.js',
+  'utils.js'
 ];
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -123,7 +141,9 @@ var _vendor = [
 module.exports =
 {
 
-  vendor_dependencies : _vendor,
+  vendorDependencies  : _vendorResources,
+  dialogResources     : _dialogResources,
+  coreResources       : _coreResources,
 
   /**
    * preload::getPreloadFiles() -- Get preload resource list
@@ -132,9 +152,9 @@ module.exports =
   getPreloadFiles : function() {
     var preloads = _defaults;
 
-    for ( var pn in _resources ) {
-      if ( _resources.hasOwnProperty(pn) ) {
-        var iter = _resources[pn];
+    for ( var pn in _dialogResources ) {
+      if ( _dialogResources.hasOwnProperty(pn) ) {
+        var iter = _dialogResources[pn];
         for ( var i = 0; i < iter.resources.length; i++ ) {
           preloads.resources.push(iter.resources[i]);
         }
