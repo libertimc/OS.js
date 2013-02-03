@@ -9,10 +9,6 @@ public_html/.htpasswd
 public_html/media/Public/*
 *.php
 
-# Sub-modules
-vendor/*
-!vendor/launcher
-
 # Build files
 .build/minimize.cache
 .build/fontcache.xml

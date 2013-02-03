@@ -47,6 +47,17 @@ var config  = require('../config.js');
 module.exports =
 {
   /**
+   * ui::generateThemeCSS() -- Generate theme css from a template
+   * @param   String      name          Theme name
+   * @param   Function    callback      Callback function
+   * @return  String
+   */
+  generateThemeCSS : function(name, callback) {
+  
+  
+  },
+
+  /**
    * ui::generateFontCSS() -- Generate a Font CSS stylesheet
    * @param   String    filename      Font Filename
    * @return  String

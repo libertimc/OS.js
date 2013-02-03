@@ -21,9 +21,6 @@ This has only been tested on these Linux distributions:
 # Manual Installation:
 * Clone repository
   - `git clone --recursive -b node.js git@github.com:andersevenrud/OS.js.git`
-* Place jQuery dependencies into `vendor/` (see symlinks in `public_html/vendor`)
-  - `http://code.jquery.com/jquery-1.7.1.min.js`
-  - `http://jqueryui.com/download/jquery-ui-1.8.17.custom.zip`
 * Install Node dependencies
   - `npm install`
 * Install Packages from vendor repository
@@ -54,6 +51,9 @@ This has only been tested on these Linux distributions:
   - `https://developers.google.com/closure/`
   - Drop `jar` file into `vendor/closure-compiler/`
   - Set `COMPRESSOR` to `gcc` in `config.js`
+* Set your compressor of choice in `config.js`
+  - gcc: Google Closure Compiler
+  - yui: Yahoo Compressor
 * Run `./bin/update-compression` to compress all scripts etc
 * Set `ENV_SYSTEM` to _production_ in `config.js` and restart node-server
 * Start system-wide service (or start using `sudo node server.js`)
