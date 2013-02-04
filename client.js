@@ -203,7 +203,10 @@ app.configure(function() {
 
   app.post('/API', function postAPI(req, res) {
     try {
-      _api.request(__port, __user, req, res);
+      var jsn     = req.body || {};//.objectData;
+      var action  = jsn.action || null;
+
+      _api.request(action, jsn, __port, __user, req, res);
     } catch ( err ) {
       var msg = ['Node.js Exception occured: '];
 

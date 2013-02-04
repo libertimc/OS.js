@@ -9,6 +9,7 @@ NODE.JS
 * Finish standalone
 * Add a user class and clean up
 * Login screen wait and poll for client startup (return redirect url)
+* Fix crashes on non-existent user directories/files (.osjs etc)
 * Font cache
 * Syslog messages
 * Testing

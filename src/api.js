@@ -73,24 +73,12 @@ function defaultJSONResponse(req, res) {
 // MAIN
 ///////////////////////////////////////////////////////////////////////////////
 
-function request(pport, suser, req, res) {
-  console.log('POST /');
-
-  // FIXME: This can be moved to client.js before this call is made
-  var jsn, action, response = null;
-  try {
-    jsn     = req.body;//.objectData;
-    action  = jsn.action;
-
-    console.log('AJAX /', action);
-  } catch ( e ) {
-    jsn = {};
-    console.error(e);
-  }
-
+function request(action, jsn, pport, suser, req, res) {
   if ( action === null  ) {
     defaultJSONResponse(req, res);
   } else {
+    var response = null;
+
     var _respond = function(http_code, http_data) {
       if ( http_data.success === false && (typeof http_data.error === 'object') ) {
         var msg = ['Node.js Exception occured: '];
@@ -102,6 +90,10 @@ function request(pport, suser, req, res) {
       res.json(http_code, http_data);
     };
 
+    //
+    // Calls
+    //
+
     if ( action != 'boot' ) {
       if ( !(typeof req.session.user === 'object') ) {
         _respond(500, {success: false, error: 'No running session found!'});
@@ -109,7 +101,6 @@ function request(pport, suser, req, res) {
       }
     }
 
-    // Call API
     switch ( action ) {
       case 'boot' :
         var user = _user.defaultUser;
