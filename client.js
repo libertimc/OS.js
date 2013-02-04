@@ -78,14 +78,8 @@ var express = require('express'),
 ///////////////////////////////////////////////////////////////////////////////
 
 console.log('>>> Starting up...');
-syslog.init('OS.js', syslog.LOG_PID | syslog.LOG_ODELAY, syslog.LOG_LOCAL0);
-syslog.log(syslog.LOG_INFO, 'Starting up ' + new Date());
 
 var app = express();
-
-process.on('exit', function() {
-  syslog.close();
-});
 
 swig._cache = {};
 swig.express3 = function (path, options, fn) {
@@ -349,6 +343,12 @@ app.configure(function() {
 ///////////////////////////////////////////////////////////////////////////////
 // MAIN
 ///////////////////////////////////////////////////////////////////////////////
+
+syslog.init('OS.js client.js', syslog.LOG_PID | syslog.LOG_ODELAY, syslog.LOG_LOCAL0);
+syslog.log(syslog.LOG_INFO, 'Starting up ' + new Date());
+process.on('exit', function() {
+  syslog.close();
+});
 
 app.listen(__port);
 console.log('>>> Listening on port ' + __port);

@@ -65,6 +65,7 @@ var CLIENT_CONNECTION   = [];
  */
 function killClients() {
   CLIENT_CONNECTION.forEach(function(worker) {
+    syslog.log(syslog.LOG_INFO, 'Killing client...');
     process.kill(worker);
   });
 
@@ -75,13 +76,12 @@ function killClients() {
  * Create a new client connection
  * @return  int   Created port
  */
-function createClient(username) {
-  CLIENT_PORT++;
-
+function createClient(username, callback) {
+  var port = CLIENT_PORT;
   var a1 = path.join(_config.PATH_BIN, 'launch-client');
   var a2 = path.join(_config.PATH, 'client.js');
 
-  var proc = spawn(a1, [a2, CLIENT_PORT, username, username]);
+  var proc = spawn(a1, [a2, port, username, username]);
 
   proc.stdout.on('data', function (data) {
     console.log('stdout: ' + data);
@@ -92,12 +92,20 @@ function createClient(username) {
   });
 
   proc.on('exit', function (code) {
+    if ( code === 0 ) {
+      syslog.log(syslog.LOG_INFO, 'Created client session...');
+      CLIENT_CONNECTION.push(proc);
+      CLIENT_PORT++;
+
+      callback(port);
+    } else {
+      syslog.log(syslog.LOG_INFO, 'Failed to create client session...');
+
+      callback(0);
+    }
+
     console.log('child process exited with code ' + code);
   });
-
-  CLIENT_CONNECTION.push(proc);
-
-  return CLIENT_PORT;
 }
 
 /**
@@ -219,16 +227,21 @@ app.configure(function() {
 
         _user.login(username, password, function(success, data) {
           if ( success ) {
-            var p = createClient(username);
-            console.log('Started new client on :' + p);
+            createClient(username, function(port) {
+              if ( port > 0 ) {
+                console.log('Started new client on :' + port);
 
-            var result = {
-              user    : data,
-              href    : 'http://localhost:' + p,
-              timeout : 3000
-            };
+                var result = {
+                  user    : data,
+                  href    : 'http://localhost:' + port,
+                  timeout : 3000 // FIXME replaced by a poll
+                };
 
-            res.json(200, {'success': true, 'result': result});
+                res.json(200, {'success': true, 'result': result});
+              } else {
+                res.json(200, {'success': false, 'result': null, 'error': 'Failed to create client!'});
+              }
+            });
           } else {
             res.json(200, {'success': false, 'error': 'Failed to log in!', 'result': null});
           }
@@ -245,6 +258,9 @@ app.configure(function() {
 ///////////////////////////////////////////////////////////////////////////////
 // MAIN
 ///////////////////////////////////////////////////////////////////////////////
+
+syslog.init('OS.js server.js', syslog.LOG_PID | syslog.LOG_ODELAY, syslog.LOG_LOCAL0);
+syslog.log(syslog.LOG_INFO, 'Starting up ' + new Date());
 
 process.on('uncaughtException', killClients);
 /*process.on('SIGINT', killClients);

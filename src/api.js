@@ -112,8 +112,6 @@ function request(pport, suser, req, res) {
     // Call API
     switch ( action ) {
       case 'boot' :
-        syslog.log(syslog.LOG_INFO, 'booting up...');
-
         var user = _user.defaultUser;
         user.username = suser;
         user.sid      = req.sessionID;
@@ -226,8 +224,6 @@ function request(pport, suser, req, res) {
       break;
 
       case 'settings' :
-        syslog.log(syslog.LOG_INFO, 'saving client[' + req.session.user.username + '] settings');
-
         _user.store(req.session.user, jsn.registry, null, function(err) {
           _respond(RESPONSE_OK, {success: err ? false : true, result: err ? err : true});
         });
