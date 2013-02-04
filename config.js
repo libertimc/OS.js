@@ -37,9 +37,8 @@ module.exports =
   //
   // Host
   //
-  WEBSERVER_PORT      : 3000,
+  SERVER_PORT         : 3000,
   CLIENT_PORT_START   : 3010,
-  WEBSOCKET_PORT      : -1,
 
   //
   // Frontend Settings

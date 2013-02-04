@@ -1,6 +1,6 @@
 /*!
  * @file
- * OS.js - JavaScript Operating System - preloading
+ * OS.js - JavaScript Operating System - resources
  *
  * Copyright (c) 2011-2012, Anders Evenrud <andersevenrud@gmail.com>
  * All rights reserved.

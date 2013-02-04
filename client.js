@@ -61,7 +61,7 @@ if ( __user === null ) {
 
 // Internal
 var _config    = require('./config.js'),
-    _preload   = require(_config.PATH_SRC + '/preload.js'),
+    _resources = require(_config.PATH_SRC + '/resources.js'),
     _locale    = require(_config.PATH_SRC + '/locale.js'),
     _vfs       = require(_config.PATH_SRC + '/vfs.js'),
     _api       = require(_config.PATH_SRC + '/api.js'),
@@ -176,7 +176,7 @@ app.configure(function() {
   console.log('>>> Configuring Express');
   app.use(express.bodyParser());
   app.use(express.cookieParser());
-  app.use(express.session({ secret:'yodawgyo', cookie: { path: '/', httpOnly: true, maxAge: null} }));
+  app.use(express.session({ secret:'yodawgyo', cookie: { path: '/', httpOnly: true, maxAge: null} })); // FIXME
   app.use(express.limit('1024mb'));
 
   app.engine('html',      swig.express3);
@@ -198,7 +198,7 @@ app.configure(function() {
 
     opts.locale   = language;
     opts.language = language.split("_").shift();
-    opts.preloads = _preload.vendorDependencies;
+    opts.preloads = _resources.vendorDependencies;
 
     res.render('index', opts);
   });

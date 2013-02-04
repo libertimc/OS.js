@@ -42,7 +42,7 @@ var RESPONSE_ERROR  = 500;
 var _config    = require('../config.js'),
     _registry  = require(_config.PATH_SRC + '/registry.js'),
     _settings  = require(_config.PATH_SRC + '/settings.js'),
-    _preload   = require(_config.PATH_SRC + '/preload.js'),
+    _resources = require(_config.PATH_SRC + '/resources.js'),
     _packages  = require(_config.PATH_SRC + '/packages.js'),
     _vfs       = require(_config.PATH_SRC + '/vfs.js'),
     _user      = require(_config.PATH_SRC + '/user.js'),
@@ -115,11 +115,9 @@ function request(pport, suser, req, res) {
 
         var user = _user.defaultUser;
         user.username = suser;
+        user.sid      = req.sessionID;
 
         var _success = function(packages, resume_registry, resume_session) {
-          user.sid = req.sessionID;
-          res.cookie('osjs_sessionid', req.sessionID);
-
           response = {
             environment : {
               bugreporting : _config.BUGREPORT_ENABLE,
@@ -136,7 +134,7 @@ function request(pport, suser, req, res) {
                 revision      : _config.SETTINGS_REVISION,
                 settings      : _settings.getDefaultSettings(_registry.defaults),
                 packages      : packages,
-                preload       : _preload.getPreloadFiles()
+                preload       : _resources.getPreloadFiles()
               },
               restore      : {
                 registry      : resume_registry,
@@ -162,7 +160,6 @@ function request(pport, suser, req, res) {
           console.error('Boot::_failure()', msg);
 
           req.session.user = null;
-          res.cookie('osjs_sessionid', null);
 
           _respond(RESPONSE_OK, {success: false, error: msg, result: null});
         };
@@ -207,6 +204,12 @@ function request(pport, suser, req, res) {
           __done();
         }
 
+      break;
+
+      case 'alive' :
+        _user.alive(req.session.user, function(success, result) {
+          _respond(RESPONSE_OK, {success: success, result: result});
+        });
       break;
 
       case 'updateCache' :

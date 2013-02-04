@@ -32,7 +32,6 @@
 "use strict";
 
 /*
- * TODO: Implement lock-file for client sessions
  * TODO: Every x second loop through clients and terminate timed out sessions
  * TODO: Locales (i18n)
  */
@@ -57,24 +56,32 @@ var express = require('express'),
 // MAIN
 ///////////////////////////////////////////////////////////////////////////////
 
-var __port = _config.CLIENT_PORT_START;
-var __clients = [];
+var CLIENT_PORT         = _config.CLIENT_PORT_START;
+var CLIENT_CONNECTION   = [];
 
-var killClients = function() {
-  __clients.forEach(function(worker) {
+/**
+ * Kill all connected clients
+ * @return  int   Result
+ */
+function killClients() {
+  CLIENT_CONNECTION.forEach(function(worker) {
     process.kill(worker);
   });
 
   return 0;
-};
+}
 
-var createClient = function(username) {
-  __port++;
+/**
+ * Create a new client connection
+ * @return  int   Created port
+ */
+function createClient(username) {
+  CLIENT_PORT++;
 
   var a1 = path.join(_config.PATH_BIN, 'launch-client');
   var a2 = path.join(_config.PATH, 'client.js');
 
-  var proc = spawn(a1, [a2, __port, username, username]);
+  var proc = spawn(a1, [a2, CLIENT_PORT, username, username]);
 
   proc.stdout.on('data', function (data) {
     console.log('stdout: ' + data);
@@ -88,13 +95,13 @@ var createClient = function(username) {
     console.log('child process exited with code ' + code);
   });
 
-  __clients.push(proc);
+  CLIENT_CONNECTION.push(proc);
 
-  return __port;
-};
+  return CLIENT_PORT;
+}
 
 ///////////////////////////////////////////////////////////////////////////////
-// MAIN
+// TEMPLATING
 ///////////////////////////////////////////////////////////////////////////////
 
 swig._cache = {};
@@ -141,13 +148,15 @@ swig._read = function (path, options, fn) {
   return true;
 };
 
+///////////////////////////////////////////////////////////////////////////////
+// APPLICATION
+///////////////////////////////////////////////////////////////////////////////
+
 var app = express();
 
 app.configure(function() {
   console.log('>>> Configuring Express');
   app.use(express.bodyParser());
-  app.use(express.cookieParser());
-  app.use(express.session({ secret:'yodawgyo', cookie: { path: '/', httpOnly: true, maxAge: null} }));
   app.use(express.limit('1024mb'));
 
   app.engine('html',      swig.express3);
@@ -225,6 +234,10 @@ app.configure(function() {
   app.use("/", express['static'](_config.PATH_PUBLIC));
 });
 
+///////////////////////////////////////////////////////////////////////////////
+// MAIN
+///////////////////////////////////////////////////////////////////////////////
+
 process.on("uncaughtException", killClients);
 /*process.on("SIGINT", killClients);
 process.on("SIGTERM", killClients);*/
@@ -234,6 +247,6 @@ process.on('end', function() {
   return true;
 });
 
-app.listen(_config.WEBSERVER_PORT);
-console.log('>>> Listening on port ' + _config.WEBSERVER_PORT);
+app.listen(_config.SERVER_PORT);
+console.log('>>> Listening on port ' + _config.SERVER_PORT);
 

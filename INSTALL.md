@@ -5,7 +5,8 @@ This has only been tested on these Linux distributions:
 # Backend Dependencies:
 * Node.js 0.8+
 * PAM development libraries (libpam0g-dev on debian)
-* Sudo to use administration utilities
+* syslog-ng
+* sudo to use administration utilities (used in scripts)
 * _exiftool_ (Optional, for media file information)
 * _pdf2svg_ (Optional, for use with PDF applications)
 

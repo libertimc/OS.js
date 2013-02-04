@@ -121,6 +121,24 @@ module.exports =
   },
 
   /**
+   * user::alive() -- Keep user session alive
+   * @param   Object      user          Current user
+   * @param   Function    _callback     Callback function
+   * @return  void
+   */
+  alive : function(user, callback) {
+    // Update lock-file
+    var lpath = sprintf(config.PATH_VFS_LOCK, user.username);
+    fs.writeFile(lpath, (new Date()).toString(), function(err) {
+      if ( err ) {
+        callback(false, false);
+      } else {
+        callback(true, true);
+      }
+    });
+  },
+
+  /**
    * user::logout() -- Log out the user
    * @param   Object      user          Current user
    * @param   Object      registry      Current registry dump
@@ -128,7 +146,7 @@ module.exports =
    * @param   bool        save          Save current session ?
    * @param   int         duration      Session duration in seconds
    * @param   Function    _callback     Callback function
-   * @return void
+   * @return  void
    */
   logout : function(user, registry, session, save, duration, _callback) {
     if ( !save ) {

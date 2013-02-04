@@ -53,9 +53,8 @@
   var ANIMATION_SPEED        = 400;                 //!< Animation speed in ms
   var TEMP_COUNTER           = 1;                   //!< Internal temp. counter
   var NOTIFICATION_TIMEOUT   = 5000;                //!< Desktop notification timeout
+  var ALIVE_INTERVAL         = 60000;               //!< Send alive signal interval
   var MAX_PROCESSES          = 50;                  //!< Max processes running (except core procs)
-  var SESSION_CHECK          = 5000;                //!< Connection by session check freq
-  var SESSION_KEY            = "osjs_sessionid";    //!< The Server session cookie-key
   var ENV_SETUP              = 'development';       //!< Server-side environment
   var ENV_BUGREPORT          = false;               //!< Enable posting of errors (reporting, server-side mailing)
   var STORAGE_ENABLE         = false;               //!< Enable WebStorage for files
@@ -65,7 +64,6 @@
    * @constants URIs
    */
   var WEBSOCKET_URI    = "localhost:8888";          //!< WebSocket URI (Dynamic)
-  var ROOT_URL         = "http://localhost:3000";       //!< URL: Dynamic content
   var AJAX_URI         = "/API";                    //!< AJAX URI (POST)
   var RESOURCE_URI     = "/VFS/resource/";          //!< Resource loading URI (GET)
   var THEME_URI        = "/VFS/theme/";             //!< Themes loading URI (GET)
@@ -130,8 +128,7 @@
   var _TopIndex        = (ZINDEX_WINDOW + 1);             //!< OnTop z-index
   var _OnTopIndex      = (ZINDEX_WINDOW_ONTOP + 1);       //!< OnTop instances index
   var _StartStamp      = -1;                              //!< Starting timestamp
-  var _UserId          = 'null';                          //!< Server user id
-  var _SessionId       = "";                              //!< Server session id
+  var _UserObject      = {};                              //!< Server User reference
   var _SessionValid    = true;                            //!< Session is valid
   var _HasCrashed      = false;                           //!< If system has crashed
   var _IsFullscreen    = false;                           //!< If we are in fullscreen mode
@@ -2454,7 +2451,6 @@
 
         $(window).off("focus",                     this.global_focus);
         $(window).off("blur",                      this.global_blur);
-        //$(window).off("offline",                 this.global_offline);
         $(document).off("keydown",                 this.global_keydown);
         $(document).off("keyup",                   this.global_keyup);
         $(document).off("mousedown",               this.global_mousedown);
@@ -2567,8 +2563,7 @@
         $("#LoadingBarContainer").show();
 
         // Globals
-        _UserId           = response.user.username;
-        _SessionId        = response.user.sid;
+        _UserObject       = response.user;
         _DefaultLanguage  = response.locale.system;
         _BrowserLanguage  = response.locale.browser;
 
@@ -2597,9 +2592,7 @@
 
         ENV_BUGREPORT   = env.bugreporting;
         ENV_SETUP       = env.setup;
-
         WEBSOCKET_URI   = env.hosts.server;
-        ROOT_URL        = (env.ssl ? "https://" : "http://") + env.hosts.frontend;
 
         if ( env.standalone ) {
           _Connection = new CoreConnection(function(result) {
@@ -2701,7 +2694,6 @@
       $(window).on("focus",         this.global_focus);
       $(window).on("blur",          this.global_blur);
       $(window).on("beforeunload",  this.leaving);
-      //$(window).on("offline",       this.global_offline);
       $(document).on("keydown",     this.global_keydown);
       $(document).on("keyup",       this.global_keyup);
       $(document).on("mousedown",   this.global_mousedown);
@@ -2711,10 +2703,20 @@
       $(document).on("dblclick",    this.global_dblclick);
       $(document).on("contextmenu", this.global_contextmenu);
 
-      this.ichecker = setInterval(function(ev) {
-        self.global_offline(ev, !(navigator.onLine === false));
-        self.global_endsession(ev, GetCookie(SESSION_KEY));
-      }, SESSION_CHECK);
+      // FIXME TODO: Error dialog ?!
+      this.ichecker = setInterval(function() {
+        var __aliveSuccess = function(result) {
+          if ( !result.success ) {
+            _SessionValid = false;
+          }
+        };
+
+        var __aliveFailure = function() {
+          _SessionValid = false;
+        };
+
+        DoPost({action: 'alive', user: _UserObject}, __aliveSuccess, __aliveFailure);
+      }, ALIVE_INTERVAL);
 
       OSjs.Classes.ProgressBar($("#LoadingBar"), 50);
 
@@ -2872,8 +2874,7 @@
           DoPost({
             'action' : 'bug',
             'data'   : {
-              'uid'     : _UserId,
-              'sid'     : _SessionId,
+              'user'    : _UserObject.username,
               'browser' : OSjs.Navigator
             },
             'error'  : {
@@ -2885,54 +2886,6 @@
         } catch (eee) {}
       }
       return false; // Bubble down
-    },
-
-    /**
-     * Core::global_endsession() -- The Browser 'session cache clear' event handler
-     * @param   DOMEvent    ev      DOM Event
-     * @param   bool        state   If we went off-line
-     * @return  void
-     */
-    global_endsession : function(ev, sid) {
-      //console.info("Session valid", _SessionValid, "Registered", _SessionId, "Current", sid);
-      /* FIXME
-      if ( !_Connection ) {
-        if ( _SessionValid ) {
-          if ( !sid || (_SessionId != sid) ) {
-            var ico = GetIcon("status/network-error.png", "32x32");
-            var title = OSjs.Labels.GlobalOfflineTitle;
-            var msg = OSjs.Labels.GlobalOfflineMessage;
-            API.application.notification(title, msg, ico);
-
-            _SessionValid = false;
-          }
-        }
-      }
-      */
-    },
-
-    /**
-     * Core::global_offline() -- The Browser 'offline' event handler
-     * @param   DOMEvent    ev      DOM Event
-     * @param   bool        state   If we went off-line
-     * @return  void
-     */
-    global_offline : function(ev, state) {
-      if ( !state ) { // Offline
-        if ( _OnLine ) {
-          _OnLine = false;
-          API.application.notification(OSjs.Labels.GlobalOfflineWarningTitle, OSjs.Labels.WentOffline);
-
-          console.log("Core::global_offline()", _OnLine);
-        }
-      } else { // Online
-        if ( !_OnLine ) {
-          _OnLine = true;
-          API.application.notification(OSjs.Labels.GlobalOfflineInfoTitle, OSjs.Labels.WentOnline);
-
-          console.log("Core::global_offline()", _OnLine);
-        }
-      }
     },
 
     /**

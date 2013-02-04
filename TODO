@@ -5,22 +5,18 @@ NODE.JS
 * WebSockets
 * Finish up server.js (sessions etc)
 * Fix misc. TODO and FIXME spread around the code
+* Finish server sessions
 * Finish standalone
 * Testing
 
 CORE TODO:
 -------------------------------------------------------------------------------
 [HIG] Implement IconView in launch dialog
-[MED] New package type: Theme OR theme compiler with value-sheet ?!
+[MED] Theme Packages - Use ui.js generateThemeCSS() css tuple to generate sheets
 [MED] Finish up adding/removing panels, etc
 [MED] Implement new flexbox model
-[LOW] Finish up resource loading balancing by serving URIs to client
 [LOW] Richtext: Add custom contextmenu
-[LOW] Finish CoreVFS Storage integration
-      - Solve file upload
-      - Delete directory
-      - Mime and Size enums
-      - Fix subdirs ?!
+[LOW] Replace jQuery with a drop-in replacement somehow
 
 PACKAGES TODO:
 -------------------------------------------------------------------------------
@@ -28,8 +24,4 @@ PACKAGES TODO:
 * ApplicationArchiver - Not even close to done
 * ApplicationMail - Needs testing
 * ApplicationIRC - !?!?!?!
-
-MISC TODO:
--------------------------------------------------------------------------------
-* Finish Standalone Platform
-* Replace jQuery
+* Add some more base packages
