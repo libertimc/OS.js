@@ -1,10 +1,9 @@
-NODE.JS
+NODE.JS:
 -------------------------------------------------------------------------------
 * Glade parser and package compiler conversion from old codebase
 * Translations (i18n)
 * WebSockets
 * Finish up server.js (sessions etc)
-* Fix misc. TODO and FIXME spread around the code
 * Finish server sessions
 * Finish standalone
 * Add a user class and clean up
@@ -12,7 +11,16 @@ NODE.JS
 * Fix crashes on non-existent user directories/files (.osjs etc)
 * Font cache
 * Syslog messages
+* Fix misc. TODO and FIXME spread around the code
 * Testing
+
+NODE.JS PACKAGE CONVERSION (EVENT API):
+-------------------------------------------------------------------------------
+* ApplicationIDE (Not done yet anyways)
+* ApplicationMail
+* ApplicationMusicPlayer
+* ApplicationServerStatus (This is some old test stuff, but convert anyway)
+* SystemControlPanel
 
 JS:
 -------------------------------------------------------------------------------
