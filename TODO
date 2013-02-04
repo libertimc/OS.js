@@ -21,7 +21,6 @@ NODE.JS PACKAGE CONVERSION (EVENT API):
 * ApplicationMail
 * ApplicationMusicPlayer
 * ApplicationServerStatus (This is some old test stuff, but convert anyway)
-* SystemControlPanel
 
 JS:
 -------------------------------------------------------------------------------
