@@ -13,6 +13,7 @@ NODE.JS:
 * Syslog messages
 * Fix misc. TODO and FIXME spread around the code
 * Testing
+* Remove console messages when compressing JS files
 
 NODE.JS PACKAGE CONVERSION (EVENT API):
 -------------------------------------------------------------------------------

@@ -218,7 +218,7 @@ app.configure(function() {
         msg.push(err);
       }
 
-      var message = msg.join('<br />');
+      var message = msg.join("\n");
       res.json(200, {success: false, error: message});
     }
   });
@@ -351,6 +351,9 @@ syslog.init('OS.js client.js', syslog.LOG_PID | syslog.LOG_ODELAY, syslog.LOG_LO
 syslog.log(syslog.LOG_INFO, 'Starting up ' + new Date());
 process.on('exit', function() {
   syslog.close();
+});
+process.on('uncaughtException', function (err) {
+  console.error('Caught exception: ' + err); // FIXME
 });
 
 app.listen(__port);

@@ -101,6 +101,7 @@ module.exports =
   //
   PATH_VFS                : '/home',
   PATH_VFS_USER           : '/home/%s',
+  PATH_VFS_USER_DOT       : '/home/%s/.osjs',
   PATH_VFS_SNAPSHOTS      : '/home/%s/.osjs/snapshots',
   PATH_VFS_PACKAGES       : '/home/%s/.osjs/packages',
   PATH_VFS_PACKAGEMETA    : '/home/%s/.osjs/packages.json',

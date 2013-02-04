@@ -52,7 +52,8 @@ var _config    = require('../config.js'),
 
 // External
 var sprintf = require('sprintf').sprintf,
-    syslog  = require('node-syslog');
+    syslog  = require('node-syslog'),
+    _path   = require('path'); // FIXME Refactor with this
 
 ///////////////////////////////////////////////////////////////////////////////
 // HELPERS
@@ -80,12 +81,13 @@ function request(action, jsn, pport, suser, req, res) {
     var response = null;
 
     var _respond = function(http_code, http_data) {
-      if ( http_data.success === false && (typeof http_data.error === 'object') ) {
+      if ( http_data.success === false && (typeof http_data.error !== 'object') ) {
+        var err = http_data.error;
         var msg = ['Node.js Exception occured: '];
         msg.push('Filename: ' + err.filename);
         msg.push('Line: ' + err.lineno);
         msg.push('Message: ' + err.message);
-        http_data.error = msg.join('<br />');
+        http_data.error = msg.join("\n");
       }
       res.json(http_code, http_data);
     };
@@ -245,7 +247,7 @@ function request(action, jsn, pport, suser, req, res) {
         defaultJSONResponse(req, res);
       break;
 
-      case 'event' : // TODO
+      case 'event' :
         var ev_instance = jsn.instance || null;
         var ev_action   = ev_instance.action || null;
         var ev_args     = ev_instance.args || [];
@@ -258,21 +260,23 @@ function request(action, jsn, pport, suser, req, res) {
         } else {
           _packages.getInstalledSystemPackages(puser.language, function(success, result) {
             if ( success ) {
+              var load_name  = false;
               var load_class = false;
 
               for ( var pn in result ) {
                 if ( result.hasOwnProperty(pn) ) {
                   if ( pn == ev_name ) {
+                    load_name  = ev_name;
                     load_class = ev_name + '.node.js';
                     break;
                   }
                 }
               }
 
-              if ( load_class === false ) {
+              if ( load_name === false || load_class === false ) {
                 _respond(RESPONSE_OK, { success: false, error: 'Cannot handle this event!', result: null });
               } else {
-                var _cpath = ([_config.PATH_PACKAGES, load_class]).join('/');
+                var _cpath = _path.join(_config.PATH_PACKAGES, load_name, load_class);
                 var _class = null;
                 try {
                   _class = require(_cpath);
@@ -284,7 +288,7 @@ function request(action, jsn, pport, suser, req, res) {
 
                 if ( _class !== null ) {
                   try {
-                    _class.Event(ev_action, ev_args, function(esuccess, eresult) {
+                    _class.Event(req, res, ev_action, ev_args, function(esuccess, eresult) {
                       if ( esuccess ) {
                         _respond(RESPONSE_OK, { success: true, result: eresult });
                       } else {
