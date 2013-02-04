@@ -136,7 +136,7 @@ module.exports =
     var path = _path.join(_sprintf(_config.PATH_VFS_SNAPSHOTS, user.username), name);
     _fs.unlink(path, function(err) {
       if ( err ) {
-        callback(false, "Failed to delete snapshot file!");
+        callback(false, 'Failed to delete snapshot file!');
       } else {
         callback(true, true);
       }

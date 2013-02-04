@@ -192,7 +192,7 @@ module.exports = {
       break;
 
       default:
-        throw "Unsupported archive file!";
+        throw 'Unsupported archive file!';
       break;
     }
   },
@@ -208,7 +208,7 @@ module.exports = {
     if ( destination.toLowerCase().match(/\.zip$/) ) {
       (new Zip(destination)).create(path, callback);
     } else {
-      throw "Unsupported archive file!";
+      throw 'Unsupported archive file!';
     }
   },
 
@@ -226,7 +226,7 @@ module.exports = {
       break;
 
       default:
-        throw "Unsupported archive file!";
+        throw 'Unsupported archive file!';
       break;
     }
   }

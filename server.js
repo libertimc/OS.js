@@ -48,7 +48,7 @@ var _config = require('./config.js'),
 var express = require('express'),
     sprintf = require('sprintf').sprintf,
     syslog  = require('node-syslog'),
-    spawn   = require("child_process").spawn,
+    spawn   = require('child_process').spawn,
     swig    = require('swig'),
     path    = require('path');
 
@@ -98,6 +98,14 @@ function createClient(username) {
   CLIENT_CONNECTION.push(proc);
 
   return CLIENT_PORT;
+}
+
+/**
+ * Check if clients has timed out
+ * @return  in
+ */
+function checkTimeouts() {
+
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -169,10 +177,10 @@ app.configure(function() {
     console.log('GET /');
 
     var opts     = _config;
-    var language = "en_US"; // FIXME
+    var language = 'en_US'; // FIXME
 
     opts.locale   = language;
-    opts.language = language.split("_").shift();
+    opts.language = language.split('_').shift();
 
     res.render('login', opts);
   });
@@ -199,10 +207,10 @@ app.configure(function() {
     if  ( !jsn || !action) {
       res.json(200, {'success': false, 'error': 'Invalid action!', 'result': null});
     } else {
-      if ( action == "login" ) {
-        var username = jsn.form ? (jsn.form.username || "") : "";
-        var password = jsn.form ? (jsn.form.password || "") : "";
-        var resume   = (jsn.resume === true || jsn.resume === "true");
+      if ( action == 'login' ) {
+        var username = jsn.form ? (jsn.form.username || '') : '';
+        var password = jsn.form ? (jsn.form.password || '') : '';
+        var resume   = (jsn.resume === true || jsn.resume === 'true');
 
         if ( _config.AUTOLOGIN_ENABLE ) {
           username = _config.AUTOLOGIN_USERNAME;
@@ -212,7 +220,7 @@ app.configure(function() {
         _user.login(username, password, function(success, data) {
           if ( success ) {
             var p = createClient(username);
-            console.log("Started new client on :" + p);
+            console.log('Started new client on :' + p);
 
             var result = {
               user    : data,
@@ -231,16 +239,16 @@ app.configure(function() {
     }
   });
 
-  app.use("/", express['static'](_config.PATH_PUBLIC));
+  app.use('/', express['static'](_config.PATH_PUBLIC));
 });
 
 ///////////////////////////////////////////////////////////////////////////////
 // MAIN
 ///////////////////////////////////////////////////////////////////////////////
 
-process.on("uncaughtException", killClients);
-/*process.on("SIGINT", killClients);
-process.on("SIGTERM", killClients);*/
+process.on('uncaughtException', killClients);
+/*process.on('SIGINT', killClients);
+process.on('SIGTERM', killClients);*/
 
 process.on('end', function() {
   killClients();

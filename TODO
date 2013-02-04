@@ -7,9 +7,11 @@ NODE.JS
 * Fix misc. TODO and FIXME spread around the code
 * Finish server sessions
 * Finish standalone
+* Add a user class and clean up
+* Font cache
 * Testing
 
-CORE TODO:
+JS:
 -------------------------------------------------------------------------------
 [HIG] Implement IconView in launch dialog
 [MED] Theme Packages - Use ui.js generateThemeCSS() css tuple to generate sheets
@@ -18,10 +20,14 @@ CORE TODO:
 [LOW] Richtext: Add custom contextmenu
 [LOW] Replace jQuery with a drop-in replacement somehow
 
-PACKAGES TODO:
+PACKAGES:
 -------------------------------------------------------------------------------
 * ApplicationMusicPlayer - Needs some work
 * ApplicationArchiver - Not even close to done
 * ApplicationMail - Needs testing
 * ApplicationIRC - !?!?!?!
 * Add some more base packages
+
+MISC:
+-------------------------------------------------------------------------------
+* Rebuild repository

@@ -44,19 +44,19 @@ module.exports =
   // Frontend Settings
   //
   SETTINGS_REVISION   : 2,
-  DEFAULT_LANGUAGE    : "en_US",
+  DEFAULT_LANGUAGE    : 'en_US',
   AUTOLOGIN_ENABLE    : false,
-  AUTOLOGIN_USERNAME  : "test",
-  AUTOLOGIN_PASSWORD  : "test",
-  COMPRESSOR          : "yui", // "gcc"
+  AUTOLOGIN_USERNAME  : 'test',
+  AUTOLOGIN_PASSWORD  : 'test',
+  COMPRESSOR          : 'yui', // 'gcc'
 
   //
   // Project
   //
-  PROJECT_VERSION     : "1.0.1-rc1",
-  PROJECT_CODENAME    : "NodeElk",
-  PROJECT_COPYRIGHT   : "Copyright 2013 Anders Evenrud",
-  PROJECT_AUTHOR      : "Anders Evenrud <andersevenrud@gmail.com>",
+  PROJECT_VERSION     : '1.0.1-rc1',
+  PROJECT_CODENAME    : 'NodeElk',
+  PROJECT_COPYRIGHT   : 'Copyright 2013 Anders Evenrud',
+  PROJECT_AUTHOR      : 'Anders Evenrud <andersevenrud@gmail.com>',
 
   //
   // Environment
@@ -65,11 +65,11 @@ module.exports =
   ENV_SETUP           : 'development',
   ENV_STANDALONE      : false,
 
-  SETTINGS_CONFIG     : path.join(__dirname, "config.js"),
-  MINIMIZE_CACHE      : path.join(__dirname, ".build/minimize.cache"),
-  FONT_CACHE          : path.join(__dirname, ".build/fontcache.xml"),
-  PACKAGE_BUILD       : path.join(__dirname, ".build/packages.json"),
-  MIME_MAGIC          : path.join(__dirname, ".build/mime.mgc"),
+  SETTINGS_CONFIG     : path.join(__dirname, 'config.js'),
+  MINIMIZE_CACHE      : path.join(__dirname, '.build/minimize.cache'),
+  FONT_CACHE          : path.join(__dirname, '.build/fontcache.xml'),
+  PACKAGE_BUILD       : path.join(__dirname, '.build/packages.json'),
+  MIME_MAGIC          : path.join(__dirname, '.build/mime.mgc'),
   METADATA_FILENAME   : 'metadata.json',
 
   //
@@ -110,7 +110,7 @@ module.exports =
   PATH_VFS_TEMP           : '/home/%s/.osjs/tmp',
   PATH_VFS_LOCK           : '/home/%s/.osjs/lock',
 
-  VFS_TEMPLATE            : path.join(__dirname, "src/templates/vfs-user"),
+  VFS_TEMPLATE            : path.join(__dirname, 'src/templates/vfs-user'),
   VFS_MKDIR_PERM          : '0777'
 
 };

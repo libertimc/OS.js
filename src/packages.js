@@ -106,7 +106,7 @@ function _GetPackages(language, filename, callback) {
 
         if ( iter.type == 'Application' ) {
           pinfo.schema    = iter.schema || null;
-          pinfo.category  = iter.category || "unknown";
+          pinfo.category  = iter.category || 'unknown';
           pinfo.mimes     = iter.mime || [];
         } else {
           pinfo.description = iter.description[language];
@@ -161,7 +161,7 @@ function _UpdatePackageMeta(outfile, readdir, callback) {
           if ( err ) {
             callback(false, err);
           } else {
-            callback(true, "Pulled " + installed + " packages");
+            callback(true, 'Pulled ' + installed + ' packages');
           }
         });
       };
@@ -179,7 +179,7 @@ function _UpdatePackageMeta(outfile, readdir, callback) {
                   if ( err ) {
                     callback(false, err);
                   } else {
-                    console.log(">", mpath);
+                    console.log('>', mpath);
                     var pdoc = JSON.parse(data.toString());
                     if ( typeof pdoc == 'object' ) {
                       pdoc.packagename = iter;
@@ -415,13 +415,13 @@ module.exports =
             }
           });
         } else {
-          callback(false, "Could not find package install directory!");
+          callback(false, 'Could not find package install directory!');
         }
       });
       return;
     }
 
-    callback(false, "Invalid package requested!");
+    callback(false, 'Invalid package requested!');
   }
 };
 

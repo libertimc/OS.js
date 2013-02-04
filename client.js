@@ -47,11 +47,11 @@ if ( process.argv && process.argv.length > 3 ) {
 }
 
 if ( isNaN(__port) || __port <= 0 ) {
-  console.error("Cannot open client on port ", __port);
+  console.error('Cannot open client on port ', __port);
   process.exit(1);
 }
 if ( __user === null ) {
-  console.error("You need to specify a username");
+  console.error('You need to specify a username');
   process.exit(1);
 }
 
@@ -78,8 +78,8 @@ var express = require('express'),
 ///////////////////////////////////////////////////////////////////////////////
 
 console.log('>>> Starting up...');
-syslog.init("OS.js", syslog.LOG_PID | syslog.LOG_ODELAY, syslog.LOG_LOCAL0);
-syslog.log(syslog.LOG_INFO, "Starting up " + new Date());
+syslog.init('OS.js', syslog.LOG_PID | syslog.LOG_ODELAY, syslog.LOG_LOCAL0);
+syslog.log(syslog.LOG_INFO, 'Starting up ' + new Date());
 
 var app = express();
 
@@ -197,7 +197,7 @@ app.configure(function() {
     var language = _locale.getLanguage(req);
 
     opts.locale   = language;
-    opts.language = language.split("_").shift();
+    opts.language = language.split('_').shift();
     opts.preloads = _resources.vendorDependencies;
 
     res.render('index', opts);
@@ -211,7 +211,7 @@ app.configure(function() {
     try {
       _api.request(__port, __user, req, res);
     } catch ( err ) {
-      var msg = ["Node.js Exception occured: "];
+      var msg = ['Node.js Exception occured: '];
 
       if ( (typeof err === 'object') ) {
         msg.push('Filename: ' + err.filename);
@@ -342,7 +342,7 @@ app.configure(function() {
     res.download(path);
   });
 
-  app.use("/", express['static'](_config.PATH_PUBLIC));
+  app.use('/', express['static'](_config.PATH_PUBLIC));
 
 });
 

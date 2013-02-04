@@ -66,10 +66,10 @@ module.exports =
     var font = filename.replace(/[^a-zA-Z0-9]/, '');
 
     var sources = {
-      "normal"   : sprintf("%s/%s.ttf",        config.URI_FONT, filename),
-      "bold"     : sprintf("%s/%sBold.ttf",    config.URI_FONT, filename),
-      "italic"   : sprintf("%s/%s%s.ttf",      config.URI_FONT, filename, (font == "FreeSerif" ? "Italic" : "Oblique")),
-      "bitalic"  : sprintf("%s/%sBold%s.ttf",  config.URI_FONT, filename, (font == "FreeSerif" ? "Italic" : "Oblique"))
+      'normal'   : sprintf('%s/%s.ttf',        config.URI_FONT, filename),
+      'bold'     : sprintf('%s/%sBold.ttf',    config.URI_FONT, filename),
+      'italic'   : sprintf('%s/%s%s.ttf',      config.URI_FONT, filename, (font == 'FreeSerif' ? 'Italic' : 'Oblique')),
+      'bitalic'  : sprintf('%s/%sBold%s.ttf',  config.URI_FONT, filename, (font == 'FreeSerif' ? 'Italic' : 'Oblique'))
     };
 
     // Load from cache
@@ -81,16 +81,16 @@ module.exports =
         bold    : sources.bold,
         italic  : sources.italic,
         bitalic : sources.bitalic,
-        bcstart : "",
-        bcend   : ""
+        bcstart : '',
+        bcend   : ''
     };
 
-    if ( font == "Sansation" ) {
-      opts.bcstart  = "/*";
-      opts.bcend    = "*/";
+    if ( font == 'Sansation' ) {
+      opts.bcstart  = '/*';
+      opts.bcend    = '*/';
     }
 
-    var file = ([config.PATH_TEMPLATES, 'resource.font.css']).join("/");
+    var file = ([config.PATH_TEMPLATES, 'resource.font.css']).join('/');
     var css  = swig.compileFile(file).render(opts);
 
     return css;

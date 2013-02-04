@@ -76,6 +76,7 @@ function defaultJSONResponse(req, res) {
 function request(pport, suser, req, res) {
   console.log('POST /');
 
+  // FIXME: This can be moved to client.js before this call is made
   var jsn, action, response = null;
   try {
     jsn     = req.body;//.objectData;
@@ -92,7 +93,7 @@ function request(pport, suser, req, res) {
   } else {
     var _respond = function(http_code, http_data) {
       if ( http_data.success === false && (typeof http_data.error === 'object') ) {
-        var msg = ["Node.js Exception occured: "];
+        var msg = ['Node.js Exception occured: '];
         msg.push('Filename: ' + err.filename);
         msg.push('Line: ' + err.lineno);
         msg.push('Message: ' + err.message);
@@ -111,7 +112,7 @@ function request(pport, suser, req, res) {
     // Call API
     switch ( action ) {
       case 'boot' :
-        syslog.log(syslog.LOG_INFO, "booting up...");
+        syslog.log(syslog.LOG_INFO, 'booting up...');
 
         var user = _user.defaultUser;
         user.username = suser;
@@ -151,11 +152,11 @@ function request(pport, suser, req, res) {
 
           req.session.user      = user;
 
-          syslog.log(syslog.LOG_INFO, "client[" + req.session.user.username + "] logged in...");
+          syslog.log(syslog.LOG_INFO, 'client[' + req.session.user.username + '] logged in...');
         };
 
         var _failure = function(msg) {
-          syslog.log(syslog.LOG_ERROR, "Boot failed: " + msg);
+          syslog.log(syslog.LOG_ERROR, 'Boot failed: ' + msg);
 
           console.error('Boot::_failure()', msg);
 
@@ -178,16 +179,16 @@ function request(pport, suser, req, res) {
       case 'shutdown' :
         var registry = jsn.registry || {};
         var session  = jsn.session || {};
-        var save     = (jsn.save === true || jsn.save === "true");
+        var save     = (jsn.save === true || jsn.save === 'true');
         var duration = jsn.duration;
 
         var __done = function() {
           _respond(RESPONSE_OK, {success: true, result: true});
 
           try {
-            syslog.log(syslog.LOG_INFO, "client[" + req.session.user.username + "] shutdown complete");
+            syslog.log(syslog.LOG_INFO, 'client[' + req.session.user.username + '] shutdown complete');
           } catch ( err )  {
-            syslog.log(syslog.LOG_INFO, "client[???] shutdown complete");
+            syslog.log(syslog.LOG_INFO, 'client[???] shutdown complete');
           }
 
           req.session.user = null;
@@ -225,7 +226,7 @@ function request(pport, suser, req, res) {
       break;
 
       case 'settings' :
-        syslog.log(syslog.LOG_INFO, "saving client[" + req.session.user.username + "] settings");
+        syslog.log(syslog.LOG_INFO, 'saving client[' + req.session.user.username + '] settings');
 
         _user.store(req.session.user, jsn.registry, null, function(err) {
           _respond(RESPONSE_OK, {success: err ? false : true, result: err ? err : true});
@@ -275,7 +276,7 @@ function request(pport, suser, req, res) {
               for ( var pn in result ) {
                 if ( result.hasOwnProperty(pn) ) {
                   if ( pn == ev_name ) {
-                    load_class = ev_name + ".node.js";
+                    load_class = ev_name + '.node.js';
                     break;
                   }
                 }
@@ -284,7 +285,7 @@ function request(pport, suser, req, res) {
               if ( load_class === false ) {
                 _respond(RESPONSE_OK, { success: false, error: 'Cannot handle this event!', result: null });
               } else {
-                var _cpath = ([_config.PATH_PACKAGES, load_class]).join("/");
+                var _cpath = ([_config.PATH_PACKAGES, load_class]).join('/');
                 var _class = null;
                 try {
                   _class = require(_cpath);
@@ -352,7 +353,7 @@ function request(pport, suser, req, res) {
       break;
 
       case 'call' :
-        console.log("API::call()", jsn);
+        console.log('API::call()', jsn);
         if ( (jsn.method && jsn.args) ) {
           try {
             var ok = _vfs.call(req.session.user, jsn.method, (jsn.args || []), function(vfssuccess, vfsresult) {

@@ -50,10 +50,10 @@ var _defaultUser = {
   sid       : '',
   lock      : false,
   language  : config.DEFAULT_LANGUAGE,
-  username  : "nodejs",
-  groups    : ["nodejs"],
+  username  : 'nodejs',
+  groups    : ['nodejs'],
   info      : {
-    name        : "Node.js user"
+    name        : 'Node.js user'
   }
 };
 
@@ -76,7 +76,7 @@ module.exports =
   login  : function(username, password, callback) {
     pam.authenticate(username, password, function(err) {
       if ( err ) {
-        callback(false, "Failed to log in!");
+        callback(false, 'Failed to log in!');
       } else {
 
         // Read user info

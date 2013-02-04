@@ -38,26 +38,26 @@
 var _defaults = {
     sounds : [
       // Extension applied in frontend
-      "bell", "complete", "message", "service-login", "service-logout", "dialog-information", "dialog-warning"
+      'bell', 'complete', 'message', 'service-login', 'service-logout', 'dialog-information', 'dialog-warning'
     ],
     images : [
-      "/img/theme.default/close.png",
-      "/img/theme.default/close_unfocused.png",
-      "/img/theme.default/maximize.png",
-      "/img/theme.default/maximize_unfocused.png",
-      "/img/theme.default/menu_expand.png",
-      "/img/theme.default/menu_expand_hover.png",
-      "/img/theme.default/minimize.png",
-      "/img/theme.default/minimize_unfocused.png",
-      "/img/theme.default/prelight.png",
-      "/img/theme.default/prelight_unfocused.png",
-      "/img/theme.default/pressed.png"
+      '/img/theme.default/close.png',
+      '/img/theme.default/close_unfocused.png',
+      '/img/theme.default/maximize.png',
+      '/img/theme.default/maximize_unfocused.png',
+      '/img/theme.default/menu_expand.png',
+      '/img/theme.default/menu_expand_hover.png',
+      '/img/theme.default/minimize.png',
+      '/img/theme.default/minimize_unfocused.png',
+      '/img/theme.default/prelight.png',
+      '/img/theme.default/prelight_unfocused.png',
+      '/img/theme.default/pressed.png'
       /*
-      "categories/applications-development.png", "categories/applications-games.png", "categories/applications-graphics.png", "categories/applications-office.png", "categories/applications-internet.png", "categories/applications-multimedia.png", "categories/applications-system.png", "categories/applications-utilities.png", "categories/gnome-other.png",
-      "actions/window_fullscreen.png", "actions/zoom-original.png", "actions/window_nofullscreen.png", "actions/window-close.png",
-      "actions/gtk-execute.png", "mimetypes/exec.png", "devices/network-wireless.png", "status/computer-fail.png","apps/system-software-install.png", "apps/system-software-update.png", "apps/xfwm4.png", "places/desktop.png",
-      "status/gtk-dialog-error.png", "status/gtk-dialog-info.png", "status/gtk-dialog-question.png", "status/gtk-dialog-warning.png",
-      "status/error.png", "emblems/emblem-unreadable.png"*/
+      'categories/applications-development.png', 'categories/applications-games.png', 'categories/applications-graphics.png', 'categories/applications-office.png', 'categories/applications-internet.png', 'categories/applications-multimedia.png', 'categories/applications-system.png', 'categories/applications-utilities.png', 'categories/gnome-other.png',
+      'actions/window_fullscreen.png', 'actions/zoom-original.png', 'actions/window_nofullscreen.png', 'actions/window-close.png',
+      'actions/gtk-execute.png', 'mimetypes/exec.png', 'devices/network-wireless.png', 'status/computer-fail.png','apps/system-software-install.png', 'apps/system-software-update.png', 'apps/xfwm4.png', 'places/desktop.png',
+      'status/gtk-dialog-error.png', 'status/gtk-dialog-info.png', 'status/gtk-dialog-question.png', 'status/gtk-dialog-warning.png',
+      'status/error.png', 'emblems/emblem-unreadable.png'*/
     ],
     resources : [
       // Other core resources
@@ -65,55 +65,55 @@ var _defaults = {
 };
 
 var _dialogResources = {
-  "ColorOperationDialog" : {
-    "resources" : ["dialog.color.js"]
+  'ColorOperationDialog' : {
+    'resources' : ['dialog.color.js']
   },
-  "FontOperationDialog" : {
-    "resources" : ["dialog.font.js"]
+  'FontOperationDialog' : {
+    'resources' : ['dialog.font.js']
   },
-  "CopyOperationDialog" : {
-    "resources" : ["dialog.copy.js"]
+  'CopyOperationDialog' : {
+    'resources' : ['dialog.copy.js']
   },
-  "FileOperationDialog" : {
-    "resources" : ["dialog.file.js"]
+  'FileOperationDialog' : {
+    'resources' : ['dialog.file.js']
   },
-  "InputOperationDialog" : {
-    "resources" : ["dialog.input.js"]
+  'InputOperationDialog' : {
+    'resources' : ['dialog.input.js']
   },
-  "LaunchOperationDialog" : {
-    "resources" : ["dialog.launch.js"]
+  'LaunchOperationDialog' : {
+    'resources' : ['dialog.launch.js']
   },
-  "PanelItemOperationDialog" : {
-    "resources" : ["dialog.panelitem.js"]
+  'PanelItemOperationDialog' : {
+    'resources' : ['dialog.panelitem.js']
   },
-  "PanelPreferencesOperationDialog" : {
-    "resources" : ["dialog.panel.js"]
+  'PanelPreferencesOperationDialog' : {
+    'resources' : ['dialog.panel.js']
   },
-  "PanelAddItemOperationDialog" : {
-    "resources" : ["dialog.panel.additem.js"]
+  'PanelAddItemOperationDialog' : {
+    'resources' : ['dialog.panel.additem.js']
   },
-  "RenameOperationDialog" : {
-    "resources" : ["dialog.rename.js"]
+  'RenameOperationDialog' : {
+    'resources' : ['dialog.rename.js']
   },
-  "UploadOperationDialog" : {
-    "resources" : ["dialog.upload.js"]
+  'UploadOperationDialog' : {
+    'resources' : ['dialog.upload.js']
   },
-  "FilePropertyOperationDialog" : {
-    "resources" : ["dialog.properties.js"]
+  'FilePropertyOperationDialog' : {
+    'resources' : ['dialog.properties.js']
   },
-  "CompabilityDialog" : {
-    "resources" : ["dialog.compability.js"]
+  'CompabilityDialog' : {
+    'resources' : ['dialog.compability.js']
   },
-  "CrashDialog" : {
-    "resources" : ["dialog.crash.js"]
+  'CrashDialog' : {
+    'resources' : ['dialog.crash.js']
   }
 };
 
 var _vendorResources = [
-  {"script" : 'sprintf.js'},
-  {"script" : 'jquery.js'},
-  {"script" : 'jquery-ui.js'},
-  {"style"  : 'jquery-ui-theme.css'}
+  {'script' : 'sprintf.js'},
+  {'script' : 'jquery.js'},
+  {'script' : 'jquery-ui.js'},
+  {'style'  : 'jquery-ui-theme.css'}
 ];
 
 var _coreResources = [

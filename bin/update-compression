@@ -40,11 +40,11 @@ var _config     = require('../config'),
 
 var _path     = require('path'),
     _fs       = require('fs'),
-    _cp       = require("child_process");
+    _cp       = require('child_process');
 
 var compressor = 'java -jar ' + _path.join(_config.PATH_VENDOR, 'yui.jar'); // FIXME
 
-var languages = ["en_US", "nb_NO"]; // FIXME
+var languages = ['en_US', 'nb_NO']; // FIXME
 
 function enumCoreResources(callback) {
   var i, j;
@@ -111,7 +111,7 @@ function compressCSS(src, dest, callback) {
 }
 
 function done(list) {
-  console.log("Compressed", list.length, "file(s)")
+  console.log('Compressed', list.length, 'file(s)')
 }
 
 enumCoreResources(function(list) {
@@ -145,7 +145,7 @@ enumCoreResources(function(list) {
     }
   };
 
-  console.log("Got", list.length, "file(s)...\n\n");
+  console.log('Got', list.length, 'file(s)...\n\n');
   __finished();
 });
 
