@@ -28,8 +28,8 @@ This has only been tested on these Linux distributions:
 # Running:
 
 ## Development
-* For development you can start the client fo your user with:
-  `node ./client.js 3000 $(whoami)`
+* For development you can start the client for your user with:
+  `node ./client.js 3000 $(whoami)` (Do **not** run as root!)
 
 ## Testing
 * Run `sudo node ./server.js`
