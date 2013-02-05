@@ -284,6 +284,24 @@
     }
 
     if ( _WM ) {
+      // Node.js Exception
+      if ( typeof msg !== 'string' && typeof msg === 'object' ) {
+        var data = msg;
+        msg = sprintf("Node,js exception:");
+        if ( data.errno ) {
+          msg += "\nerrno: " + data.errno;
+        }
+        if ( data.code ) {
+          msg += "\ncode: " + data.code;
+        }
+        if ( data.path ) {
+          msg += "\npath: " + data.path;
+        }
+        if ( data.message ) {
+          msg += "\nmessage: " + data.message;
+        }
+      }
+
       API.ui.dialog(type, msg, callback, misc);
     } else {
       if ( type == "confirm" ) {

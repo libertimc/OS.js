@@ -232,19 +232,7 @@ app.configure(function() {
 
       _api.request(action, jsn, __port, __user, req, res);
     } catch ( err ) {
-      // TODO New error reporting
-      var msg = ['Node.js Exception occured: '];
-
-      if ( (typeof err === 'object') ) {
-        msg.push('Filename: ' + err.filename);
-        msg.push('Line: ' + err.lineno);
-        msg.push('Message: ' + err.message);
-      } else {
-        msg.push(err);
-      }
-
-      var message = msg.join("\n");
-      res.json(200, {success: false, error: message});
+      res.json(200, {success: false, error: err, node_exception: true});
     }
   });
 
