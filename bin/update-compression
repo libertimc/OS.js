@@ -46,6 +46,7 @@ var compressor = 'java -jar ' + _path.join(_config.PATH_VENDOR, 'yui.jar'); // F
 
 var languages = ['en_US', 'nb_NO']; // FIXME
 
+var ___started = (new Date()).getTime();
 var ___before = 0;
 var ___after = 0;
 
@@ -139,7 +140,8 @@ function compressCSS(src, dest, callback) {
 }
 
 function done(list) {
-  console.log('Compressed', list.length, 'file(s)')
+  var ftime = parseInt(((new Date()).getTime() - ___started) / 1000, 10);
+  console.log('Compressed', list.length, 'file(s) in', ftime, 'second(s)')
   console.log('From', ___before, 'to', ___after, '(', -parseInt(((___after / ___before - 1) * 100), 10) + '%', ')');
   console.log('');
 }
