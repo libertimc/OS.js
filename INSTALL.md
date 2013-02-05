@@ -3,25 +3,24 @@ This has only been tested on these Linux distributions:
 * Ubuntu Linux
 
 # Backend Dependencies:
-* node.js 0.8+ and npm
-* PAM development libraries (libpam0g-dev on debian)
-* syslog-ng
-* sudo to use administration utilities
+* _node.js_ 0.8+ and npm
+* _git_ 1.6+
+* _PAM_ development libraries (libpam0g-dev on debian)
+* _syslog-ng_
+* _sudo_ to use administration utilities
 * _pdf2svg_ and _exiftool_ (Optional, for use with PDF applications)
 
 # Installation:
 * Clone repository
   - `git clone --recursive -b node.js git@github.com:andersevenrud/OS.js.git`
 * Start installer
-  - `./bin/installer`
+  - `./bin/installer --install`
 * Create users
   - Add yourself a new user to test with using `./bin/add-user <username>`.
   - OR run `./bin/update-user-template <username>` on already existing users
 
 # Upgrading:
-* Run `git pull && git submodules update`
-* `npm install`
-* `./bin/install-all`
+* Run `./bin/installer --update`
 * Update user templates with `./bin/update-user-template <username>`
 * Restart server/clients
 

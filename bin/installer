@@ -1,2 +1,20 @@
 #!/bin/sh
-npm install && ./bin/install-all && echo "All done..."
+
+if [ $# -eq 0 ]; then
+  echo "help: installer --install | --update"
+  exit 1
+fi
+
+if [ "$1" == "--install" ]; then
+  echo "Installing..."
+  npm install && ./bin/install-all && echo -e "\n\nAll done..." && exit 0
+elif [ "$1" == "--update" ]; then
+  echo "Updating..."
+  npm install && git pull && git submodule foreach git pull && ./bin/install-all && echo -e "\n\nAll done..." && exit 0
+else
+  echo "Invalid action '$1'"
+  exit 1
+fi
+
+echo -e "\n\nSomething went wrong :("
+exit 1
