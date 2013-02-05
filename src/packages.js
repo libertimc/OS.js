@@ -357,36 +357,44 @@ module.exports =
       fcallback(success, result);
     };
 
-    fs.mkdir(destination, function installPackageMkdir(err) {
-      if ( err ) {
-        callback(false, err);
-      } else {
-        fs.stat(archive_path, function installPackageCheck(err, stat) {
-          if ( err ) {
-            callback(false, err);
-          } else {
-            try {
-              archive.extract(archive_path, destination, function installPackageArchive(success, result, errors) {
-                if ( success ) {
-                  validateMetadata(metadata, function installPackageValidate(validated, validate_result) {
-                    if ( validated ) {
-                      updateUserPackageMetadata(user, function installPackagePost(updated, message) {
-                        callback(updated, message);
-                      });
-                    } else {
-                      callback(false, validate_result);
-                    }
-                  });
-                } else {
-                  callback(false, result || errors.join(',') );
-                }
-              });
-            } catch ( err ) {
-              callback(false, err);
-            }
-          }
-        });
+    fs.stat(destination, function(err, stat) {
+      if ( !err && stat ) {
+        callback(false, 'Installation directory already exist!');
+        return;
       }
+
+      fs.mkdir(destination, function installPackageMkdir(err) {
+        if ( err ) {
+          callback(false, err);
+        } else {
+          fs.stat(archive_path, function installPackageCheck(err, stat) {
+            if ( err ) {
+              callback(false, err);
+            } else {
+              try {
+                archive.extract(archive_path, destination, function installPackageArchive(success, result, errors) {
+                  if ( success ) {
+                    validateMetadata(metadata, function installPackageValidate(validated, validate_result) {
+                      if ( validated ) {
+                        updateUserPackageMetadata(user, function installPackagePost(updated, message) {
+                          callback(updated, message);
+                        });
+                      } else {
+                        callback(false, validate_result);
+                      }
+                    });
+                  } else {
+                    callback(false, result || errors.join(',') );
+                  }
+                });
+              } catch ( err ) {
+                callback(false, err);
+              }
+            }
+          });
+        }
+      });
+
     });
 
   },
