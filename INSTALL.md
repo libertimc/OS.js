@@ -51,5 +51,5 @@ Runs a bit faster than normal, but harder to track down bugs.
   - _gcc_: Google Closure Compiler (Manual download)
   - _yui_: Yahoo Compressor
 * Run `./bin/update-compression` to compress all scripts etc
-* Set `ENV_SYSTEM` to _production_ in `config.js`
+* Set `ENV_SETUP` to _production_ in `config.js`
 * Restart server/clients

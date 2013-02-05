@@ -97,7 +97,6 @@ if ( __user === null ) {
 console.log('>>> Starting up...');
 console.log('port', __port);
 console.log('user', __user);
-process.exit(0);
 
 ///////////////////////////////////////////////////////////////////////////////
 // APPLICATION
@@ -290,6 +289,7 @@ app.configure(function() {
     var pkg = req.params['package'];
 
     console.log('/VFS/resource/:package/:filename', pkg, filename);
+    // FIXME: Check if this is a user package, if not use compressed resources on 'production'
     res.sendfile(sprintf('%s/%s/%s', _config.PATH_PACKAGES, pkg, filename));
   });
 
@@ -297,12 +297,16 @@ app.configure(function() {
     var filename = req.params.filename;
 
     console.log('/VFS/resource/:filename', filename);
-    res.sendfile(sprintf('%s/%s', _config.PATH_JAVASCRIPT, filename));
+    if ( _config.ENV_SETUP == 'production' ) {
+      res.sendfile(sprintf('%s/%s/%s', _config.PATH_JAVASCRIPT, _config.COMPRESS_DIRNAME, filename));
+    } else {
+      res.sendfile(sprintf('%s/%s', _config.PATH_JAVASCRIPT, filename));
+    }
   });
 
   app.get('/VFS/:resource/:filename', function getResourceByType(req, res) {
-    var filename = req.params.filename;
-    var type = req.params.resource;
+    var filename  = req.params.filename;
+    var type      = req.params.resource;
 
     console.log('/VFS/:resource/:filename', filename, type);
 
@@ -315,18 +319,27 @@ app.configure(function() {
         break;
 
       case 'theme' :
-        var theme = filename.replace(/[^a-zA-Z0-9_\-]/, '');
-        res.sendfile(sprintf('%s/theme.%s.css', _config.PATH_JAVASCRIPT, theme));
+        var theme = filename;//.replace(/[^a-zA-Z0-9_\-]/, '');
+        if ( _config.ENV_SETUP == 'production' ) {
+          res.sendfile(sprintf('%s/%s/theme.%s.css', _config.PATH_JAVASCRIPT, _config.COMPRESS_DIRNAME , theme));
+        } else {
+          res.sendfile(sprintf('%s/theme.%s.css', _config.PATH_JAVASCRIPT, theme));
+        }
+
         break;
 
       case 'cursor' :
-        var cursor = filename.replace(/[^a-zA-Z0-9_\-]/, '');
+        var cursor = filename;//.replace(/[^a-zA-Z0-9_\-]/, '');
         res.sendfile(sprintf('%s/cursor.%s.css', _config.PATH_JAVASCRIPT, cursor));
         break;
 
       case 'language' :
         var lang = filename.replace(/[^a-zA-Z0-9_\-]/, '');
-        res.sendfile(sprintf('%s/%s.js', _config.PATH_JSLOCALE, lang));
+        if ( _config.ENV_SETUP == 'production' ) {
+          res.sendfile(sprintf('%s/%s/%s.js', _config.PATH_JSLOCALE, _config.COMPRESS_DIRNAME, lang));
+        } else {
+          res.sendfile(sprintf('%s/%s.js', _config.PATH_JSLOCALE, lang));
+        }
         break;
 
       default :

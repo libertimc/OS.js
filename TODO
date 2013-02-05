@@ -14,9 +14,9 @@ NODE.JS:
 * Syslog messages
 * Fix misc. TODO and FIXME spread around the code
 * Testing
-* Remove console messages when compressing JS files
 * New error-hadling in frontend
 * Service API action
+* Add support for compressed package resources
 
 NODE.JS PACKAGE CONVERSION (EVENT API):
 -------------------------------------------------------------------------------
