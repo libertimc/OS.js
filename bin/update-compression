@@ -89,7 +89,7 @@ function enumCoreResources(callback) {
 }
 
 function _compress(ssize, type, src, dest, callback) {
-  console.log('>', src);
+  console.log('>', dest);
 
   var time = (new Date()).getTime();
   var cmd = [compressor, '--preserve-semi', '--charset', 'utf-8', '--type', type, src, '-o', dest].join(' ');
