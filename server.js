@@ -34,6 +34,8 @@
 /*
  * TODO: Every x second loop through clients and terminate timed out sessions
  * TODO: Locales (i18n)
+ *
+ * http://stackoverflow.com/questions/9245126/node-js-epipe-exception-on-child-process-spawn
  */
 
 ///////////////////////////////////////////////////////////////////////////////

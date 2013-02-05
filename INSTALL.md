@@ -7,7 +7,7 @@ This has only been tested on these Linux distributions:
 * PAM development libraries (libpam0g-dev on debian)
 * syslog-ng
 * sudo to use administration utilities
-* _pdf2svg_ (Optional, for use with PDF applications)
+* _pdf2svg_ and _exiftool_ (Optional, for use with PDF applications)
 
 # Installation:
 * Clone repository

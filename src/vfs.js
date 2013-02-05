@@ -42,7 +42,7 @@ var fs        = require('fs'),
     util      = require('util'),
     _path     = require('path');
 
-    // Also uses: exif, imagemagick(in code)
+    // Also uses: exif, imagemagick, child_process (in code)
 
 var _config   = require('../config.js'),
     _packages = require(_config.PATH_SRC + '/packages.js'),
@@ -368,6 +368,10 @@ function checkMIME(needle, haystack) {
     }
   }
   return false;
+}
+
+function escapeshell(cmd) {
+  return ('' + cmd).replace(/(["\s'$`\\])/g,'\\$1');
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -982,6 +986,141 @@ VFS.prototype =
 
 };
 
+/**
+ * Read a PDF file info in JSON format
+ * @param   Object          user          User
+ * @param   String          name          PDF Filename
+ * @param   Function        callback      Callback function
+ * @return  void
+ */
+function readPDFInfo(user, name, callback) {
+  var filename = mkpath(user, name);
+  var cmd = _config.EXTERN_PATHS.exiftool;
+  var args = ['-ee', '-j', escapeshell(filename)];
+
+  console.log('readPDFInfo()', cmd, args.join(' '));
+
+  var _cp = require('child_process');
+  var stdout = "", stderr = "";
+  var child = _cp.spawn(cmd, args);
+
+  /*child.stdout.on('chunk', function (data) {
+    if (data !== null) {
+      stdout += data;
+    }
+  });*/
+  child.stdout.on('data', function (data) {
+    if ( data !== null ) {
+      stdout = data.toString();
+    }
+  });
+
+  child.stderr.on('data', function (data) {
+    if (data !== null) {
+      stderr += data;
+    }
+  });
+
+  child.on("exit", function(code) {
+    if ( code !== 0 ) {
+      console.error('readPDFInfo() child process exited with code ' + code + ': ' + stderr);
+      callback(false, stderr);
+    } else {
+      var info = {};
+      var data = JSON.parse(stdout.toString());
+
+      if ( data.length ) {
+        data = data[0];
+        for ( var i in data ) {
+          if ( data.hasOwnProperty(i) ) {
+            switch ( i ) {
+              case "FileSize":
+              case "PDFVersion":
+              case "PageCount":
+              case "Description":
+              case "ModifyDate":
+              case "CreateDate":
+              case "Title":
+              case "Creator":
+              case "Producer":
+              case "Author":
+              case "Subject":
+              case "Identifier":
+                info[i] = data[i];
+              break;
+
+              default:
+              break;
+            }
+          }
+        }
+      }
+
+      callback(true, info);
+    }
+  });
+
+}
+
+/**
+ * Read a PDF file and convert to SVG
+ * @param   Object          user          User
+ * @param   String          name          PDF Filename
+ * @param   Function        callback      Callback function
+ * @return  void
+ */
+function readPDF(user, name, callback) {
+  var split = name.split(':');
+  var page  = 0;
+
+  name = split.shift();
+  if ( split.length ) {
+    page = parseInt(split.shift(), 10);
+  }
+
+  readPDFInfo(user, name, function(success, pdfinfo) {
+    if ( success ) {
+      var filename  = mkpath(user, name);
+      var tmpfile   = '/tmp/_pdf2svg_' + _path.basename(name)  + '_' + (new Date()).getTime() + '.svg';
+      var cmd       = [_config.EXTERN_PATHS.pdf2svg, escapeshell(filename), escapeshell(tmpfile)];
+
+      if ( page > 0 ) {
+        cmd.push(page);
+      }
+
+      console.log('readPDF()', cmd.join(' '));
+
+      var _cp = require('child_process');
+      var proc = _cp.exec(cmd.join(' '), function(err, stdout, stderr) {
+        if ( err !== null ) {
+          console.log('readPDF() child process exited with code ' + err);
+          callback(false, stderr);
+        } else {
+          fs.readFile(tmpfile, function(err, pdfdata) {
+            if ( err ) {
+              console.error("readPDF readFile()", err);
+              callback(false, err);
+            } else {
+              fs.unlink(tmpfile, function(err) {
+                if ( err ) {
+                  console.error("readPDF unlink()", err);
+                }
+
+                callback(true, {
+                  'info'      : pdfinfo,
+                  'document'  : pdfdata.toString()
+                });
+              });
+            }
+          });
+        }
+      });
+    } else {
+      callback(false, pdfinfo);
+    }
+  });
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // EXPORTS
 ///////////////////////////////////////////////////////////////////////////////
@@ -1066,6 +1205,9 @@ module.exports =
         v.preview(args.path, args.mime, args.iframe === true || args.iframe === 'true', callback);
       break;
 
+      case 'readpdf' :
+        readPDF(user, args, callback);
+      break;
 
       default :
         return false;
@@ -1075,7 +1217,6 @@ module.exports =
     return true;
   }
 
-  // readpdf
   // ls_archive
   // extract_archive
 };

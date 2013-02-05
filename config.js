@@ -112,7 +112,15 @@ module.exports =
   PATH_VFS_LOCK           : '/home/%s/.osjs/lock',
 
   VFS_TEMPLATE            : path.join(__dirname, 'src/templates/vfs-user'),
-  VFS_MKDIR_PERM          : '0777'
+  VFS_MKDIR_PERM          : '0777',
 
+
+  //
+  // EXTERN
+  //
+  EXTERN_PATHS            : {
+    pdf2svg   : '/usr/bin/pdf2svg',
+    exiftool  : '/usr/bin/exiftool'
+  }
 };
 
