@@ -29,10 +29,11 @@ This has only been tested on these Linux distributions:
 ## Development
 * For development you can start the client for your user with:
   `node ./client.js 3000 $(whoami)` (Do **not** run as root!)
+* Launch browser in `localhost:3000`
 
 ## Testing
 * Run `sudo node ./server.js`
-* Launch browser in `localhost:3000`
+* Launch browser in `localhost:3000` and log in via PAM
 * Kill the server like normal to quit all running clients
 
 ## Standalone
