@@ -84,12 +84,14 @@ function request(action, jsn, pport, suser, req, res) {
 
     var _respond = function(http_code, http_data) {
       if ( http_data.success === false && (typeof http_data.error !== 'object') ) {
-        var err = http_data.error;
-        var msg = ['Node.js Exception occured: '];
-        msg.push('Filename: ' + err.filename);
-        msg.push('Line: ' + err.lineno);
-        msg.push('Message: ' + err.message);
-        http_data.error = msg.join("\n");
+        if ( typeof http_data.error !== 'string' ) {
+          var err = http_data.error;
+          var msg = ['Node.js Exception occured: '];
+          msg.push('Filename: ' + err.filename);
+          msg.push('Line: ' + err.lineno);
+          msg.push('Message: ' + err.message);
+          http_data.error = msg.join("\n");
+        }
       }
       res.json(http_code, http_data);
     };
