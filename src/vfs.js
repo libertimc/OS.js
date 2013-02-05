@@ -40,8 +40,9 @@ var fs        = require('fs'),
     sanitize  = require('validator').sanitize,
     mime      = require('mime'),
     util      = require('util'),
-    _path     = require('path'),
-    im        = require('imagemagick');
+    _path     = require('path');
+
+    // Also uses: exif, imagemagick(in code)
 
 var _config   = require('../config.js'),
     _packages = require(_config.PATH_SRC + '/packages.js'),
@@ -732,27 +733,44 @@ VFS.prototype =
             callback(false, err);
           } else {
             if ( !stats.isDirectory() ) {
-              var media_info;
               var fmime = mime.lookup(path) || null;
 
               switch ( fmime.split("/").shift() ) {
                 case 'image' :
                 case 'video' :
                 case 'audio' :
-                  media_info = {};
+                  var exif = require('exif2');
+
+                  exif(path, function(err, obj) {
+                    if ( err ) {
+                      callback(false, err);
+                    } else {
+                      if ( obj.directory ) {
+                        delete obj.directory;
+                      }
+
+                      callback(true, {
+                        filename  : _path.basename(filename),
+                        path      : _path.dirname(filename),
+                        size      : stats.size || 0,
+                        mime      : fmime,
+                        info      : obj
+                      });
+                    }
+                  });
+
                 break;
                 default :
-                  media_info = null;
+                  callback(true, {
+                    filename  : _path.basename(filename),
+                    path      : _path.dirname(filename),
+                    size      : stats.size || 0,
+                    mime      : fmime,
+                    info      : null
+                  });
                 break;
               }
 
-              callback(true, {
-                filename  : _path.basename(filename),
-                path      : _path.dirname(filename),
-                size      : stats.size || 0,
-                mime      : fmime,
-                info      : media_info
-              });
             } else {
               callback(false, "Cannot stat a directory!");
             }
@@ -930,6 +948,7 @@ VFS.prototype =
               if ( err ) {
                 callback(false, err);
               } else {
+                var im = require('imagemagick');
                 im.resize({
                     srcData       : data,
                     width         : max_width,
