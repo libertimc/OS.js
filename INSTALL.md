@@ -39,8 +39,8 @@ _Not done in this branch_
 * Set `ENV_STANDALONE` in `config.js`
 * Install system service
   - Located in `doc/rc.d`
-  - Start system-wide service
-* OR start using `./bin/launch-server` using `forever`, `screen` or similar
+* Start system-wide service
+  - OR start using `./bin/launch-server` using `forever`, `screen` or similar
 * Launch browser in [http://localhost:3000](http://localhost:3000)
   - _Standalone X11 version is not done in this branch_
 
