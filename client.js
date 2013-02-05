@@ -232,6 +232,7 @@ app.configure(function() {
 
       _api.request(action, jsn, __port, __user, req, res);
     } catch ( err ) {
+      // TODO New error reporting
       var msg = ['Node.js Exception occured: '];
 
       if ( (typeof err === 'object') ) {
