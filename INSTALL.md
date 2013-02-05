@@ -27,22 +27,22 @@ Tested on these Linux distributions:
 
 # Running:
 
-## Development or standalone
-* For development you can start the client for your user with:
+## Testing and Development
+* Start the client for your user with:
   `node ./client.js 3000 $(whoami)` (Do **not** run as root!)
-* Launch browser in `localhost:3000`
+* Launch browser in [http://localhost:3000](http://localhost:3000)
 
-## System Desktop (X11)
+## Web Application
+_Not done in this branch_
+
+## System
 * Set `ENV_STANDALONE` in `config.js`
 * Install system service
   - Located in `doc/rc.d`
   - Start system-wide service
 * OR start using `./bin/launch-server` using `forever`, `screen` or similar
-
-### Testing
-* Run `sudo node ./server.js`
-* Launch browser in `localhost:3000` and log in via PAM
-* Kill the server like normal to quit all running clients
+* Launch browser in [http://localhost:3000](http://localhost:3000)
+  - _Standalone X11 version is not done in this branch_
 
 # Running with compressed (and cached) resources:
 This also disables debugging messages and performs some optimizaions.
