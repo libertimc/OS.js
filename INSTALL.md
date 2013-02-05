@@ -32,17 +32,17 @@ Tested on these Linux distributions:
   `node ./client.js 3000 $(whoami)` (Do **not** run as root!)
 * Launch browser in [http://localhost:3000](http://localhost:3000)
 
-## Web Application
-_Not done in this branch_
-
 ## System
+**Not done in this branch**
+
 * Set `ENV_STANDALONE` in `config.js`
 * Install system service
   - Located in `doc/rc.d`
 * Start system-wide service
-  - OR start using `./bin/launch-server` using `forever`, `screen` or similar
+
+### Alternative
+* Start using `./bin/launch-server` using `forever`, `screen` or similar
 * Launch browser in [http://localhost:3000](http://localhost:3000)
-  - _Standalone X11 version is not done in this branch_
 
 # Running with compressed (and cached) resources:
 This also disables debugging messages and performs some optimizaions.
