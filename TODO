@@ -10,7 +10,6 @@ NODE.JS:
 * Login screen wait and poll for client startup (return redirect url)
 * Fix crashes on non-existent user directories/files (.osjs etc)
 * Finish VFS archive functions
-* Font cache
 * Syslog messages
 * Fix misc. TODO and FIXME spread around the code
 * Testing

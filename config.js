@@ -64,10 +64,11 @@ module.exports =
   BUGREPORT_ENABLE    : false,
   ENV_SETUP           : 'development',
   ENV_STANDALONE      : false,
+  ENV_CACHE           : false, // TODO
 
   SETTINGS_CONFIG     : path.join(__dirname, 'config.js'),
   MINIMIZE_CACHE      : path.join(__dirname, '.build/minimize.cache'),
-  FONT_CACHE          : path.join(__dirname, '.build/fontcache.xml'),
+  FONT_CACHE          : path.join(__dirname, '.build/fontcache.json'),
   PACKAGE_BUILD       : path.join(__dirname, '.build/packages.json'),
   MIME_MAGIC          : path.join(__dirname, '.build/mime.mgc'),
   METADATA_FILENAME   : 'metadata.json',

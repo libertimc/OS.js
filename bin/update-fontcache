@@ -1,0 +1,92 @@
+#!/usr/bin/env node
+/*!
+ * @file
+ * OS.js - JavaScript Operating System - update-fontcache
+ *
+ * Create cache of all installed fonts. Increases rendering performance in
+ * most browsers
+ *
+ * Copyright (c) 2011-2012, Anders Evenrud <andersevenrud@gmail.com>
+ * All rights reserved.
+ * 
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met: 
+ * 
+ * 1. Redistributions of source code must retain the above copyright notice, this
+ *    list of conditions and the following disclaimer. 
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution. 
+ * 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
+ * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * @author Anders Evenrud <andersevenrud@gmail.com>
+ * @licence Simplified BSD License
+ * @created 2012-01-04
+ */
+
+var _config     = require('../config'),
+    _resources  = require(_config.PATH_SRC + '/resources.js'),
+    _packages   = require(_config.PATH_SRC + '/packages.js');
+
+var _path     = require('path'),
+    _fs       = require('fs'),
+    _cp       = require('child_process');
+
+var jsonfile = _config.FONT_CACHE;
+var fontpath = _path.join(_config.PATH_MEDIA, 'System', 'Fonts');
+
+_fs.readdir(fontpath, function(err, files) {
+  if ( !err ) {
+    var jsondata = {};
+
+    var __finish = function() {
+      _fs.writeFile(jsonfile, JSON.stringify(jsondata), 'utf-8', function(err) {
+        if ( err ) {
+          console.error('Failed to save to', jsonfile, ':', err);
+          return;
+        }
+
+        console.log('Done...');
+      });
+    };
+
+    var __next = function() {
+      if ( files.length ) {
+        var iter = files.pop();
+
+        if ( iter.match(/\.ttf$/) ) {
+          var d = _path.join(fontpath, iter);
+          _fs.readFile(d, 'binary', function(err, data) {
+            if ( !err ) {
+              console.log('>>>', 'Caching', iter);
+
+              var b = new Buffer(data);
+              jsondata[iter] = b.toString('base64');
+
+              __next();
+            }
+          });
+          return;
+        }
+
+        __next();
+      } else {
+        __finish();
+      }
+    };
+
+    __next();
+  }
+});
+
+

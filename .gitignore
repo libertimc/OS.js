@@ -12,5 +12,5 @@ public_html/media/Public/*
 # Build files
 .compress
 .build/minimize.cache
-.build/fontcache.xml
+.build/fontcache.json
 .build/packages.json

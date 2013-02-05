@@ -312,10 +312,11 @@ app.configure(function() {
 
     switch ( type ) {
       case 'font' :
-        var css = _ui.generateFontCSS(filename);
-        res.setHeader('Content-Type', 'text/css');
-        res.setHeader('Content-Length', css.length);
-        res.end(css);
+        _ui.generateFontCSS(filename, function(css) {
+          res.setHeader('Content-Type', 'text/css');
+          res.setHeader('Content-Length', css.length);
+          res.end(css);
+        });
         break;
 
       case 'theme' :

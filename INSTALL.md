@@ -43,7 +43,7 @@ This has only been tested on these Linux distributions:
   - Start system-wide service
 * OR start using `./bin/launch-server` using `forever`, `screen` or similar
 
-# Running with compressed resources:
+# Running with compressed (and cached) resources:
 This also disables debugging messages and performs some optimizaions.
 Runs a bit faster than normal, but harder to track down bugs.
 
@@ -53,3 +53,11 @@ Runs a bit faster than normal, but harder to track down bugs.
 * Run `./bin/update-compression` to compress all scripts etc
 * Set `ENV_SETUP` to _production_ in `config.js`
 * Restart server/clients
+
+## Font cache
+You can cache installed system fonts to improve rendering performance in some browsers.
+All fonts will be served directly in the CSS scheme as base64 data instead of linking
+to a file by URI.
+
+Just run `./bin/update-fontcache` and fonts will be automatically loaded from cache
+on demand.

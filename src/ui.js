@@ -36,7 +36,9 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 var sprintf = require('sprintf').sprintf,
-    swig    = require('swig');
+    swig    = require('swig'),
+    fs      = require('fs'),
+    _path   = require('path');
 
 var config  = require('../config.js');
 
@@ -60,9 +62,10 @@ module.exports =
   /**
    * ui::generateFontCSS() -- Generate a Font CSS stylesheet
    * @param   String    filename      Font Filename
-   * @return  String
+   * @param   Function  callback      Callback function
+   * @return  void
    */
-  generateFontCSS : function(filename) {
+  generateFontCSS : function(filename, callback) {
     var font = filename.replace(/[^a-zA-Z0-9]/, '');
 
     var sources = {
@@ -71,9 +74,6 @@ module.exports =
       'italic'   : sprintf('%s/%s%s.ttf',      config.URI_FONT, filename, (font == 'FreeSerif' ? 'Italic' : 'Oblique')),
       'bitalic'  : sprintf('%s/%sBold%s.ttf',  config.URI_FONT, filename, (font == 'FreeSerif' ? 'Italic' : 'Oblique'))
     };
-
-    // Load from cache
-    // TODO
 
     // Render CSS template
     var opts = {
@@ -90,10 +90,34 @@ module.exports =
       opts.bcend    = '*/';
     }
 
-    var file = ([config.PATH_TEMPLATES, 'resource.font.css']).join('/');
-    var css  = swig.compileFile(file).render(opts);
+    var __done = function() {
+      var file  = ([config.PATH_TEMPLATES, 'resource.font.css']).join('/');
+      var css   = swig.compileFile(file).render(opts);
+      callback(css);
+    };
 
-    return css;
+
+    // Load from cache
+    // TODO
+    fs.readFile(config.FONT_CACHE, function(err, data) {
+      if ( err ) {
+        __done();
+      } else {
+        var cache = JSON.parse(data.toString());
+        var fn;
+        for ( var i in opts ) {
+          if ( opts.hasOwnProperty(i) ) {
+            fn = _path.basename(opts[i]);
+            if ( cache[fn] ) {
+              opts[i] = 'data:%s;base64,' + cache[fn];
+            }
+          }
+        }
+
+        __done();
+      }
+    });
+
   }
 };
 
