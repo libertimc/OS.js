@@ -993,6 +993,63 @@ VFS.prototype =
     if ( result !== false ) {
       callback(true, result);
     }
+  },
+
+  /**
+   * VFS::ls_archive() -- List archive contents
+   * @param   String      filename        Archive Filename/path
+   * @param   bool        iframe          Return IFrame type content
+   * @param   Function    callback        Callback function
+   * @return  void
+   */
+  ls_archive : function(filename, callback) {
+    var path = mkpath(this.user, filename);
+    _archive.ls(path, function(success, result) {
+      if ( success ) {
+        var response = {};
+        var i, iter;
+
+        // FIXME: Types not implemented in archive
+        if ( result.files ) {
+          for ( i = 0; i < result.files.length; i++ ) {
+            iter = result.files[i];
+            response[iter.name] = {
+              path         : iter.name,
+              size         : iter.length || 0,
+              mime         : 'application/octet-stream',
+              icon         : 'mimetypes/binary.png',
+              type         : 'file',
+              'protected'  : 0
+            };
+          }
+        }
+
+        callback(true, response);
+      } else {
+        callback(false, result);
+      }
+    });
+  },
+
+  /**
+   * VFS::extract_archive() -- Extract archive contents
+   * @param   String      filename        Archive Filename/path
+   * @param   String      destination     Destination path
+   * @param   bool        iframe          Return IFrame type content
+   * @param   Function    callback        Callback function
+   * @return  void
+   */
+  extract_archive : function(filename, destination, callback) {
+    var spath = mkpath(this.user, filename);
+    var dpath = mkpath(this.user, destination);
+
+    _archive.extract(spath, dpath, function(success, result) {
+      if ( success ) {
+        callback(true, true);
+      } else {
+        callback(false, result);
+      }
+    });
   }
 
 };
@@ -1142,6 +1199,8 @@ module.exports =
   removeRecursive   : fs.removeRecursive,
 
   call    : function(user, method, args, callback) {
+    console.log('VFS', method, user.username);
+
     var v = new VFS(user);
 
     switch ( method ) {
@@ -1220,6 +1279,14 @@ module.exports =
         readPDF(user, args, callback);
       break;
 
+      case 'ls_archive' :
+        v.ls_archive(args, callback);
+      break;
+
+      case 'extract_archive' :
+        v.extract_archive(args.archive, args.destination, callback);
+      break;
+
       default :
         return false;
       break;
@@ -1228,7 +1295,5 @@ module.exports =
     return true;
   }
 
-  // ls_archive
-  // extract_archive
 };
 

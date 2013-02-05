@@ -9,7 +9,6 @@ NODE.JS:
 * Add a user class and clean up
 * Login screen wait and poll for client startup (return redirect url)
 * Fix crashes on non-existent user directories/files (.osjs etc)
-* Finish VFS archive functions
 * Syslog messages
 * Fix misc. TODO and FIXME spread around the code
 * Testing
@@ -32,6 +31,10 @@ JS:
 [MED] Implement new flexbox model
 [LOW] Richtext: Add custom contextmenu
 [LOW] Replace jQuery with a drop-in replacement somehow
+
+BACKEND:
+-------------------------------------------------------------------------------
+* Finish archives in VFS
 
 PACKAGES:
 -------------------------------------------------------------------------------
