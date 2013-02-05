@@ -3,11 +3,10 @@ This has only been tested on these Linux distributions:
 * Ubuntu Linux
 
 # Backend Dependencies:
-* Node.js 0.8+
+* node.js 0.8+ and npm
 * PAM development libraries (libpam0g-dev on debian)
 * syslog-ng
-* sudo to use administration utilities (used in scripts)
-* _exiftool_ (Optional, for media file information)
+* sudo to use administration utilities
 * _pdf2svg_ (Optional, for use with PDF applications)
 
 # Installation:
@@ -30,22 +29,27 @@ This has only been tested on these Linux distributions:
 
 ## Development
 * For development you can start the client fo your user with:
-  `node ./client.js 3000 `whoami``
+  `node ./client.js 3000 $(whoami)`
 
 ## Testing
 * Run `sudo node ./server.js`
 * Launch browser in `localhost:3000`
 * Kill the server like normal to quit all running clients
 
-## Production evironment
+## Standalone
+* Set `ENV_STANDALONE` in `config.js`
+* Install system service
+  - Located in `doc/rc.d`
+  - Start system-wide service
+* OR start using `./bin/launch-server` using `forever`, `screen` or similar
+
+# Running with compressed resources:
+This also disables debugging messages and performs some optimizaions.
+Runs a bit faster than normal, but harder to track down bugs.
+
 * Set your compressor of choice in `config.js`
   - _gcc_: Google Closure Compiler (Manual download)
   - _yui_: Yahoo Compressor
 * Run `./bin/update-compression` to compress all scripts etc
-* Set `ENV_SYSTEM` to _production_ in `config.js` and restart node-server
-* Install system service (Optional)
-  - Located in `doc/rc.d`
-* Start system-wide service (or start using `sudo node server.js`)
-
-## Standalone / WebSocket
-* Set `ENV_STANDALONE` in `config.js`
+* Set `ENV_SYSTEM` to _production_ in `config.js`
+* Restart server/clients
