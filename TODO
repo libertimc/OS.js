@@ -16,6 +16,7 @@ NODE.JS:
 * Testing
 * Remove console messages when compressing JS files
 * New error-hadling in frontend
+* Service API action
 
 NODE.JS PACKAGE CONVERSION (EVENT API):
 -------------------------------------------------------------------------------

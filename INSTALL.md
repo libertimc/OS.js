@@ -16,13 +16,13 @@ This has only been tested on these Linux distributions:
   - `./bin/installer`
 * Create users
   - Add yourself a new user to test with using `./bin/add-user <username>`.
-  - Or copy `src/template/vfs-user/.osjs` into users already on system
+  - OR run `./bin/update-user-template <username>` on already existing users
 
 # Upgrading:
 * Run `git pull && git submodules update`
 * `npm install`
 * `./bin/install-all`
-* Check (and correct) user `~/.osjs` directories (This is temporary, you need directories located in `src/templates/vfs-user/.osjs`)
+* Update user templates with `./bin/update-user-template <username>`
 * Restart server/clients
 
 # Running:

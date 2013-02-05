@@ -40,7 +40,8 @@ var fs        = require('fs'),
     sanitize  = require('validator').sanitize,
     mime      = require('mime'),
     util      = require('util'),
-    _path     = require('path');
+    _path     = require('path'),
+    ncp       = require('ncp').ncp;
 
     // Also uses: exif, imagemagick, child_process (in code)
 
@@ -679,6 +680,7 @@ VFS.prototype =
       if ( ex ) {
         callback(false, 'Destination already exists!');
       } else {
+        /*
         fs.readFile(mkpath(u, src), function(err, data) {
           if ( err ) {
             callback(false, err);
@@ -690,6 +692,15 @@ VFS.prototype =
                 callback(true, true);
               }
             });
+          }
+        });
+        */
+
+        ncp(src, dst, function(err) {
+          if ( err ) {
+            callback(false, err);
+          } else {
+            callback(true, true);
           }
         });
       }

@@ -32,32 +32,8 @@
 "use strict";
 
 /*
- * TODO: WebSockets
  * TODO: Locales (i18n)
- *
- * TODO: WebServices (ignore for now)
  */
-
-var __port = 0;
-var __user = null;
-
-if ( process.argv && process.argv.length > 3 ) {
-  __port = parseInt(process.argv[2], 10);
-  __user = process.argv[3];
-}
-
-if ( isNaN(__port) || __port <= 0 ) {
-  console.error('Cannot open client on port ', __port);
-  process.exit(1);
-}
-if ( __user === null ) {
-  console.error('You need to specify a username');
-  process.exit(1);
-}
-
-console.log('>>> Starting up...');
-console.log('port', __port);
-console.log('user', __user);
 
 ///////////////////////////////////////////////////////////////////////////////
 // IMPORTS
@@ -76,6 +52,52 @@ var express = require('express'),
     sprintf = require('sprintf').sprintf,
     swig    = require('swig'),
     syslog  = require('node-syslog');
+
+///////////////////////////////////////////////////////////////////////////////
+// ARGV HANDLING
+///////////////////////////////////////////////////////////////////////////////
+
+var __port = 0;
+var __user = null;
+
+if ( process.argv && process.argv.length > 3 ) {
+  __port = parseInt(process.argv[2], 10);
+  __user = process.argv[3];
+}
+
+if ( isNaN(__port) || __port <= 0 ) {
+  console.error('Cannot open client on port ', __port);
+  process.exit(1);
+}
+
+if ( __user === null ) {
+  console.error('You need to specify a username');
+  process.exit(1);
+}
+
+(function() {
+  try {
+    var t = require('fs').statSync(sprintf(_config.PATH_VFS_USER_DOT, __user));
+    if ( t.isDirectory() ) {
+      console.info("User has .osjs directory");
+    } else {
+      console.error("This user does not have a .osjs directory");
+      console.info("Remove and run ./bin/update-user-template <username>");
+      process.exit(1);
+    }
+  } catch ( err ) {
+    if ( err.errno === 34 ) {
+      console.error("This user does not have a .osjs directory");
+      console.info("Run ./bin/update-user-template <username>");
+      process.exit(1);
+    }
+  }
+})();
+
+console.log('>>> Starting up...');
+console.log('port', __port);
+console.log('user', __user);
+process.exit(0);
 
 ///////////////////////////////////////////////////////////////////////////////
 // APPLICATION
