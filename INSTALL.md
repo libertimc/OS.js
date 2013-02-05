@@ -1,8 +1,9 @@
-This has only been tested on these Linux distributions:
+# Compability:
+Tested on these Linux distributions:
 * Gentoo Linux
 * Ubuntu Linux
 
-# Backend Dependencies:
+# Dependencies:
 * _node.js_ 0.8+ and npm
 * _git_ 1.6+
 * _PAM_ development libraries (libpam0g-dev on debian)
@@ -26,22 +27,22 @@ This has only been tested on these Linux distributions:
 
 # Running:
 
-## Development
+## Development or standalone
 * For development you can start the client for your user with:
   `node ./client.js 3000 $(whoami)` (Do **not** run as root!)
 * Launch browser in `localhost:3000`
 
-## Testing
-* Run `sudo node ./server.js`
-* Launch browser in `localhost:3000` and log in via PAM
-* Kill the server like normal to quit all running clients
-
-## Standalone
+## System Desktop (X11)
 * Set `ENV_STANDALONE` in `config.js`
 * Install system service
   - Located in `doc/rc.d`
   - Start system-wide service
 * OR start using `./bin/launch-server` using `forever`, `screen` or similar
+
+### Testing
+* Run `sudo node ./server.js`
+* Launch browser in `localhost:3000` and log in via PAM
+* Kill the server like normal to quit all running clients
 
 # Running with compressed (and cached) resources:
 This also disables debugging messages and performs some optimizaions.
