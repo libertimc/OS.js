@@ -80,6 +80,8 @@ function request(action, jsn, pport, suser, req, res) {
   } else {
     var response = null;
 
+    console.log('!API', action);
+
     var _respond = function(http_code, http_data) {
       if ( http_data.success === false && (typeof http_data.error !== 'object') ) {
         var err = http_data.error;
@@ -344,7 +346,6 @@ function request(action, jsn, pport, suser, req, res) {
       break;
 
       case 'call' :
-        console.log('API::call()', jsn);
         if ( (jsn.method && jsn.args) ) {
           try {
             var ok = _vfs.call(req.session.user, jsn.method, (jsn.args || []), function(vfssuccess, vfsresult) {

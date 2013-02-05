@@ -72,7 +72,7 @@ Zip.prototype =
     });
 
     zip.stderr.on('data', function (data) {
-      console.log('zip stderr: ' + data);
+      console.error('zip stderr: ' + data);
       errors.push(data);
     });
 
@@ -108,11 +108,10 @@ Zip.prototype =
     var zip = spawn('unzip', [source, '-d', destination]);
 
     zip.stdout.on('chunk', function (chunk) {
-      //console.log(chunk);
     });
 
     zip.stderr.on('data', function (data) {
-      console.log('unzip stderr: ' + data);
+      console.error('unzip stderr: ' + data);
       errors.push(data);
     });
 

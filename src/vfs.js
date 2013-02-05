@@ -441,8 +441,6 @@ VFS.prototype =
     var vtype = getVFSType(args.replace(/\/$/, ''));
     var path  = mkpath(this.user, args);
 
-    console.log("_ls", path);
-
     var tree  = {
       dirs  : {},
       files : {}
@@ -1105,8 +1103,6 @@ function readPDFInfo(user, name, callback) {
   var cmd = _config.EXTERN_PATHS.exiftool;
   var args = ['-ee', '-j', escapeshell(filename)];
 
-  console.log('readPDFInfo()', cmd, args.join(' '));
-
   var _cp = require('child_process');
   var stdout = "", stderr = "";
   var child = _cp.spawn(cmd, args);
@@ -1195,12 +1191,10 @@ function readPDF(user, name, callback) {
         cmd.push(page);
       }
 
-      console.log('readPDF()', cmd.join(' '));
-
       var _cp = require('child_process');
       var proc = _cp.exec(cmd.join(' '), function(err, stdout, stderr) {
         if ( err !== null ) {
-          console.log('readPDF() child process exited with code ' + err);
+          console.error('readPDF() child process exited with code ' + err);
           callback(false, stderr);
         } else {
           fs.readFile(tmpfile, function(err, pdfdata) {
@@ -1253,7 +1247,7 @@ module.exports =
    * @return  void
    */
   call    : function(user, method, args, callback) {
-    console.log('VFS', method, user.username);
+    console.log('~VFS', user.username, '->', method);
 
     var v = new VFS(user);
 

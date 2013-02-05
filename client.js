@@ -94,9 +94,9 @@ if ( __user === null ) {
   }
 })();
 
-console.log('>>> Starting up...');
-console.log('port', __port);
-console.log('user', __user);
+console.info('>>> Starting up...');
+console.info('port', __port);
+console.info('user', __user);
 
 ///////////////////////////////////////////////////////////////////////////////
 // APPLICATION
@@ -168,9 +168,8 @@ function defaultJSONResponse(req, res) {
 ///////////////////////////////////////////////////////////////////////////////
 
 app.configure(function() {
-  console.log('>>> Configuring DBUS');
-
   /*
+  console.info('>>> Configuring DBUS');
   var dbus_server = _services.dbus.createSession();
   dbus_server.connection.on('message', function(msg) {
     if ( msg.destination === name && msg['interface'] === 'com.github.andersevenrud.OSjs' && msg.path === '/0/1' ) {
@@ -190,7 +189,7 @@ app.configure(function() {
   */
 
   // Setup
-  console.log('>>> Configuring Express');
+  console.info('>>> Configuring Express');
   app.use(express.bodyParser());
   app.use(express.cookieParser());
   app.use(express.session({ secret:'yodawgyo', cookie: { path: '/', httpOnly: true, maxAge: null} })); // FIXME
@@ -202,7 +201,7 @@ app.configure(function() {
   app.set('view options', { layout: false });
   app.set('view cache',   false);
 
-  console.log('>>> Configuring Routes');
+  console.info('>>> Configuring Routes');
 
   //
   // INDEX
@@ -225,6 +224,8 @@ app.configure(function() {
   //
 
   app.post('/API', function postAPI(req, res) {
+    console.log('POST /API');
+
     try {
       var jsn     = req.body || {};//.objectData;
       var action  = jsn.action || null;
@@ -247,6 +248,8 @@ app.configure(function() {
   });
 
   app.post('/API/upload', function postAPIUpload(req, res) {
+    console.log('POST /API/upload');
+
     var ok = _vfs.call(req.session.user, 'upload', {'file': req.files.upload, 'path': req.body.path}, function(vfssuccess, vfsresult) {
       if ( vfssuccess ) {
         res.json(200, { success: true, result: vfsresult });
@@ -269,7 +272,7 @@ app.configure(function() {
     var type      = req.params[0];//.replace(/[^a-zA-Z0-9]/, '');
     var filename  = req.params[1];//.replace(/[^a-zA-Z0-9-\_\/\.]/, '');
 
-    console.log('/UI/:type/:filename', type, filename);
+    console.log('GET /UI/:type/:filename', type, filename);
 
     switch ( type ) {
       case 'sound' :
@@ -288,7 +291,7 @@ app.configure(function() {
     var filename = req.params.filename;
     var pkg = req.params['package'];
 
-    console.log('/VFS/resource/:package/:filename', pkg, filename);
+    console.log('GET /VFS/resource/:package/:filename', pkg, filename);
     // FIXME: Check if this is a user package, if not use compressed resources on 'production'
     res.sendfile(sprintf('%s/%s/%s', _config.PATH_PACKAGES, pkg, filename));
   });
@@ -296,7 +299,7 @@ app.configure(function() {
   app.get('/VFS/resource/:filename', function getResource(req, res) {
     var filename = req.params.filename;
 
-    console.log('/VFS/resource/:filename', filename);
+    console.log('GET /VFS/resource/:filename', filename);
     if ( _config.ENV_SETUP == 'production' ) {
       res.sendfile(sprintf('%s/%s/%s', _config.PATH_JAVASCRIPT, _config.COMPRESS_DIRNAME, filename));
     } else {
@@ -308,7 +311,7 @@ app.configure(function() {
     var filename  = req.params.filename;
     var type      = req.params.resource;
 
-    console.log('/VFS/:resource/:filename', filename, type);
+    console.log('GET /VFS/:resource/:filename', filename, type);
 
     switch ( type ) {
       case 'font' :
@@ -362,6 +365,9 @@ app.configure(function() {
 
     var filename = req.params[0].replace(/^\//, '');
     var path = _vfs.mkpath(req.session.user, '/User/' + filename);
+
+    console.log('GET /media', filename);
+
     res.sendfile(path);
   });
 
@@ -374,6 +380,9 @@ app.configure(function() {
 
     var filename = req.params[0].replace(/^\//, '');
     var path = _vfs.mkpath(req.session.user, '/User/' + filename);
+
+    console.log('GET /media-download', filename);
+
     res.download(path);
   });
 
@@ -395,5 +404,5 @@ process.on('uncaughtException', function (err) {
 });
 
 app.listen(__port);
-console.log('>>> Listening on port ' + __port);
+console.info('>>> Listening on port ' + __port);
 
