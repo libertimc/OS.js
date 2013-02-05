@@ -269,6 +269,10 @@ fs.removeRecursive = function(path,cb){
   });
 };
 
+/**
+ * Sort a dict
+ * @return  Object
+ */
 function sortObj(object, sortFunc) {
   if ( !sortFunc ) {
     sortFunc = function(a, b) {
@@ -287,28 +291,58 @@ function sortObj(object, sortFunc) {
   return rv;
 }
 
-function is_protected(input) { // FIXME
+/**
+ * Check if given VFS path is protected [from user actions]
+ * @return  bool
+ */
+function isProtected(input) { // FIXME
   if ( input.match(/^\/User/) ) {
     return false;
   }
   return true;
 }
 
-function get_vfs_type(vfspath) {
+/**
+ * Create a VFS path
+ *
+ * Translates paths
+ *
+ * @return  String
+ */
+function mkpath(user, input) {
+  if ( input.match(/^\/User/) ) {
+    return _path.normalize(_path.join(sprintf(_config.PATH_VFS_USER, user.username), input.replace(/^\/User/, '')));
+  }
+  return _path.normalize(_path.join(_config.PATH_MEDIA, input));
+}
+
+/**
+ * Check if path is a VFS directory and return type
+ * @return  String
+ */
+function getVFSType(vfspath) {
   if ( vfspath && vfs_dirs[vfspath] ) {
     return vfs_dirs[vfspath].type;
   }
   return null;
 }
 
-function get_folder_icon(vfspath) {
+/**
+ * Check if path is a VFS item and return icon
+ * @return  String
+ */
+function getVFSIcon(vfspath) {
   if ( vfspath && vfs_dirs[vfspath] ) {
     return vfs_dirs[vfspath].icon;
   }
   return 'places/folder.png';
 }
 
-function get_icon(filename, mimetype) {
+/**
+ * Get icon for given filename and/or MIME
+ * @return  String
+ */
+function getIcon(filename, mimetype) {
   if ( typeof filename == 'string' ) {
     if ( filename.match(/\.([A-z]{2,4})$/) ) {
       var ext = filename.split(/\.([A-z]{2,4})$/);
@@ -334,7 +368,11 @@ function get_icon(filename, mimetype) {
   return icon_default;
 }
 
-function in_array(element, array, cmp) {
+/**
+ * Check if given element is in an array
+ * @return  bool
+ */
+function inArray(element, array, cmp) {
   if (typeof cmp != "function") {
     cmp = function (o1, o2) {
       return o1 == o2;
@@ -348,13 +386,10 @@ function in_array(element, array, cmp) {
   return false;
 }
 
-function mkpath(user, input) {
-  if ( input.match(/^\/User/) ) {
-    return _path.normalize(_path.join(sprintf(_config.PATH_VFS_USER, user.username), input.replace(/^\/User/, '')));
-  }
-  return _path.normalize(_path.join(_config.PATH_MEDIA, input));
-}
-
+/**
+ * Check if MIME is matched in an array
+ * @return  bool
+ */
 function checkMIME(needle, haystack) {
   var i = 0, l = haystack.length, x;
   for ( i; i < l; i++ ) {
@@ -371,6 +406,10 @@ function checkMIME(needle, haystack) {
   return false;
 }
 
+/**
+ * Escape an argument for shell
+ * @return  String
+ */
 function escapeshell(cmd) {
   return ('' + cmd).replace(/(["\s'$`\\])/g,'\\$1');
 }
@@ -399,7 +438,7 @@ VFS.prototype =
   ls : function(args, mime_filter, callback) {
     mime_filter = mime_filter || [];
 
-    var vtype = get_vfs_type(args.replace(/\/$/, ''));
+    var vtype = getVFSType(args.replace(/\/$/, ''));
     var path  = mkpath(this.user, args);
 
     console.log("_ls", path);
@@ -485,7 +524,7 @@ VFS.prototype =
         if ( list.length ) {
           var iter  = list.pop();
 
-          if ( in_array(iter, ignore_files) ) {
+          if ( inArray(iter, ignore_files) ) {
             __next();
           } else {
             var fname = (path + '/' + iter).replace(/\/$/, '');
@@ -501,7 +540,7 @@ VFS.prototype =
             fs.stat(fname, function(err, stats) {
               if ( !err && stats ) {
                 var isdir = stats.isDirectory();
-                var ficon = isdir ? get_folder_icon(fpath) : get_icon(iter, fmime);
+                var ficon = isdir ? getVFSIcon(fpath) : getIcon(iter, fmime);
 
                 var fiter = {
                   path         : fpath,
@@ -510,7 +549,7 @@ VFS.prototype =
                   mime         : fmime,
                   icon         : ficon,
                   type         : isdir ? 'dir' : 'file',
-                  'protected'  : is_protected(fpath) ? 1 : 0
+                  'protected'  : isProtected(fpath) ? 1 : 0
                 };
 
                 if ( isdir ) {
@@ -1195,9 +1234,24 @@ function readPDF(user, name, callback) {
 
 module.exports =
 {
+  /**
+   * @see mkpath
+   */
   mkpath            : mkpath,
+
+  /**
+   * @see fs.removeRecursive
+   */
   removeRecursive   : fs.removeRecursive,
 
+  /**
+   * vfs::call() -- Call a VFS method by name
+   * @param   Object      user          User
+   * @param   String      method        Method to call
+   * @param   Mixed       args          Argument(s)
+   * @param   Function    callback      Callback function {result, data|error}
+   * @return  void
+   */
   call    : function(user, method, args, callback) {
     console.log('VFS', method, user.username);
 
