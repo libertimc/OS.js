@@ -98,7 +98,6 @@ module.exports =
 
 
     // Load from cache
-    // TODO
     fs.readFile(config.FONT_CACHE, function(err, data) {
       if ( err ) {
         __done();
