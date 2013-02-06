@@ -79,8 +79,15 @@ function _GetPackages(language, filename, callback) {
     if ( err ) {
       callback(false, err);
     } else {
-      var packages = {}; // result
-      var pkgs = JSON.parse(data.toString());
+      var packages = {};// result
+      var pkgs = [];
+
+      try {
+        pkgs = JSON.parse(data.toString());
+      } catch (ex) {
+        console.error('_GetPackages() JSON fail', filename);
+      }
+
       var list = {};
 
       var i = 0, l = pkgs.length, iter, pinfo;
