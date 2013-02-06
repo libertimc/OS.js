@@ -43,10 +43,10 @@ module.exports =
   //
   SERVER_PORT             : 3000,
   CLIENT_PORT_START       : 3010,
-  BUGREPORT_ENABLE        : false,            // TODO
-  ENV_SETUP               : 'development',
-  ENV_STANDALONE          : false,
-  ENV_CACHE               : false,            // TODO
+  AUTHENTICATION          : 'pam',            // TODO: Other methods
+  BUGREPORT_ENABLE        : false,            // TODO: Reporting not yet avail
+  ENV_SETUP               : 'development',    // `development`, `production`, `demo`
+  ENV_STANDALONE          : false,            // Use with sockets ?
   COMPRESSOR              : 'yui',            // 'gcc'
   SETTINGS_REVISION       : 2,                // Used in frontend
   DEFAULT_LANGUAGE        : 'en_US',

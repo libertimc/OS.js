@@ -7,7 +7,7 @@ Tested on these Linux distributions:
 * _bash_
 * _node.js_ 0.8+ with _npm_ and _node-gyp_
 * _git_ 1.6+
-* _PAM_ development libraries (_build-essential_, _libpam0g-dev_ on ubuntu)
+* _PAM_ development libraries (debian users: see help file above)
 * _syslog-ng_
 * _sudo_ to use administration utilities
 * _pdf2svg_ and _exiftool_ (Optional, for use with PDF applications)
@@ -64,3 +64,9 @@ to a file by URI.
 
 Just run `./bin/update-fontcache` and fonts will be automatically loaded from cache
 on demand.
+
+# Choosing Authentication module
+The default authentication method is PAM. This is currently the only method, but
+others will be added in the future.
+
+You can change which module to use in `config.js` setting `AUTHENTICATION`.

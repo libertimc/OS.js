@@ -1,5 +1,6 @@
 NODE.JS:
 -------------------------------------------------------------------------------
+* Implement authentication system chooser
 * Glade parser and package compiler conversion from old codebase
 * Translations (i18n)
 * WebSockets
