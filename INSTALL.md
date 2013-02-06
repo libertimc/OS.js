@@ -4,6 +4,7 @@ Tested on these Linux distributions:
 * Ubuntu Linux
 
 # Dependencies:
+* _bash_
 * _node.js_ 0.8+ and npm
 * _git_ 1.6+
 * _PAM_ development libraries (libpam0g-dev on debian)
