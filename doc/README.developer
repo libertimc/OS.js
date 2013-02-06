@@ -1,0 +1,56 @@
+# Formatting
+Always follow these rules:
+
+* 2 whitespaces for tab
+* Keep curly braces on same line as statements etc.
+* Use camelCasing for variable and function names
+* Try to use === instead of ==
+* Use single-quotes
+* Don't quoute object parameters (except for keywords used by JS)
+* Use strict!
+* Async functions take callback as last parameter
+* Keep comments to a minimal, but document functions and classes
+
+# Example
+        "use strict";
+        (function(undefined) {
+          /**
+           * @var Some variable
+           */
+          var someVar = {
+            prop1 : 'foo',
+            prop2 : 'bar',
+            prop3 : true
+          };
+
+          /**
+           * Show something
+           * @param   String      msg     Message
+           * @return  void
+           */
+          var someFunc = function(msg) {
+            alert(msg);
+          };
+
+          /**
+           * Perform async operation
+           * @param   Mixed     foo         Some argument
+           * @param   Function  callback    Callback function
+           * @return  void
+           */
+          var someAsyncFunc = function(foo, callback) {
+            if ( foo === true ) {
+              callback(true);
+            } else {
+              callback(false);
+            }
+          };
+
+          someAsyncFunc(someVar.prop3, function(result) {
+            if ( result ) {
+              someFunc('success!');
+            } else {
+              someFunc('Failed!');
+            }
+          });
+        })();
