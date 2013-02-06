@@ -32,32 +32,39 @@
 
 module.exports =
 {
-  //
+  /////////////////////////////////////////////////////////////////////////////
   // Project
-  //
+  /////////////////////////////////////////////////////////////////////////////
+
   PROJECT_VERSION         : '1.0.1-rc1',
   PROJECT_CODENAME        : 'NodeElk',
 
-  //
+  /////////////////////////////////////////////////////////////////////////////
   // Host and Environment
-  //
+  /////////////////////////////////////////////////////////////////////////////
+
   SERVER_PORT             : 3000,
   CLIENT_PORT_START       : 3010,
+
   AUTHENTICATION          : 'pam',            // TODO: Other methods
+
   BUGREPORT_ENABLE        : false,            // TODO: Reporting not yet avail
+
   ENV_SETUP               : 'development',    // `development`, `production`, `demo`
   ENV_STANDALONE          : false,            // Use with sockets ?
+
   COMPRESSOR              : 'yui',            // 'gcc'
+
   SETTINGS_REVISION       : 2,                // Used in frontend
+
   DEFAULT_LANGUAGE        : 'en_US',
 
-  //
+  /////////////////////////////////////////////////////////////////////////////
   // Paths
-  //
+  /////////////////////////////////////////////////////////////////////////////
+
   PATH                    : __dirname,
   PATH_VENDOR             : __dirname + '/vendor',
-  PATH_LIB                : __dirname + '/lib',
-  PATH_LOGS               : __dirname + '/logs',
   PATH_BIN                : __dirname + '/bin',
   PATH_DOC                : __dirname + '/doc',
   PATH_SRC                : __dirname + '/src',
@@ -69,14 +76,14 @@ module.exports =
   PATH_PUBLIC             : __dirname + '/public_html',
   PATH_MEDIA              : __dirname + '/public_html/media',
 
-  //
   // URIs
-  //
+
   URI_FONT                : '/media/System/Fonts',
 
-  //
-  // Build Paths
-  //
+  /////////////////////////////////////////////////////////////////////////////
+  // Build, Cache and Compression
+  /////////////////////////////////////////////////////////////////////////////
+
   MINIMIZE_CACHE          : __dirname + '/.build/minimize.cache',
   FONT_CACHE              : __dirname + '/.build/fontcache.json',
   COMPRESSION_CACHE       : __dirname + '/.build/compression.json',
@@ -85,9 +92,10 @@ module.exports =
   METADATA_FILENAME       : 'metadata.json',
   COMPRESS_DIRNAME        : '.compress',
 
-  //
-  // VFS Paths
-  //
+  /////////////////////////////////////////////////////////////////////////////
+  // VFS
+  /////////////////////////////////////////////////////////////////////////////
+
   PATH_VFS                : '/home',
   PATH_VFS_USER           : '/home/%s',
   PATH_VFS_USER_DOT       : '/home/%s/.osjs',
@@ -104,12 +112,14 @@ module.exports =
   VFS_MKDIR_PERM          : '0777',
 
 
-  //
-  // EXTERN
-  //
+  /////////////////////////////////////////////////////////////////////////////
+  // Externs
+  /////////////////////////////////////////////////////////////////////////////
+
   EXTERN_PATHS            : {
     pdf2svg   : '/usr/bin/pdf2svg',
     exiftool  : '/usr/bin/exiftool'
   }
+
 };
 
