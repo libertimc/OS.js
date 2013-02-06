@@ -5,14 +5,15 @@ Tested on these Linux distributions:
 
 # Dependencies:
 * _bash_
-* _node.js_ 0.8+ and npm
+* _node.js_ 0.8+ with _npm_ and _node-gyp_
 * _git_ 1.6+
-* _PAM_ development libraries (libpam0g-dev on debian)
+* _PAM_ development libraries (_build-essential_, _libpam0g-dev_ on ubuntu)
 * _syslog-ng_
 * _sudo_ to use administration utilities
 * _pdf2svg_ and _exiftool_ (Optional, for use with PDF applications)
 
 # Installation:
+* Set up your GitHub account and SSH key correctly
 * Clone repository
   - `git clone --recursive -b node.js git@github.com:andersevenrud/OS.js.git`
 * Start installer
