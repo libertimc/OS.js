@@ -30,8 +30,6 @@
  * @created 2013-01-27
  */
 
-var path = require('path');
-
 module.exports =
 {
   //
@@ -66,36 +64,40 @@ module.exports =
   ENV_STANDALONE      : false,
   ENV_CACHE           : false, // TODO
 
-  SETTINGS_CONFIG     : path.join(__dirname, 'config.js'),
-  MINIMIZE_CACHE      : path.join(__dirname, '.build/minimize.cache'),
-  FONT_CACHE          : path.join(__dirname, '.build/fontcache.json'),
-  PACKAGE_BUILD       : path.join(__dirname, '.build/packages.json'),
-  MIME_MAGIC          : path.join(__dirname, '.build/mime.mgc'),
-  METADATA_FILENAME   : 'metadata.json',
-
   //
   // Paths
   //
   PATH                : __dirname,
-  PATH_VENDOR         : path.join(__dirname, 'vendor'),
-  PATH_LIB            : path.join(__dirname, 'lib'),
-  PATH_LOGS           : path.join(__dirname, 'logs'),
-  PATH_BIN            : path.join(__dirname, 'bin'),
-  PATH_DOC            : path.join(__dirname, 'doc'),
-  PATH_SRC            : path.join(__dirname, 'src'),
-  PATH_LOCALE         : path.join(__dirname, 'src/locale'),
-  PATH_JAVASCRIPT     : path.join(__dirname, 'src/javascript'),
-  PATH_JSLOCALE       : path.join(__dirname, 'src/javascript/locale'),
-  PATH_TEMPLATES      : path.join(__dirname, 'src/templates'),
-  PATH_PACKAGES       : path.join(__dirname, 'vendor/packages'),
-  PATH_PUBLIC         : path.join(__dirname, 'public_html'),
-  PATH_MEDIA          : path.join(__dirname, 'public_html/media'),
+  PATH_VENDOR         : __dirname + '/vendor',
+  PATH_LIB            : __dirname + '/lib',
+  PATH_LOGS           : __dirname + '/logs',
+  PATH_BIN            : __dirname + '/bin',
+  PATH_DOC            : __dirname + '/doc',
+  PATH_SRC            : __dirname + '/src',
+  PATH_LOCALE         : __dirname + '/src/locale',
+  PATH_JAVASCRIPT     : __dirname + '/src/javascript',
+  PATH_JSLOCALE       : __dirname + '/src/javascript/locale',
+  PATH_TEMPLATES      : __dirname + '/src/templates',
+  PATH_PACKAGES       : __dirname + '/vendor/packages',
+  PATH_PUBLIC         : __dirname + '/public_html',
+  PATH_MEDIA          : __dirname + '/public_html/media',
 
   //
   // URIs
   //
-  URI_FONT              : '/media/System/Fonts',
-  COMPRESS_DIRNAME      : '.compress',
+  URI_FONT                : '/media/System/Fonts',
+
+  //
+  // Files
+  //
+  COMPRESS_DIRNAME        : '.compress',
+  SETTINGS_CONFIG         : __dirname + '/config.js',
+  MINIMIZE_CACHE          : __dirname + '/.build/minimize.cache',
+  FONT_CACHE              : __dirname + '/.build/fontcache.json',
+  COMPRESSION_CACHE       : __dirname + '/.build/compression.json',
+  PACKAGE_BUILD           : __dirname + '/.build/packages.json',
+  MIME_MAGIC              : __dirname + '/.build/mime.mgc',
+  METADATA_FILENAME       : 'metadata.json',
 
   //
   // VFS
@@ -112,7 +114,7 @@ module.exports =
   PATH_VFS_TEMP           : '/home/%s/.osjs/tmp',
   PATH_VFS_LOCK           : '/home/%s/.osjs/lock',
 
-  VFS_TEMPLATE            : path.join(__dirname, 'src/templates/vfs-user'),
+  VFS_TEMPLATE            : __dirname + '/src/templates/vfs-user',
   VFS_MKDIR_PERM          : '0777',
 
 

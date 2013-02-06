@@ -42,13 +42,15 @@ var _path     = require('path'),
     _fs       = require('fs'),
     _cp       = require('child_process');
 
+var cachefile = _config.COMPRESSION_CACHE;
 var compressor = 'java -jar ' + _path.join(_config.PATH_VENDOR, 'yui.jar'); // FIXME
-
 var languages = ['en_US', 'nb_NO']; // FIXME
+
 
 var ___started = (new Date()).getTime();
 var ___before = 0;
 var ___after = 0;
+var ___mtimes = {};
 
 function enumCoreResources(callback) {
   var i, j;
@@ -117,67 +119,125 @@ function _compress(ssize, type, src, dest, callback) {
 }
 
 function compressJavaScript(src, dest, callback) {
-  _fs.readFile(src, function(err, data) {
+  _fs.stat(src, function(err, stat) {
     if ( err ) {
       callback(false, err);
-    } else {
-      var fsize = _fs.statSync(src).size;
-      var replaced = data.toString().replace(/(console)\.(log|info|error|warn|warning|group|groupEnd)\((.*)\);/g, '');
-      _fs.writeFile(dest, replaced, 'utf-8', function(err) {
+      return;
+    }
+    var t = stat.mtime.getTime();
+    if ( (typeof ___mtimes[src] === 'undefined') || (t !== ___mtimes[src]) ) {
+
+      _fs.readFile(src, function(err, data) {
         if ( err ) {
           callback(false, err);
         } else {
-          _compress(fsize, 'js', dest, dest, callback);
+          var fsize = _fs.statSync(src).size;
+          var replaced = data.toString().replace(/(console)\.(log|info|error|warn|warning|group|groupEnd)\((.*)\);/g, '');
+          _fs.writeFile(dest, replaced, 'utf-8', function(err) {
+            if ( err ) {
+              callback(false, err);
+            } else {
+              _compress(fsize, 'js', dest, dest, function(success, result) {
+                if ( success ) {
+                  ___mtimes[src] = t;
+                }
+                callback(success, result);
+              });
+            }
+          });
         }
       });
+
+    } else {
+      console.log('>', dest);
+      console.log('Not modified...');
+      callback(true, true);
     }
+
+
   });
 }
 
 function compressCSS(src, dest, callback) {
-  var fsize = _fs.statSync(src).size;
-  _compress(fsize, 'css', src, dest, callback);
+  _fs.stat(src, function(err, stat) {
+    if ( err ) {
+      callback(false, err);
+      return;
+    }
+
+    var t = stat.mtime.getTime();
+    if ( (typeof ___mtimes[src] === 'undefined') || (t !== ___mtimes[src]) ) {
+      var fsize = _fs.statSync(src).size;
+      _compress(fsize, 'css', src, dest, function(success, result) {
+        if ( success ) {
+          ___mtimes[src] = t;
+        }
+        callback(success, result);
+      });
+    } else {
+      console.log('>', dest);
+      console.log('Not modified...');
+      callback(true, true);
+    }
+  });
 }
 
 function done(list) {
-  var ftime = parseInt(((new Date()).getTime() - ___started) / 1000, 10);
-  console.log('Compressed', list.length, 'file(s) in', ftime, 'second(s)')
-  console.log('From', ___before, 'to', ___after, '(', -parseInt(((___after / ___before - 1) * 100), 10) + '%', ')');
-  console.log('');
+  var cachecontents = JSON.stringify(___mtimes);
+
+  _fs.writeFile(cachefile, cachecontents, function() {
+    var ftime = parseInt(((new Date()).getTime() - ___started) / 1000, 10);
+    console.log('');
+    console.log('Compressed', list.length, 'file(s) in', ftime, 'second(s)')
+    console.log('From', ___before, 'to', ___after, '(', -parseInt(((___after / ___before - 1) * 100), 10) + '%', ')');
+    console.log('');
+  });
 }
 
-enumCoreResources(function(list) {
-  var successes = [];
-
-  var __next = function() {
-    var src  = list.pop();
-    var path = _path.join(_path.dirname(src), _config.COMPRESS_DIRNAME);
-    var dest = _path.join(path, _path.basename(src));
-
+_fs.readFile(cachefile, function(err, data) {
+  if ( !err && data ) {
     try {
-      _fs.mkdirSync(path);
-    } catch ( err ) {}
-
-    if ( src.match(/\.js$/) ) {
-      compressJavaScript(src, dest, __finished);
-    } else if ( src.match(/\.css$/) ) {
-      compressCSS(src, dest, __finished);
+      ___mtimes = JSON.parse(data.toString());
+    } catch ( e ) {
+      console.error("WARN: cache file not found?!", e);
     }
-  };
+  }
 
-  var __finished = function(result, filename) {
-    if ( result ) {
-      successes.push(filename);
-    }
+  enumCoreResources(function(list) {
+    var successes = [];
 
-    if ( list.length ) {
-      __next();
-    } else {
-      done(successes);
-    }
-  };
+    var __next = function() {
+      var src  = list.pop();
+      var path = _path.join(_path.dirname(src), _config.COMPRESS_DIRNAME);
+      var dest = _path.join(path, _path.basename(src));
 
-  console.log('Got', list.length, 'file(s)...\n\n');
-  __finished();
+      try {
+        _fs.mkdirSync(path);
+      } catch ( err ) {}
+
+      if ( src.match(/\.js$/) ) {
+        compressJavaScript(src, dest, __finished);
+      } else if ( src.match(/\.css$/) ) {
+        compressCSS(src, dest, __finished);
+      }
+    };
+
+    var __finished = function(result, filename) {
+      if ( result ) {
+        successes.push(filename);
+      }
+
+      if ( list.length ) {
+        __next();
+      } else {
+        done(successes);
+      }
+    };
+
+    console.log('Got', list.length, 'file(s)...\n\n');
+    __finished();
+  });
+
 });
+  
 

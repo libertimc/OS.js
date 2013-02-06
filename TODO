@@ -16,7 +16,6 @@ NODE.JS:
 * Service API action
 * Add support for compressed package resources
 * Optimizations, foreach, path.join() and such
-* Redo config file
 * Validate user package on install
 * Clean up failed user package installs
 * Create utils.js and move functions spread around here
