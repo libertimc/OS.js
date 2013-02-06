@@ -33,54 +33,41 @@
 module.exports =
 {
   //
-  // Host
-  //
-  SERVER_PORT         : 3000,
-  CLIENT_PORT_START   : 3010,
-
-  //
-  // Frontend Settings
-  //
-  SETTINGS_REVISION   : 2,
-  DEFAULT_LANGUAGE    : 'en_US',
-  AUTOLOGIN_ENABLE    : false,
-  AUTOLOGIN_USERNAME  : 'test',
-  AUTOLOGIN_PASSWORD  : 'test',
-  COMPRESSOR          : 'yui', // 'gcc'
-
-  //
   // Project
   //
-  PROJECT_VERSION     : '1.0.1-rc1',
-  PROJECT_CODENAME    : 'NodeElk',
-  PROJECT_COPYRIGHT   : 'Copyright 2013 Anders Evenrud',
-  PROJECT_AUTHOR      : 'Anders Evenrud <andersevenrud@gmail.com>',
+  PROJECT_VERSION         : '1.0.1-rc1',
+  PROJECT_CODENAME        : 'NodeElk',
 
   //
-  // Environment
+  // Host and Environment
   //
-  BUGREPORT_ENABLE    : false,
-  ENV_SETUP           : 'development',
-  ENV_STANDALONE      : false,
-  ENV_CACHE           : false, // TODO
+  SERVER_PORT             : 3000,
+  CLIENT_PORT_START       : 3010,
+  BUGREPORT_ENABLE        : false,            // TODO
+  ENV_SETUP               : 'development',
+  ENV_STANDALONE          : false,
+  ENV_CACHE               : false,            // TODO
+  COMPRESSOR              : 'yui',            // 'gcc'
+  SETTINGS_REVISION       : 2,                // Used in frontend
+  DEFAULT_LANGUAGE        : 'en_US',
 
   //
   // Paths
   //
-  PATH                : __dirname,
-  PATH_VENDOR         : __dirname + '/vendor',
-  PATH_LIB            : __dirname + '/lib',
-  PATH_LOGS           : __dirname + '/logs',
-  PATH_BIN            : __dirname + '/bin',
-  PATH_DOC            : __dirname + '/doc',
-  PATH_SRC            : __dirname + '/src',
-  PATH_LOCALE         : __dirname + '/src/locale',
-  PATH_JAVASCRIPT     : __dirname + '/src/javascript',
-  PATH_JSLOCALE       : __dirname + '/src/javascript/locale',
-  PATH_TEMPLATES      : __dirname + '/src/templates',
-  PATH_PACKAGES       : __dirname + '/vendor/packages',
-  PATH_PUBLIC         : __dirname + '/public_html',
-  PATH_MEDIA          : __dirname + '/public_html/media',
+  PATH                    : __dirname,
+  PATH_VENDOR             : __dirname + '/vendor',
+  PATH_LIB                : __dirname + '/lib',
+  PATH_LOGS               : __dirname + '/logs',
+  PATH_BIN                : __dirname + '/bin',
+  PATH_DOC                : __dirname + '/doc',
+  PATH_SRC                : __dirname + '/src',
+  PATH_LOCALE             : __dirname + '/src/locale',
+  PATH_JAVASCRIPT         : __dirname + '/src/javascript',
+  PATH_JSLOCALE           : __dirname + '/src/javascript/locale',
+  PATH_TEMPLATES          : __dirname + '/src/templates',
+  PATH_PACKAGES           : __dirname + '/vendor/packages',
+  PATH_PUBLIC             : __dirname + '/public_html',
+  PATH_MEDIA              : __dirname + '/public_html/media',
 
   //
   // URIs
@@ -88,19 +75,18 @@ module.exports =
   URI_FONT                : '/media/System/Fonts',
 
   //
-  // Files
+  // Build Paths
   //
-  COMPRESS_DIRNAME        : '.compress',
-  SETTINGS_CONFIG         : __dirname + '/config.js',
   MINIMIZE_CACHE          : __dirname + '/.build/minimize.cache',
   FONT_CACHE              : __dirname + '/.build/fontcache.json',
   COMPRESSION_CACHE       : __dirname + '/.build/compression.json',
   PACKAGE_BUILD           : __dirname + '/.build/packages.json',
-  MIME_MAGIC              : __dirname + '/.build/mime.mgc',
+
   METADATA_FILENAME       : 'metadata.json',
+  COMPRESS_DIRNAME        : '.compress',
 
   //
-  // VFS
+  // VFS Paths
   //
   PATH_VFS                : '/home',
   PATH_VFS_USER           : '/home/%s',

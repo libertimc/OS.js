@@ -222,11 +222,6 @@ app.configure(function() {
         var password = jsn.form ? (jsn.form.password || '') : '';
         var resume   = (jsn.resume === true || jsn.resume === 'true');
 
-        if ( _config.AUTOLOGIN_ENABLE ) {
-          username = _config.AUTOLOGIN_USERNAME;
-          password = _config.AUTOLOGIN_PASSWORD;
-        }
-
         _user.login(username, password, function(success, data) {
           if ( success ) {
             createClient(username, function(port) {
