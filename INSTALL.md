@@ -1,7 +1,7 @@
 # Compability:
 Tested on these Linux distributions:
 * Gentoo Linux
-* Ubuntu Linux
+* Ubuntu Linux (Help: https://gist.github.com/andersevenrud/4723377)
 
 # Dependencies:
 * _bash_
