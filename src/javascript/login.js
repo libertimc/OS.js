@@ -124,9 +124,14 @@
       if ( response.user.lock ) {
         var con = !this.confirmation || confirm(OSjs.Labels.LoginConfirm);
         if ( con ) {
-          setTimeout(function() {
-            window.location = response.href;
-          }, response.timeout);
+          var inter = setInterval(function() {
+            DoPost({'action' : 'check', 'username': response.user.username}, function(data) {
+              if ( data.success ) {
+                clearInterval(inter);
+                window.location = response.href;
+              }
+            });
+          }, 500);
         } else {
           dcallback();
         }
@@ -176,7 +181,7 @@
      * LoginManager::run() -- Init the Login
      * @return void
      */
-    run : function(autologin) {
+    run : function() {
       $("#LoginWindow").show();
 
       $("#LoginButton").on("click", function() {
@@ -208,18 +213,6 @@
       $("#LoginUsername").val("");
       $("#LoginPassword").val("");
       $("#LoginUsername").focus();
-
-      if ( autologin ) {
-        this.confirmation = false;
-        $("#LoginUsername").val("Automatic login ..."); // FIXME: Locale
-        $("#LoginPassword").attr("placeholder", "");
-        LoginManager.disableInputs();
-        LoginManager.postLogin({}, function() {
-          LoginManager.disableInputs();
-        });
-        return;
-      }
-
     },
 
     /**

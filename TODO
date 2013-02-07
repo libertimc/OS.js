@@ -8,7 +8,6 @@ NODE.JS:
 * Finish server sessions
 * Finish standalone
 * Add a user class and clean up
-* Login screen wait and poll for client startup (return redirect url)
 * Fix crashes on non-existent user directories/files (.osjs etc)
 * Syslog messages
 * Fix misc. TODO and FIXME spread around the code

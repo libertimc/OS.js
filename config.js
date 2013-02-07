@@ -106,7 +106,8 @@ module.exports =
   PATH_VFS_LAST_SESSION   : '/home/%s/.osjs/last-session.json',
   PATH_VFS_USERMETA       : '/home/%s/.osjs/user.json',
   PATH_VFS_TEMP           : '/home/%s/.osjs/tmp',
-  PATH_VFS_LOCK           : '/home/%s/.osjs/lock',
+  PATH_VFS_LOCK           : '/home/%s/.osjs/.lock',
+  PATH_VFS_SESSION_LOCK   : '/home/%s/.osjs/.session',
 
   VFS_TEMPLATE            : __dirname + '/src/templates/vfs-user',
   VFS_MKDIR_PERM          : '0777',

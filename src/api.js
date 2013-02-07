@@ -80,7 +80,7 @@ function request(action, jsn, pport, suser, req, res) {
   } else {
     var response = null;
 
-    console.log('!API', action);
+    console.log('!API', action, '(' + suser + ')');
 
     var _respond = function(http_code, http_data) {
       res.json(http_code, http_data);
@@ -93,6 +93,7 @@ function request(action, jsn, pport, suser, req, res) {
     if ( action != 'boot' ) {
       if ( !(typeof req.session.user === 'object') ) {
         _respond(500, {success: false, error: 'No running session found!'});
+        console.error('!!! NO RUNNING SESSION !!!');
         return;
       }
     }
@@ -182,7 +183,6 @@ function request(action, jsn, pport, suser, req, res) {
         };
 
         if ( (req.session && req.session.user) && (typeof req.session.user == 'object') ) {
-          req.session.user.lock = false;
           _user.logout(req.session.user, registry, session, save, duration, function() {
             __done();
           });

@@ -52,7 +52,8 @@ var express = require('express'),
     syslog  = require('node-syslog'),
     spawn   = require('child_process').spawn,
     swig    = require('swig'),
-    path    = require('path');
+    path    = require('path'),
+    fs      = require('fs');
 
 ///////////////////////////////////////////////////////////////////////////////
 // MAIN
@@ -96,18 +97,16 @@ function createClient(username, callback) {
   proc.on('exit', function (code) {
     if ( code === 0 ) {
       syslog.log(syslog.LOG_INFO, 'Created client session...');
-      CLIENT_CONNECTION.push(proc);
-      CLIENT_PORT++;
-
-      callback(port);
     } else {
       syslog.log(syslog.LOG_INFO, 'Failed to create client session...');
-
-      callback(0);
     }
-
     console.log('child process exited with code ' + code);
   });
+
+  CLIENT_CONNECTION.push(proc);
+  CLIENT_PORT++;
+
+  callback(port);
 }
 
 /**
@@ -217,7 +216,15 @@ app.configure(function() {
     if  ( !jsn || !action) {
       res.json(200, {'success': false, 'error': 'Invalid action!', 'result': null});
     } else {
-      if ( action == 'login' ) {
+      if ( action == 'check' ) {
+        fs.stat(sprintf(_config.PATH_VFS_SESSION_LOCK, jsn.username), function(err, stat) {
+          if ( err ) {
+            res.json(200, {'success': false, 'result': false});
+          } else {
+            res.json(200, {'success': true, 'result': true});
+          }
+        });
+      } else if ( action == 'login' ) {
         var username = jsn.form ? (jsn.form.username || '') : '';
         var password = jsn.form ? (jsn.form.password || '') : '';
         var resume   = (jsn.resume === true || jsn.resume === 'true');
@@ -230,8 +237,7 @@ app.configure(function() {
 
                 var result = {
                   user    : data,
-                  href    : 'http://localhost:' + port,
-                  timeout : 3000 // FIXME replaced by a poll
+                  href    : 'http://localhost:' + port
                 };
 
                 res.json(200, {'success': true, 'result': result});

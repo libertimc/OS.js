@@ -51,7 +51,8 @@ var _config    = require('./config.js'),
 var express = require('express'),
     sprintf = require('sprintf').sprintf,
     swig    = require('swig'),
-    syslog  = require('node-syslog');
+    syslog  = require('node-syslog'),
+    fs      = require('fs');
 
 ///////////////////////////////////////////////////////////////////////////////
 // ARGV HANDLING
@@ -76,8 +77,9 @@ if ( __user === null ) {
 }
 
 (function() {
+  // User template
   try {
-    var t = require('fs').statSync(sprintf(_config.PATH_VFS_USER_DOT, __user));
+    var t = fs.statSync(sprintf(_config.PATH_VFS_USER_DOT, __user));
     if ( t.isDirectory() ) {
       console.info("User has .osjs directory");
     } else {
@@ -385,9 +387,14 @@ app.configure(function() {
 
 syslog.init('OS.js client.js', syslog.LOG_PID | syslog.LOG_ODELAY, syslog.LOG_LOCAL0);
 syslog.log(syslog.LOG_INFO, 'Starting up ' + new Date());
+
 process.on('exit', function() {
   syslog.close();
+
+  // Client lockfile
+  fs.unlinkSync(sprintf(_config.PATH_VFS_SESSION_LOCK, __user));
 });
+
 process.on('uncaughtException', function (err) {
   console.error('Caught exception: ' + err); // FIXME
 });
@@ -395,3 +402,5 @@ process.on('uncaughtException', function (err) {
 app.listen(__port);
 console.info('>>> Listening on port ' + __port);
 
+// Client lockfile
+fs.writeFileSync(sprintf(_config.PATH_VFS_SESSION_LOCK, __user));
