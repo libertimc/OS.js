@@ -1,24 +1,25 @@
 NODE.JS:
 -------------------------------------------------------------------------------
-* Implement authentication system chooser
 * Glade parser and package compiler conversion from old codebase
 * Translations (i18n)
-* WebSockets
-* Finish up server.js (sessions etc)
-* Finish server sessions
-* Finish standalone
-* Add a user class and clean up
-* Fix crashes on non-existent user directories/files (.osjs etc)
-* Syslog messages
-* Fix misc. TODO and FIXME spread around the code
-* Testing
-* New error-hadling in frontend
-* Service API action
-* Add support for compressed package resources
-* Optimizations, foreach, path.join() and such
-* Validate user package on install
-* Clean up failed user package installs
-* Create utils.js and move functions spread around here
+* Syslog messages in API etc.
+* Server
+  - Session timeout and cleanups
+  - Implement authentication system chooser
+* Services
+  - WebSockets
+  - Standalone
+* Client
+  - Compressed package resources
+* Packages
+  - Validate user package on install
+  - Clean up failed user package installs
+* Misc
+  - Optimizations, foreach, path.join() and such
+  - New error handling
+  - TODO and FIXME spread around the code
+  - Fix crashes on non-existent user directories/files (.osjs etc)
+  - Create utils.js and move functions spread around here
 
 NODE.JS PACKAGE CONVERSION (EVENT API):
 -------------------------------------------------------------------------------
