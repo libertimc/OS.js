@@ -6,11 +6,11 @@ NODE.JS:
 * Server
   - Session timeout and cleanups
   - Implement authentication system chooser
-* Services
-  - WebSockets
-  - Standalone
 * Client
   - Compressed package resources
+  - WebSockets
+  - Standalone
+  - file:// resources
 * Packages
   - Validate user package on install
   - Clean up failed user package installs

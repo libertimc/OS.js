@@ -37,14 +37,15 @@ Tested on these Linux distributions:
 ## System
 **Not done in this branch**
 
-* Set `ENV_STANDALONE` in `config.js`
+### As web server
+* Start using `./bin/launch-server` using `forever`, `screen` or similar
+* Launch browser in [http://localhost:3000](http://localhost:3000)
+
+### As system service
+* Set `ENV_LOCALHOST` in `config.js`
 * Install system service
   - Located in `doc/rc.d`
 * Start system-wide service
-
-### Alternative
-* Start using `./bin/launch-server` using `forever`, `screen` or similar
-* Launch browser in [http://localhost:3000](http://localhost:3000)
 
 # Running with compressed (and cached) resources:
 This also disables debugging messages and performs some optimizaions.
@@ -70,3 +71,9 @@ The default authentication method is PAM. This is currently the only method, but
 others will be added in the future.
 
 You can change which module to use in `config.js` setting `AUTHENTICATION`.
+
+# Choosing Communication mode
+**Not done in this branch**
+
+You can switch between XHR and WebSockets with the `ENV_WEBSOCKETS` setting
+in `config.js`.

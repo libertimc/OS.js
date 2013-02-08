@@ -44,7 +44,7 @@ var _path     = require('path'),
 
 var cachefile = _config.COMPRESSION_CACHE;
 var compressor = 'java -jar ' + _path.join(_config.PATH_VENDOR, 'yui.jar'); // FIXME
-var languages = ['en_US', 'nb_NO']; // FIXME
+var languages = _config.ENABLED_LOCALES;
 
 
 var ___started = (new Date()).getTime();

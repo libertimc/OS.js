@@ -51,13 +51,19 @@ module.exports =
   BUGREPORT_ENABLE        : false,            // TODO: Reporting not yet avail
 
   ENV_SETUP               : 'development',    // `development`, `production`, `demo`
-  ENV_STANDALONE          : false,            // Use with sockets ?
+  ENV_WEBSOCKETS          : false,            // TODO: Use with sockets ?
+  ENV_LOCALHOST           : false,            // TODO: Use file:// ?
 
   COMPRESSOR              : 'yui',            // 'gcc'
 
   SETTINGS_REVISION       : 2,                // Used in frontend
 
   DEFAULT_LANGUAGE        : 'en_US',
+
+  ENABLED_LOCALES         : [
+    'nb_NO',
+    'en_US'
+  ],
 
   /////////////////////////////////////////////////////////////////////////////
   // Paths
@@ -110,7 +116,7 @@ module.exports =
   PATH_VFS_SESSION_LOCK   : '/home/%s/.osjs/.session',
 
   VFS_TEMPLATE            : __dirname + '/src/templates/vfs-user',
-  VFS_MKDIR_PERM          : '0777',
+  VFS_MKDIR_PERM          : '0755',
 
 
   /////////////////////////////////////////////////////////////////////////////

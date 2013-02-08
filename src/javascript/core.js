@@ -2612,7 +2612,7 @@
         ENV_SETUP       = env.setup;
         WEBSOCKET_URI   = env.hosts.server;
 
-        if ( env.standalone ) {
+        if ( env.websockets ) {
           _Connection = new CoreConnection(function(result) {
             if ( result ) {
               _run(data.session);

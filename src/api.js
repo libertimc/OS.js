@@ -109,7 +109,8 @@ function request(action, jsn, pport, suser, req, res) {
             environment : {
               bugreporting : _config.BUGREPORT_ENABLE,
               setup        : _config.ENV_SETUP,
-              standalone   : _config.ENV_STANDALONE,
+              websockets   : _config.ENV_WEBSOCKETS,
+              localhost    : _config.ENV_LOCALHOST,
               hosts        : {
                 frontend      : 'localhost' + pport
               }
