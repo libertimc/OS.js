@@ -43,23 +43,37 @@ module.exports =
   // Host and Environment
   /////////////////////////////////////////////////////////////////////////////
 
+  // Node.js
+
   SERVER_PORT             : 3000,
   CLIENT_PORT_START       : 3010,
 
-  AUTHENTICATION          : 'pam',            // Loads up `auth_<name>.js`
+  // Users
 
-  BUGREPORT_ENABLE        : false,            // TODO: Reporting not yet avail
+  AUTHENTICATION          : 'pam',            // Loads up `auth_<name>.js`
+                                              // 'pam'   PAM (default)
+                                              // 'dummy' Simple dict
+
+  // Env
 
   ENV_SETUP               : 'development',    // `development`, `production`, `demo`
   ENV_WEBSOCKETS          : false,            // TODO: Use with sockets ?
   ENV_LOCALHOST           : false,            // TODO: Use file:// ?
 
-  COMPRESSOR              : 'yui',            // 'gcc'
+  // Resources
+
+  COMPRESSOR              : 'yui',            // Compression library
+                                              // 'gcc' Google closure compiler
+                                              // 'yui' Yahoo Compressor
+
+  // Frontend
 
   SETTINGS_REVISION       : 2,                // Used in frontend
+  BUGREPORT_ENABLE        : false,            // TODO: Reporting not yet avail
+
+  // Locale
 
   DEFAULT_LANGUAGE        : 'en_US',
-
   ENABLED_LOCALES         : [
     'nb_NO',
     'en_US'

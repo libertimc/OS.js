@@ -21,6 +21,8 @@ Tested on these Linux distributions:
 * Create users
   - Add yourself a new user to test with using `./bin/add-user <username>`.
   - OR run `./bin/update-user-template <username>` on already existing users
+* Configure settings and environment (optional)
+  - Some are noted further down in this file
 
 # Upgrading:
 * Run `./bin/installer --update`
