@@ -198,7 +198,11 @@ app.configure(function() {
     var filename = req.params.filename;
 
     console.log('/VFS/resource/:filename', filename);
-    res.sendfile(sprintf('%s/%s', _config.PATH_JAVASCRIPT, filename));
+    if ( _config.ENV_SETUP == 'production' ) {
+      res.sendfile(sprintf('%s/%s/%s', _config.PATH_JAVASCRIPT, _config.COMPRESS_DIRNAME, filename));
+    } else {
+      res.sendfile(sprintf('%s/%s', _config.PATH_JAVASCRIPT, filename));
+    }
   });
 
   app.post('/', function postLogin(req, res) {
