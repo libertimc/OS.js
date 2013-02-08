@@ -56,6 +56,22 @@ var express = require('express'),
     fs      = require('fs');
 
 ///////////////////////////////////////////////////////////////////////////////
+// MISC CHECKS
+///////////////////////////////////////////////////////////////////////////////
+
+(function() {
+  var f = (_config.PATH_SRC + '/auth_' + _config.AUTHENTICATION + '.js');
+  try {
+    fs.statSync(f);
+    console.info('>>> Loaded authentication module:', f);
+  } catch ( err ) {
+    console.error('Failed to load authentication module:', f);
+    console.error(err);
+    process.exit(1);
+  }
+})();
+
+///////////////////////////////////////////////////////////////////////////////
 // MAIN
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -231,7 +247,6 @@ app.configure(function() {
       } else if ( action == 'login' ) {
         var username = jsn.form ? (jsn.form.username || '') : '';
         var password = jsn.form ? (jsn.form.password || '') : '';
-        var resume   = (jsn.resume === true || jsn.resume === 'true');
 
         _user.login(username, password, function(success, data) {
           if ( success ) {
@@ -250,7 +265,7 @@ app.configure(function() {
               }
             });
           } else {
-            res.json(200, {'success': false, 'error': 'Failed to log in!', 'result': null});
+            res.json(200, {'success': false, 'error': data, 'result': null});
           }
         });
       } else {

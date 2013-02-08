@@ -46,7 +46,7 @@ module.exports =
   SERVER_PORT             : 3000,
   CLIENT_PORT_START       : 3010,
 
-  AUTHENTICATION          : 'pam',            // TODO: Other methods
+  AUTHENTICATION          : 'pam',            // Loads up `auth_<name>.js`
 
   BUGREPORT_ENABLE        : false,            // TODO: Reporting not yet avail
 

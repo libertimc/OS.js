@@ -5,7 +5,6 @@ NODE.JS:
 * Syslog messages in API etc.
 * Server
   - Session timeout and cleanups
-  - Implement authentication system chooser
 * Client
   - Compressed package resources
   - WebSockets

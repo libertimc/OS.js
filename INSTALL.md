@@ -43,9 +43,10 @@ Tested on these Linux distributions:
 
 ### As system service
 * Set `ENV_LOCALHOST` in `config.js`
-* Install system service
+* Install system services
   - Located in `doc/rc.d`
-* Start system-wide service
+* Start server service
+* Start client service
 
 # Running with compressed (and cached) resources:
 This also disables debugging messages and performs some optimizaions.
@@ -67,10 +68,10 @@ Just run `./bin/update-fontcache` and fonts will be automatically loaded from ca
 on demand.
 
 # Choosing Authentication module
-**Not done in this branch**
-
 The default authentication method is PAM. You can change which module to use
 in `config.js` setting `AUTHENTICATION`.
+
+**NB:** Only pam module is included in this branch (for now).
 
 # Choosing Communication mode
 **Not done in this branch**

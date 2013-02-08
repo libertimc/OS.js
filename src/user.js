@@ -36,8 +36,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 var fs         = require('fs'),
-    sprintf    = require('sprintf').sprintf,
-    pam        = require('authenticate-pam');
+    sprintf    = require('sprintf').sprintf;
 
 var config     = require('../config.js');
 
@@ -57,7 +56,6 @@ var _defaultUser = {
   }
 };
 
-
 ///////////////////////////////////////////////////////////////////////////////
 // EXPORTS
 ///////////////////////////////////////////////////////////////////////////////
@@ -74,50 +72,50 @@ module.exports =
    * @return  void
    */
   login  : function(username, password, callback) {
-    pam.authenticate(username, password, function(err) {
-      if ( err ) {
-        callback(false, 'Failed to log in!');
-      } else {
+    try {
+      var _authenticate = require(config.PATH_SRC + '/auth_' + config.AUTHENTICATION + '.js');
+      _authenticate(username, password, function(success, result) {
+        if ( !success ) {
+          callback(false, 'Authentication failure!');
+        } else {
+          // Read user info
+          var ipath = sprintf(config.PATH_VFS_USERMETA, username);
+          fs.readFile(ipath, function(err, data) {
+            var user = _defaultUser;
 
-        // Read user info
-        var ipath = sprintf(config.PATH_VFS_USERMETA, username);
-        fs.readFile(ipath, function(err, data) {
-          var user = _defaultUser;
-
-          if ( !err ) {
-            fs.readFile(ipath, function(err, data) {
-              if ( !err ) {
-                var i, idata = JSON.parse(data.toString());
-                for ( i in idata ) {
-                  if ( idata.hasOwnProperty(i) ) {
-                    user[i] = idata[i];
-                  }
+            if ( !err ) {
+              var i, idata = JSON.parse(data.toString());
+              for ( i in idata ) {
+                if ( idata.hasOwnProperty(i) ) {
+                  user[i] = idata[i];
                 }
               }
-            });
-          }
-
-          user.username  = username;
-          user.groups    = [username];
-          user.lock      = false;
-
-          // Lock session
-          var lpath = sprintf(config.PATH_VFS_LOCK, user.username);
-          fs.exists(lpath, function(ex) {
-            if ( ex ) {
-              user.lock = true;
-              callback(true, user);
-              return;
             }
 
-            fs.writeFile(lpath, (new Date()).toString(), function(err) {
-              callback(true, user);
-            });
-          });
+            user.username  = username;
+            user.groups    = [username];
+            user.lock      = false;
 
-        });
-      } // if
-    });
+            // Lock session
+            var lpath = sprintf(config.PATH_VFS_LOCK, user.username);
+            fs.exists(lpath, function(ex) {
+              if ( ex ) {
+                user.lock = true;
+                callback(true, user);
+                return;
+              }
+
+              fs.writeFile(lpath, (new Date()).toString(), function(err) {
+                callback(true, user);
+              });
+            });
+
+          });
+        }
+      }); // _authenticate()
+    } catch ( err ) {
+      callback(false, 'Exception: ' + err);
+    }
   },
 
   /**
