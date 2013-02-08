@@ -67,10 +67,10 @@ Just run `./bin/update-fontcache` and fonts will be automatically loaded from ca
 on demand.
 
 # Choosing Authentication module
-The default authentication method is PAM. This is currently the only method, but
-others will be added in the future.
+**Not done in this branch**
 
-You can change which module to use in `config.js` setting `AUTHENTICATION`.
+The default authentication method is PAM. You can change which module to use
+in `config.js` setting `AUTHENTICATION`.
 
 # Choosing Communication mode
 **Not done in this branch**
