@@ -71,7 +71,7 @@ on demand.
 The default authentication method is PAM. You can change which module to use
 in `config.js` setting `AUTHENTICATION`.
 
-**NB:** Only pam module is included in this branch (for now).
+**Included:** `pam`, `dummy` (a dict of username/password)
 
 # Choosing Communication mode
 **Not done in this branch**

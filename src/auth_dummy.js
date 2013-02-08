@@ -1,6 +1,6 @@
 /*!
  * @file
- * OS.js - JavaScript Operating System - auth_pam
+ * OS.js - JavaScript Operating System - auth_dummy
  *
  * Copyright (c) 2011-2012, Anders Evenrud <andersevenrud@gmail.com>
  * All rights reserved.
@@ -31,23 +31,19 @@
  */
 "use strict";
 
-///////////////////////////////////////////////////////////////////////////////
-// IMPORTS
-///////////////////////////////////////////////////////////////////////////////
-
-var pam = require('authenticate-pam');
+var _users = {
+  'root' : 'abc123'
+};
 
 ///////////////////////////////////////////////////////////////////////////////
 // MODULE
 ///////////////////////////////////////////////////////////////////////////////
 
 module.exports = function(username, password, callback) {
-  pam.authenticate(username, password, function(err) {
-    if ( err ) {
-      callback(false, err);
-    } else {
-      callback(true);
-    }
-  });
+  if ( _users[username] == password ) {
+    callback(true);
+  } else {
+    callback(false, 'Authentication error!');
+  }
 };
 
