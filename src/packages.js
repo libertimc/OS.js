@@ -47,6 +47,48 @@ var config  = require('../config.js'),
 ///////////////////////////////////////////////////////////////////////////////
 
 /**
+ * _parseMetadata() -- Parse metadata, return info
+ * @param   Object      iter      JSON metadata object
+ * @param   String      language  Language (locale)
+ * @param   bool        is_new    Empty package ? (Default=false)
+ * @return  Object
+ */
+function _parseMetadata(iter, language, is_new) {
+  iter.title = iter.title || {};
+  if ( !iter.title[language] )
+    iter.title[language] = iter.name;
+
+  iter.description = iter.description || {};
+  if ( !iter.description[language] )
+    iter.description[language] = iter.name;
+
+  var pinfo = {
+    type          : iter.type,
+    name          : iter.name,
+    title         : iter.title[language],
+    titles        : iter.title,
+    icon          : iter.icon,
+    resources     : iter.resource || []
+  };
+
+  if ( iter.type == 'Application' ) {
+    pinfo.schema    = iter.schema || null;
+    pinfo.category  = iter.category || 'unknown';
+    pinfo.mimes     = iter.mime || [];
+  } else {
+    pinfo.description = iter.description[language];
+    pinfo.descriptions = iter.description;
+  }
+
+  if ( is_new ) {
+    pinfo.compability = iter.compability || [];
+    pinfo.packagename = iter.type + iter.name;
+  }
+
+  return pinfo;
+}
+
+/**
  * validateMetadata() -- Validate a package.json
  * @param   String      filename    Filename to validate
  * @param   Function    callback    Callback function
@@ -90,37 +132,10 @@ function _GetPackages(language, filename, callback) {
 
       var list = {};
 
-      var i = 0, l = pkgs.length, iter, pinfo;
+      var i = 0, l = pkgs.length, iter;
       for ( i; i < l; i++ ) {
-        iter = pkgs[i];
-
-        iter.title = iter.title || {};
-        if ( !iter.title[language] )
-          iter.title[language] = iter.name;
-
-        iter.description = iter.description || {};
-        if ( !iter.description[language] )
-          iter.description[language] = iter.name;
-
-        pinfo = {
-          type          : iter.type,
-          name          : iter.name,
-          title         : iter.title[language],
-          titles        : iter.title,
-          icon          : iter.icon,
-          resources     : iter.resource || []
-        };
-
-        if ( iter.type == 'Application' ) {
-          pinfo.schema    = iter.schema || null;
-          pinfo.category  = iter.category || 'unknown';
-          pinfo.mimes     = iter.mime || [];
-        } else {
-          pinfo.description = iter.description[language];
-          pinfo.descriptions = iter.description;
-        }
-
-        packages[iter.packagename] = pinfo; // packagename is from _UpdatePackageMetadata()
+        iter  = pkgs[i];
+        packages[iter.packagename] = _parseMetadata(iter, language); // packagename is from _UpdatePackageMetadata()
       }
 
       callback(true, packages);
@@ -245,6 +260,8 @@ function updateSystemPackageMetadata(callback) {
 
 module.exports =
 {
+  _parseMetadata : _parseMetadata,
+
   /**
    * packages::createPackageMeta() -- Create package metafile(s)
    * @see     updateUserPackageMetadata()

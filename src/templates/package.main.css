@@ -1,0 +1,13 @@
+@charset "UTF-8";
+/*!
+ * Application: {{ classname }}
+ *
+ * @package OSjs.Packages
+ * @author Anders Evenrud <andersevenrud@gmail.com>
+ * @licence Simplified BSD License
+ */
+
+.{{ classname }} {
+
+}
+

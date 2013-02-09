@@ -1,6 +1,7 @@
 NODE.JS:
 -------------------------------------------------------------------------------
 * Glade parser and package compiler conversion from old codebase
+  - Finish up create-project also
 * Translations (i18n)
 * Syslog messages in API etc.
 * System Server/Client

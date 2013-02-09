@@ -1,0 +1,127 @@
+#!/usr/bin/env node
+
+var _config     = require('../config'),
+    _packages   = require(_config.PATH_SRC + '/packages.js');
+
+var _path     = require('path'),
+    _fs       = require('fs'),
+    _cp       = require('child_process');
+
+var swig      = require('swig');
+
+var tpl_node  = _config.PATH_TEMPLATES + '/package.node.js';
+var tpl_js    = _config.PATH_TEMPLATES + '/package.main.js';
+var tpl_css   = _config.PATH_TEMPLATES + '/package.main.css';
+
+swig.init({
+  allowErrors : false,
+  autoescape  : true,
+  cache       : false,
+  encoding    : 'utf8',
+  filters     : {},
+  root        : _config.PATH_TEMPLATES,
+  tags        : {},
+  extensions  : {},
+  tzOffset    : 0
+});
+
+var language = 'en_US'; // FIXME
+var opts = {
+  'package'           : 'FooBar',
+  'default_language'  : language,
+  'icon'              : '/apps/terminal.png',
+  'type'              : 'Application',
+  'linguas'           : JSON.stringify({}),
+
+  // Application Specific
+  'mimes'             : JSON.stringify([]),
+  'compability'       : JSON.stringify([]),
+  'windows'           : [],
+  'glade_window'      : '',
+  'code_prepend'      : '',
+  'code_append'       : ''
+};
+
+if ( process.argv.length < 3 ) {
+  console.error('Usage: ./bin/create-project <metadata.json>');
+  process.exit(0);
+}
+
+var metafile = process.argv[2]
+var outdir   = _path.dirname(metafile);
+var out_node = _path.join(outdir, opts['package'] + '.node.js');
+var out_js   = _path.join(outdir, 'main.js');
+var out_css  = _path.join(outdir, 'main.css');
+
+try {
+  var data = _fs.readFileSync(metafile, 'utf-8').toString();
+  var info = _packages._parseMetadata(JSON.parse(data), language, true);
+
+  var linguas = {};
+
+  var i;
+  for ( i in info.titles ) {
+    if ( info.titles.hasOwnProperty(i) ) {
+      if ( !linguas.title ) {
+        linguas.title = {};
+      }
+      linguas.title[i] = info.titles[i];
+    }
+  }
+
+  for ( i in info.descriptions ) {
+    if ( info.descriptions.hasOwnProperty(i) ) {
+      if ( !linguas.description ) {
+        linguas.description = {};
+      }
+      linguas.description[i] = info.descriptions[i];
+    }
+  }
+
+  opts['package']       = info.packagename;
+  opts['icon']          = info.icon;
+  opts['mimes']         = JSON.stringify(info.mimes || []);
+  opts['compability']   = JSON.stringify(info.compability || []);
+  opts['type']          = info.type;
+  opts['linguas']       = JSON.stringify(linguas || {});
+
+  // TODO: Parse schema
+
+  console.log('Package', opts);
+
+  try {
+    console.log('>>>', 'Generating node script');
+    var res_node  = swig.compileFile(tpl_node).render(opts);
+    _fs.writeFileSync(out_node, res_node);
+    console.log('<', out_node);
+  } catch ( err ) {
+    console.error('... failed:', err);
+    process.exit(1);
+  }
+
+  try {
+    console.log('>>>', 'Generating main javascript');
+    var res_js    = swig.compileFile(tpl_js).render(opts);
+    _fs.writeFileSync(out_js, res_js);
+    console.log('<', out_js);
+  } catch ( err ) {
+    console.error('... failed:', err);
+    process.exit(1);
+  }
+
+  try {
+    console.log('>>>', 'Generating main stylesheet');
+    var res_css   = swig.compileFile(tpl_css).render(opts);
+    _fs.writeFileSync(out_css, res_css);
+    console.log('<', out_css);
+  } catch ( err ) {
+    console.error('... failed:', err);
+    process.exit(1);
+  }
+} catch ( err ) {
+  console.error('Failed to read metadata:', err);
+  process.exit(1);
+}
+
+console.info('Done!');
+process.exit(0);
