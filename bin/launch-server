@@ -4,4 +4,4 @@ if [[ $(/usr/bin/id -u) -ne 0 ]]; then
   exit
 fi
 
-node server.js
+node server-sys.js

@@ -1,6 +1,6 @@
 /*!
  * @file
- * OS.js - JavaScript Operating System - API
+ * OS.js - JavaScript Operating System - Web Client
  *
  * Copyright (c) 2011-2012, Anders Evenrud <andersevenrud@gmail.com>
  * All rights reserved.
@@ -31,8 +31,9 @@
  */
 "use strict";
 
-var RESPONSE_OK     = 200;
-var RESPONSE_ERROR  = 500;
+/*
+ * TODO: Locales (i18n)
+ */
 
 ///////////////////////////////////////////////////////////////////////////////
 // IMPORTS
@@ -48,16 +49,70 @@ var _config    = require('../config.js'),
     _user      = require(_config.PATH_SRC + '/user.js'),
     _services  = require(_config.PATH_SRC + '/services.js'),
     _locale    = require(_config.PATH_SRC + '/locale.js'),
-    _session   = require(_config.PATH_SRC + '/session.js');
+    _session   = require(_config.PATH_SRC + '/session.js'),
+    _ui        = require(_config.PATH_SRC + '/ui.js');
 
 // External
-var sprintf = require('sprintf').sprintf,
-    syslog  = require('node-syslog'),
+var express = require('express'),
+    sprintf = require('sprintf').sprintf,
+    swig    = require('swig'),
+    fs      = require('fs'),
     _path   = require('path'); // FIXME Refactor with this
+
+///////////////////////////////////////////////////////////////////////////////
+// TEMPLATE HELPERS
+///////////////////////////////////////////////////////////////////////////////
+
+swig._cache = {};
+swig.express3 = function (path, options, fn) {
+  swig._read(path, options, function (err, str) {
+    if ( err ) {
+      return fn(err);
+    }
+
+    try {
+      options.filename = path;
+      var tmpl = swig.compile(str, options);
+      fn(null, tmpl(options));
+    } catch (error) {
+      fn(error);
+      console.error(error);
+    }
+
+    return true;
+  });
+};
+
+swig._read = function (path, options, fn) {
+  var str = swig._cache[path];
+
+  // cached (only if cached is a string and not a compiled template function)
+  if (options.cache && str && typeof str === 'string') {
+    return fn(null, str);
+  }
+
+  // read
+  require('fs').readFile(path, 'utf8', function (err, str) {
+    if (err) {
+      return fn(err);
+    }
+    if (options.cache) {
+      swig._cache[path] = str;
+    }
+    fn(null, str);
+
+    return true;
+  });
+
+  return true;
+};
 
 ///////////////////////////////////////////////////////////////////////////////
 // HELPERS
 ///////////////////////////////////////////////////////////////////////////////
+
+var RESPONSE_OK     = 200;
+var RESPONSE_ERROR  = 500;
 
 function defaultResponse(req, res) {
   var body = req.url;
@@ -71,16 +126,15 @@ function defaultJSONResponse(req, res) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// MAIN
+// API REQUESTS
 ///////////////////////////////////////////////////////////////////////////////
 
-function request(action, jsn, pport, suser, req, res) {
+function request(action, jsn, pport, req, res) {
   if ( action === null  ) {
     defaultJSONResponse(req, res);
   } else {
     var response = null;
-
-    console.log('!API', action, '(' + suser + ')');
+    var suser    = null;
 
     var _respond = function(http_code, http_data) {
       res.json(http_code, http_data);
@@ -90,20 +144,36 @@ function request(action, jsn, pport, suser, req, res) {
     // Calls
     //
 
-    if ( action != 'boot' ) {
-      if ( !(typeof req.session.user === 'object') ) {
+    if ( typeof req.session.user === 'object' ) {
+      suser = req.session.user;
+    } else {
+      if ( action != 'boot' && action != 'login' ) {
         _respond(500, {success: false, error: 'No running session found!'});
         console.error('!!! NO RUNNING SESSION !!!');
         return;
       }
+
+      console.log('!API', action, suser ? '(' + suser.username + ')' : '');
     }
 
     switch ( action ) {
-      case 'boot' :
-        var user = _user.defaultUser;
-        user.username = suser;
-        user.sid      = req.sessionID;
+      case 'login' :
+        var username = jsn.form ? (jsn.form.username || '') : '';
+        var password = jsn.form ? (jsn.form.password || '') : '';
 
+        _user.login(username, password, function(success, data) {
+          if ( success ) {
+            req.session.user = data;
+            req.session.user.sid = req.session.sessionID;
+
+            res.json(200, {'success': true, 'result': {redirect: '/', user: data}});
+          } else {
+            res.json(200, {'success': false, 'error': data, 'result': null});
+          }
+        });
+      break;
+
+      case 'boot' :
         var _success = function(packages, resume_registry, resume_session) {
           response = {
             environment : {
@@ -117,7 +187,7 @@ function request(action, jsn, pport, suser, req, res) {
             },
 
             session : {
-              user          : user,
+              user          : suser,
               registry      : {
                 revision      : _config.SETTINGS_REVISION,
                 settings      : _settings.getDefaultSettings(_registry.defaults),
@@ -130,31 +200,23 @@ function request(action, jsn, pport, suser, req, res) {
               },
               locale       : {
                 system        : _config.DEFAULT_LANGUAGE,
-                browser       : user.language
+                browser       : suser.language
               }
             }
           };
 
           _respond(RESPONSE_OK, {success: true, result: response});
-
-          req.session.user      = user;
-
-          syslog.log(syslog.LOG_INFO, 'client[' + req.session.user.username + '] logged in...');
         };
 
         var _failure = function(msg) {
-          syslog.log(syslog.LOG_ERROR, 'Boot failed: ' + msg);
-
           console.error('Boot::_failure()', msg);
-
-          req.session.user = null;
 
           _respond(RESPONSE_OK, {success: false, error: msg, result: null});
         };
 
-        _packages.getInstalledPackages(user, function(success, result) {
+        _packages.getInstalledPackages(suser, function(success, result) {
           if ( success ) {
-            _user.resume(user, function(resume_registry, resume_session) {
+            _user.resume(suser, function(resume_registry, resume_session) {
               _success(result, resume_registry, resume_session);
             });
           } else {
@@ -170,37 +232,25 @@ function request(action, jsn, pport, suser, req, res) {
         var duration = jsn.duration;
 
         var __done = function() {
-          _respond(RESPONSE_OK, {success: true, result: true});
-
-          try {
-            syslog.log(syslog.LOG_INFO, 'client[' + req.session.user.username + '] shutdown complete');
-          } catch ( err )  {
-            syslog.log(syslog.LOG_INFO, 'client[???] shutdown complete');
-          }
-
           req.session.user = null;
           req.session.destroy();
 
+          _respond(RESPONSE_OK, {success: true, result: true});
         };
 
-        if ( (req.session && req.session.user) && (typeof req.session.user == 'object') ) {
-          _user.logout(req.session.user, registry, session, save, duration, function() {
-            __done();
-          });
-        } else {
+        _user.logout(suser, registry, session, save, duration, function() {
           __done();
-        }
-
+        });
       break;
 
       case 'alive' :
-        _user.alive(req.session.user, function(success, result) {
+        _user.alive(suser, function(success, result) {
           _respond(RESPONSE_OK, {success: success, result: result});
         });
       break;
 
       case 'updateCache' :
-        _packages.getInstalledPackages(req.session.user, function(success, result) {
+        _packages.getInstalledPackages(suser, function(success, result) {
           if ( success ) {
             _respond(RESPONSE_OK, {success: true, result: {
               packages : result
@@ -212,7 +262,7 @@ function request(action, jsn, pport, suser, req, res) {
       break;
 
       case 'settings' :
-        _user.store(req.session.user, jsn.registry, null, function(err) {
+        _user.store(suser, jsn.registry, null, function(err) {
           _respond(RESPONSE_OK, {success: err ? false : true, result: err ? err : true});
         });
       break;
@@ -234,7 +284,7 @@ function request(action, jsn, pport, suser, req, res) {
 
           case 'info' :
           default     :
-            _respond(RESPONSE_OK, {success: true, result: req.session.user.info});
+            _respond(RESPONSE_OK, {success: true, result: suser.info});
             return;
             break;
         }
@@ -248,12 +298,10 @@ function request(action, jsn, pport, suser, req, res) {
         var ev_args     = ev_instance.args || [];
         var ev_name     = ev_instance.name ? ev_instance.name.replace(/[^A-z0-9]/, '') : null;
 
-        var puser = req.session.user;
-
         if ( ev_action === null || ev_instance === null || ev_name === null ) {
           _respond(RESPONSE_OK, { success: false, error: "Invalid event!", result: null });
         } else {
-          _packages.getInstalledSystemPackages(puser.language, function(success, result) {
+          _packages.getInstalledSystemPackages(suser.language, function(success, result) {
             if ( success ) {
               var load_name  = false;
               var load_class = false;
@@ -308,7 +356,7 @@ function request(action, jsn, pport, suser, req, res) {
           var failed = false;
           switch ( jsn.operation ) {
             case 'install' :
-              _packages.installPackage(req.session.user, jsn['archive'], function(success, result) {
+              _packages.installPackage(suser, jsn['archive'], function(success, result) {
                 if ( success ) {
                   _respond(RESPONSE_OK, { success: true, result: result });
                 } else {
@@ -318,7 +366,7 @@ function request(action, jsn, pport, suser, req, res) {
             break;
 
             case 'uninstall' :
-              _packages.uninstallPackage(req.session.user, jsn['package'], function(success, result) {
+              _packages.uninstallPackage(suser, jsn['package'], function(success, result) {
                 if ( success ) {
                   _respond(RESPONSE_OK, { success: true, result: result });
                 } else {
@@ -341,7 +389,7 @@ function request(action, jsn, pport, suser, req, res) {
       case 'call' :
         if ( (jsn.method && jsn.args) ) {
           try {
-            var ok = _vfs.call(req.session.user, jsn.method, (jsn.args || []), function(vfssuccess, vfsresult) {
+            var ok = _vfs.call(suser, jsn.method, (jsn.args || []), function(vfssuccess, vfsresult) {
               if ( vfssuccess ) {
                 _respond(RESPONSE_OK, { success: true, result: vfsresult });
               } else {
@@ -371,7 +419,7 @@ function request(action, jsn, pport, suser, req, res) {
       break;
 
       case 'snapshotList'   :
-        _session.snapshotList(req.session.user, function(success, result) {
+        _session.snapshotList(suser, function(success, result) {
           if ( success ) {
             _respond(RESPONSE_OK, {success: true, result: result});
           } else {
@@ -382,7 +430,7 @@ function request(action, jsn, pport, suser, req, res) {
 
       case 'snapshotSave'   :
         if ( jsn.session && jsn.session.name && jsn.session.data ) {
-          _session.snapshotSave(req.session.user, jsn.session.name, jsn.session.data, function(success, result) {
+          _session.snapshotSave(suser, jsn.session.name, jsn.session.data, function(success, result) {
             if ( success ) {
               _respond(RESPONSE_OK, {success: true, result: result});
             } else {
@@ -396,7 +444,7 @@ function request(action, jsn, pport, suser, req, res) {
 
       case 'snapshotLoad'   :
         if ( jsn.session && jsn.session.name ) {
-          _session.snapshotLoad(req.session.user, jsn.session.name, function(success, result) {
+          _session.snapshotLoad(suser, jsn.session.name, function(success, result) {
             if ( success ) {
               _respond(RESPONSE_OK, {success: true, result: result});
             } else {
@@ -410,7 +458,7 @@ function request(action, jsn, pport, suser, req, res) {
 
       case 'snapshotDelete' :
         if ( jsn.session && jsn.session.name ) {
-          _session.snapshotDelete(req.session.user, jsn.session.name, function(success, result) {
+          _session.snapshotDelete(suser, jsn.session.name, function(success, result) {
             if ( success ) {
               _respond(RESPONSE_OK, {success: true, result: result});
             } else {
@@ -430,11 +478,235 @@ function request(action, jsn, pport, suser, req, res) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// INSTANCE
+///////////////////////////////////////////////////////////////////////////////
+
+function createInstance(web_port, web_user) {
+  var app = express();
+
+  app.configure(function() {
+
+    // Setup
+    console.info('>>> Configuring Express');
+    app.use(express.bodyParser());
+    app.use(express.cookieParser());
+    app.use(express.session({ secret:'yodawgyo', cookie: { path: '/', httpOnly: true, maxAge: null} })); // FIXME
+    app.use(express.limit('1024mb'));
+
+    app.engine('html',      swig.express3);
+    app.set('view engine',  'html');
+    app.set('views',        _config.PATH_TEMPLATES);
+    app.set('view options', { layout: false });
+    app.set('view cache',   false);
+
+    console.info('>>> Configuring Routes');
+
+    //
+    // INDEX
+    //
+
+    app.get('/', function getIndex(req, res) {
+      if ( web_user ) {
+        req.session.user          = _user.defaultUser;
+        req.session.user.username = web_user;
+        req.session.user.sid      = req.session.sessionID;
+      }
+
+      if ( !req.session.user || (typeof req.session.user !== 'object') ) {
+        res.redirect('/login');
+        return;
+      }
+
+      console.log('GET /');
+
+      var opts     = _config;
+      var language = _locale.getLanguage(req);
+
+      opts.locale   = language;
+      opts.language = language.split('_').shift();
+      opts.preloads = _resources.vendorDependencies;
+
+      res.render('index', opts);
+    });
+
+    app.get('/login', function(req, res) {
+      console.log('GET /login');
+
+      var opts     = _config;
+      var language = _locale.getLanguage(req);
+
+      opts.locale   = language;
+      opts.language = language.split('_').shift();
+
+      res.render('login', opts);
+    });
+
+    //
+    // XHR
+    //
+
+    app.post('/API', function postAPI(req, res) {
+      console.log('POST /API');
+
+      try {
+        var jsn     = req.body || {};//.objectData;
+        var action  = jsn.action || null;
+        request(action, jsn, web_port, req, res);
+      } catch ( err ) {
+        console.error('POST /API error', err);
+        res.json(200, {success: false, error: err, node_exception: true});
+      }
+    });
+
+    app.post('/API/upload', function postAPIUpload(req, res) {
+      console.log('POST /API/upload');
+
+      var ok = _vfs.call(req.session.user, 'upload', {'file': req.files.upload, 'path': req.body.path}, function(vfssuccess, vfsresult) {
+        if ( vfssuccess ) {
+          res.json(200, { success: true, result: vfsresult });
+        } else {
+          res.json(200, { success: false, error: vfsresult, result: null });
+        }
+      });
+
+      if ( !ok ) {
+        res.json(200, { success: false, error: 'Upload error!', result: null });
+      }
+    });
+
+    //
+    // RESOURCES
+    //
+
+    //app.get('/UI/:type/:filename', function(req, res) {
+    app.get(/^\/UI\/(sound|icon)\/(.*)/, function getSharedResource(req, res) {
+      var type      = req.params[0];//.replace(/[^a-zA-Z0-9]/, '');
+      var filename  = req.params[1];//.replace(/[^a-zA-Z0-9-\_\/\.]/, '');
+
+      console.log('GET /UI/:type/:filename', type, filename);
+
+      switch ( type ) {
+        case 'sound' :
+          res.sendfile(sprintf('%s/Shared/Sounds/%s', _config.PATH_MEDIA, filename));
+        break;
+        case 'icon' :
+          res.sendfile(sprintf('%s/Shared/Icons/%s', _config.PATH_MEDIA, filename));
+        break;
+        default :
+          defaultResponse(req, res);
+        break;
+      }
+    });
+
+    app.get('/VFS/resource/:package/:filename', function getPackageResource(req, res) {
+      var filename = req.params.filename;
+      var pkg = req.params['package'];
+
+      console.log('GET /VFS/resource/:package/:filename', pkg, filename);
+      // FIXME: Check if this is a user package, if not use compressed resources on 'production'
+      res.sendfile(sprintf('%s/%s/%s', _config.PATH_PACKAGES, pkg, filename));
+    });
+
+    app.get('/VFS/resource/:filename', function getResource(req, res) {
+      var filename = req.params.filename;
+
+      console.log('GET /VFS/resource/:filename', filename);
+      if ( _config.ENV_SETUP == 'production' ) {
+        res.sendfile(sprintf('%s/%s/%s', _config.PATH_JAVASCRIPT, _config.COMPRESS_DIRNAME, filename));
+      } else {
+        res.sendfile(sprintf('%s/%s', _config.PATH_JAVASCRIPT, filename));
+      }
+    });
+
+    app.get('/VFS/:resource/:filename', function getResourceByType(req, res) {
+      var filename  = req.params.filename;
+      var type      = req.params.resource;
+
+      console.log('GET /VFS/:resource/:filename', filename, type);
+
+      switch ( type ) {
+        case 'font' :
+          _ui.generateFontCSS(filename, function(css) {
+            res.setHeader('Content-Type', 'text/css');
+            res.setHeader('Content-Length', css.length);
+            res.end(css);
+          });
+          break;
+
+        case 'theme' :
+          var theme = filename;//.replace(/[^a-zA-Z0-9_\-]/, '');
+          if ( _config.ENV_SETUP == 'production' ) {
+            res.sendfile(sprintf('%s/%s/theme.%s.css', _config.PATH_JAVASCRIPT, _config.COMPRESS_DIRNAME , theme));
+          } else {
+            res.sendfile(sprintf('%s/theme.%s.css', _config.PATH_JAVASCRIPT, theme));
+          }
+
+          break;
+
+        case 'cursor' :
+          var cursor = filename;//.replace(/[^a-zA-Z0-9_\-]/, '');
+          res.sendfile(sprintf('%s/cursor.%s.css', _config.PATH_JAVASCRIPT, cursor));
+          break;
+
+        case 'language' :
+          var lang = filename.replace(/[^a-zA-Z0-9_\-]/, '');
+          if ( _config.ENV_SETUP == 'production' ) {
+            res.sendfile(sprintf('%s/%s/%s.js', _config.PATH_JSLOCALE, _config.COMPRESS_DIRNAME, lang));
+          } else {
+            res.sendfile(sprintf('%s/%s.js', _config.PATH_JSLOCALE, lang));
+          }
+          break;
+
+        default :
+          defaultResponse(req, res);
+          break;
+      }
+    });
+
+    //
+    // USER MEDIA
+    //
+
+    //app.get('/media/User/:filename', function(req, res) {
+    app.get(/^\/media\/*User\/(.*)/, function getUserMedia(req, res) {
+      if ( !req.session.user ) {
+        defaultResponse(req, res);
+        return;
+      }
+
+      var filename = req.params[0].replace(/^\//, '');
+      var path = _vfs.mkpath(req.session.user, '/User/' + filename);
+
+      console.log('GET /media', filename);
+
+      res.sendfile(path);
+    });
+
+    //app.get('/media-download/User/:filename', function(req, res) {
+    app.get(/^\/media-download\/*User\/(.*)/, function getUserMediaDownload(req, res) {
+      if ( !req.session.user ) {
+        defaultResponse(req, res);
+        return;
+      }
+
+      var filename = req.params[0].replace(/^\//, '');
+      var path = _vfs.mkpath(req.session.user, '/User/' + filename);
+
+      console.log('GET /media-download', filename);
+
+      res.download(path);
+    });
+
+    app.use('/', express['static'](_config.PATH_PUBLIC));
+
+  });
+
+  return app;
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // EXPORTS
 ///////////////////////////////////////////////////////////////////////////////
 
-module.exports = {
-  request : request
-};
-
+module.exports = createInstance;
 

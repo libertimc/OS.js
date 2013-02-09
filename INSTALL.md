@@ -35,20 +35,22 @@ Tested on these Linux distributions:
 * Start the client for your user with:
   `node ./client.js 3000 $(whoami)` (Do **not** run as root!)
 * Launch browser in [http://localhost:3000](http://localhost:3000)
+- You will be logged in with your user
 
-## System
+## As web server
+* Start using `node server-web.js` using `forever`, `screen` or similar
+* Launch browser in [http://localhost:3000](http://localhost:3000)
+- You will be asked to log in
+
+## As system service
 **Not done in this branch**
 
-### As web server
-* Start using `./bin/launch-server` using `forever`, `screen` or similar
-* Launch browser in [http://localhost:3000](http://localhost:3000)
-
-### As system service
 * Set `ENV_LOCALHOST` in `config.js`
 * Install system services
   - Located in `doc/rc.d`
 * Start server service
 * Start client service
+- Or launch client on [http://localhost:3000](http://localhost:3000)
 
 # Running with compressed (and cached) resources:
 This also disables debugging messages and performs some optimizaions.

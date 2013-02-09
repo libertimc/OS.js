@@ -69,7 +69,7 @@
 
     $.ajax({
       type      : "POST",
-      url       : '/',
+      url       : '/API',
       data      : args,
       success   : function(data) {
         callback(data);
@@ -121,9 +121,10 @@
     handleLogin : function(response, dcallback) {
       dcallback = dcallback || function() {};
 
-      if ( response.user.lock ) {
-        var con = !this.confirmation || confirm(OSjs.Labels.LoginConfirm);
-        if ( con ) {
+      var __done = function() {
+        if ( response.redirect ) {
+          window.location = response.redirect;
+        } else {
           var inter = setInterval(function() {
             DoPost({'action' : 'check', 'username': response.user.username}, function(data) {
               if ( data.success ) {
@@ -132,13 +133,18 @@
               }
             });
           }, 500);
+        }
+      };
+
+      if ( response.user.lock ) {
+        var con = !this.confirmation || confirm(OSjs.Labels.LoginConfirm);
+        if ( con ) {
+          __done();
         } else {
           dcallback();
         }
       } else {
-        setTimeout(function() {
-          window.location = response.href;
-        }, response.timeout);
+        __done();
       }
     },
 
