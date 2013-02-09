@@ -1,6 +1,6 @@
 /*!
  * @file
- * OS.js - JavaScript Operating System - {{ package }} node.js script
+ * OS.js - JavaScript Operating System - Socket Client
  *
  * Copyright (c) 2011-2012, Anders Evenrud <andersevenrud@gmail.com>
  * All rights reserved.
@@ -35,46 +35,45 @@
 // IMPORTS
 ///////////////////////////////////////////////////////////////////////////////
 
-var _config = require('../../../config.js'), // vendor/packages/<package>
-    _user   = require(_config.PATH_SRC + '/user.js');
+// Internal
+var _config    = require('../config.js'),
+    _registry  = require(_config.PATH_SRC + '/registry.js'),
+    _settings  = require(_config.PATH_SRC + '/settings.js'),
+    _resources = require(_config.PATH_SRC + '/resources.js'),
+    _packages  = require(_config.PATH_SRC + '/packages.js'),
+    _vfs       = require(_config.PATH_SRC + '/vfs.js'),
+    _user      = require(_config.PATH_SRC + '/user.js'),
+    _services  = require(_config.PATH_SRC + '/services.js'),
+    _locale    = require(_config.PATH_SRC + '/locale.js'),
+    _session   = require(_config.PATH_SRC + '/session.js'),
+    _ui        = require(_config.PATH_SRC + '/ui.js');
+
+// External
+var express = require('express'),
+    sprintf = require('sprintf').sprintf,
+    swig    = require('swig'),
+    fs      = require('fs'),
+    _path   = require('path'); // FIXME Refactor with this
 
 ///////////////////////////////////////////////////////////////////////////////
-// FUNCTIONS
+// HELPERS
 ///////////////////////////////////////////////////////////////////////////////
 
-/**
- * Perform XHR event from API
- * @param   Object      req         external request object
- * @param   String      action      Action name
- * @param   Object      args        Arguments
- * @param   Function    callback    Callback function [success, result/error]
- * @return  void
- */
-function DefaultEvent(req, action, args, callback) {
-  var user = req.session.user || null;
+///////////////////////////////////////////////////////////////////////////////
+// API REQUESTS
+///////////////////////////////////////////////////////////////////////////////
 
-  switch ( action ) {
-    default :
-      callback(false, action + ' is not implemented in {{ package }}!');
-    break;
-  }
+///////////////////////////////////////////////////////////////////////////////
+// INSTANCE
+///////////////////////////////////////////////////////////////////////////////
+
+function createInstance(web_port, web_user) {
+  return null;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // EXPORTS
 ///////////////////////////////////////////////////////////////////////////////
 
-module.exports = {
-
-  /**
-   * package::Event() -- Perform Package API Event
-   * @see DefaultEvent()
-   */
-  Event : function(req, action, args, callback) {
-    console.log('{{ package }}::Event()', req, action, args);
-
-    DefaultEvent(req, action, args, callback);
-  }
-
-};
+module.exports = createInstance;
 

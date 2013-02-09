@@ -31,10 +31,6 @@
  */
 "use strict";
 
-/*
- * TODO: Locales (i18n)
- */
-
 ///////////////////////////////////////////////////////////////////////////////
 // IMPORTS
 ///////////////////////////////////////////////////////////////////////////////
@@ -148,13 +144,13 @@ function request(action, jsn, pport, req, res) {
       suser = req.session.user;
     } else {
       if ( action != 'boot' && action != 'login' ) {
-        _respond(500, {success: false, error: 'No running session found!'});
+        _respond(RESPONSE_ERROR, {success: false, error: 'No running session found!'});
         console.error('!!! NO RUNNING SESSION !!!');
         return;
       }
-
-      console.log('!API', action, suser ? '(' + suser.username + ')' : '');
     }
+
+    console.log('!API', action, suser ? '(' + suser.username + ')' : '(no session created)');
 
     switch ( action ) {
       case 'login' :
@@ -163,8 +159,8 @@ function request(action, jsn, pport, req, res) {
 
         _user.login(username, password, function(success, data) {
           if ( success ) {
-            req.session.user = data;
-            req.session.user.sid = req.session.sessionID;
+            req.session.user      = data;
+            req.session.user.sid  = req.session.sessionID;
 
             res.json(200, {'success': true, 'result': {redirect: '/', user: data}});
           } else {
@@ -331,7 +327,16 @@ function request(action, jsn, pport, req, res) {
 
                 if ( _class !== null ) {
                   try {
-                    _class.Event(req, res, ev_action, ev_args, function(esuccess, eresult) {
+                    var qreq = {
+                      action  : ev_action,
+                      args    : ev_args,
+                      method  : 'web',
+                      session : {
+                        user      : suser
+                      }
+                    };
+
+                    _class.Event(qreq, ev_action, ev_args, function(esuccess, eresult) {
                       if ( esuccess ) {
                         _respond(RESPONSE_OK, { success: true, result: eresult });
                       } else {
@@ -481,6 +486,15 @@ function request(action, jsn, pport, req, res) {
 // INSTANCE
 ///////////////////////////////////////////////////////////////////////////////
 
+/**
+ * Create a new web instance
+ *
+ * If no user is provided the login will be enforced.
+ *
+ * @param   int       web_port        Start on this port
+ * @param   String    web_user        Start as given user
+ * @return  Express
+ */
 function createInstance(web_port, web_user) {
   var app = express();
 

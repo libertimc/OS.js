@@ -2,11 +2,9 @@
 
 Node.js backend
 
-Now runs either as a system service (server.js) or just a normal web client (client.js).
-
-* PAM Authentication
+* Pluggable Authentication modules (PAM by default)
 * DBUS Implementation
-* Client-Server model (System service, sessions)
+* Web Server, Development Client and System Service modes
 * Metadata is now in JSON format
 * Default home moved to /home (VFS)
 * New templating

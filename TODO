@@ -3,13 +3,14 @@ NODE.JS:
 * Glade parser and package compiler conversion from old codebase
 * Translations (i18n)
 * Syslog messages in API etc.
-* Server
-  - Session timeout and cleanups
+* System Server/Client
+  - Totally broken after changes!
+    Create a dummy server that just fires up a new client
+    using WebSocket
 * Client
   - Compressed package resources
-  - WebSockets
-  - Standalone
-  - file:// resources
+  - WebSocket client (src/client_socket.js)
+  - file:// resources (last)
 * Packages
   - Validate user package on install
   - Clean up failed user package installs
