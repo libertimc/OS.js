@@ -9,7 +9,6 @@ NODE.JS:
     Create a dummy server that just fires up a new client
     using WebSocket
 * Client
-  - Compressed package resources
   - WebSocket client (src/client_socket.js)
   - file:// resources (last)
 * Packages

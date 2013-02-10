@@ -615,20 +615,35 @@ function createInstance(web_port, web_user) {
     app.get('/VFS/resource/:package/:filename', function getPackageResource(req, res) {
       var filename = req.params.filename;
       var pkg = req.params['package'];
+      var suser = req.session.user;
 
-      console.log('GET /VFS/resource/:package/:filename', pkg, filename);
-      // FIXME: Check if this is a user package, if not use compressed resources on 'production'
-      res.sendfile(sprintf('%s/%s/%s', _config.PATH_PACKAGES, pkg, filename));
+      console.log('GET /VFS/resource/:package/:filename', pkg, filename, _config.ENV_SETUP == 'production' ? 'compressed' : 'normal');
+
+      _packages.isUserPackage(suser, pkg, function(is_userpkg) {
+        if ( is_userpkg ) {
+          if ( _config.ENV_SETUP == 'production' ) {
+            res.sendfile(_path.join(sprintf(_config.PATH_VFS_PACKAGES, suser.username), pkg, _config.COMPRESS_DIRNAME, filename));
+          } else {
+            res.sendfile(_path.join(sprintf(_config.PATH_VFS_PACKAGES, suser.username), pkg, filename));
+          }
+        } else {
+          if ( _config.ENV_SETUP == 'production' ) {
+            res.sendfile(_path.join(_config.PATH_PACKAGES, pkg, _config.COMPRESS_DIRNAME, filename));
+          } else {
+            res.sendfile(_path.join(_config.PATH_PACKAGES, pkg, filename));
+          }
+        }
+      });
     });
 
     app.get('/VFS/resource/:filename', function getResource(req, res) {
       var filename = req.params.filename;
 
-      console.log('GET /VFS/resource/:filename', filename);
+      console.log('GET /VFS/resource/:filename', filename, _config.ENV_SETUP == 'production' ? 'compressed' : 'normal');
       if ( _config.ENV_SETUP == 'production' ) {
-        res.sendfile(sprintf('%s/%s/%s', _config.PATH_JAVASCRIPT, _config.COMPRESS_DIRNAME, filename));
+        res.sendfile(_path.join(_config.PATH_JAVASCRIPT, _config.COMPRESS_DIRNAME, filename));
       } else {
-        res.sendfile(sprintf('%s/%s', _config.PATH_JAVASCRIPT, filename));
+        res.sendfile(_path.join(_config.PATH_JAVASCRIPT, filename));
       }
     });
 

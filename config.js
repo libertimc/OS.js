@@ -56,7 +56,7 @@ module.exports =
 
   // Env
 
-  ENV_SETUP               : 'development',    // `development`, `production`, `demo`
+  ENV_SETUP               : 'production',    // `development`, `production`, `demo`
   ENV_WEBSOCKETS          : false,            // TODO: Use with sockets ?
   ENV_LOCALHOST           : false,            // TODO: Use file:// ?
 

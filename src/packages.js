@@ -254,13 +254,36 @@ function updateSystemPackageMetadata(callback) {
   _UpdatePackageMeta(outfile, readdir, callback);
 }
 
+/**
+ * Check if given package{name} is a user package
+ * @param   Object      user          User object
+ * @param   String      packagename   Package name
+ * @param   Function    callback      Callback function
+ * @return  void
+ */
+function isUserPackage(user, packagename, callback) {
+  getUserPackages(user.username, user.language, function(success, user_result) {
+    if ( success ) {
+      for ( var i = 0; i < user_result.length; i++ ) {
+        if ( user_result[i].packagename === packagename ) {
+          callback(true);
+          break;
+        }
+      }
+    } else {
+      callback(false);
+    }
+  });
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // EXPORTS
 ///////////////////////////////////////////////////////////////////////////////
 
 module.exports =
 {
-  _parseMetadata : _parseMetadata,
+  _parseMetadata  : _parseMetadata,
+  isUserPackage   : isUserPackage,
 
   /**
    * packages::createPackageMeta() -- Create package metafile(s)

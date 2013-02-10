@@ -72,7 +72,6 @@ function enumCoreResources(callback) {
     }
   }
 
-  /* FIXME: We need to add support in client.js
   _packages.getInstalledSystemPackages('en_US', function(success, result) {
     if ( success ) {
       for ( i in result ) {
@@ -86,8 +85,6 @@ function enumCoreResources(callback) {
 
     callback(list);
   });
-  */
-  callback(list);
 }
 
 function _compress(ssize, type, src, dest, callback) {
