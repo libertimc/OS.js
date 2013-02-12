@@ -284,16 +284,17 @@ function updateSystemPackageMetadata(callback) {
  */
 function isUserPackage(user, packagename, callback) {
   getUserPackages(user.username, user.language, function(success, user_result) {
+    var found = false;
     if ( success ) {
       for ( var i = 0; i < user_result.length; i++ ) {
         if ( user_result[i].packagename === packagename ) {
-          callback(true);
+          found = true;
           break;
         }
       }
-    } else {
-      callback(false);
     }
+
+    callback(found);
   });
 }
 

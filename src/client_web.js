@@ -619,10 +619,8 @@ function createInstance(web_port, web_user) {
 
       console.log('GET /VFS/resource/:package/:filename', pkg, filename, _config.ENV_SETUP == 'production' ? 'compressed' : 'normal');
 
-      if ( filename.match(/\.(js|css)$/) ) {
-        res.sendfile(_path.join(_config.PATH_PACKAGES, pkg, filename));
-      } else {
-        _packages.isUserPackage(suser, pkg, function(is_userpkg) {
+      _packages.isUserPackage(suser, pkg, function(is_userpkg) {
+        if ( filename.match(/\.(js|css)$/) ) {
           if ( is_userpkg ) {
             if ( _config.ENV_SETUP == 'production' ) {
               res.sendfile(_path.join(sprintf(_config.PATH_VFS_PACKAGES, suser.username), pkg, _config.COMPRESS_DIRNAME, filename));
@@ -636,8 +634,10 @@ function createInstance(web_port, web_user) {
               res.sendfile(_path.join(_config.PATH_PACKAGES, pkg, filename));
             }
           }
-        });
-      }
+        } else {
+          res.sendfile(_path.join(_config.PATH_PACKAGES, pkg, filename));
+        }
+      });
     });
 
     app.get('/VFS/resource/:filename', function getResource(req, res) {
