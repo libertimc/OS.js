@@ -425,7 +425,9 @@ module.exports =
 
           fcallback(success, result);
         });
+        return;
       }
+      fcallback(success, result);
     };
 
     console.info('packages::installPackage()', 'archive', archive_path);
