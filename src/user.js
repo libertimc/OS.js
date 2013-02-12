@@ -130,6 +130,7 @@ module.exports =
     fs.writeFile(lpath, (new Date()).toString(), function(err) {
       if ( err ) {
         callback(false, false);
+        console.error('user::alive()', user.username, 'error', err);
       } else {
         callback(true, true);
       }

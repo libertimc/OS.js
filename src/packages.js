@@ -100,8 +100,28 @@ function validateMetadata(filename, callback) {
   var _validate = function(jsn) {
     var valid = true;
     var check = [];
-    // TODO
-    callback(valid, valid || 'Validation failed!');
+
+    if ( typeof jsn.type === 'undefined' ) {
+      valid = false;
+    } else {
+      if ( jsn.type == 'Application' ) {
+        check = ['name', 'title', 'icon', 'resource', 'category'];
+      } else if ( jsn.type == 'PanelItem' ) {
+        check = ['name', 'title', 'icon', 'resource', 'description'];
+      } else {
+        check = ['name', 'title', 'icon', 'resource'];
+      }
+
+      var i, l = check.length;
+      for ( i; i < l; i++ ) {
+        if ( typeof jsn[check[i]] === 'undefined' ) {
+          valid = false;
+          break;
+        }
+      }
+    }
+
+    callback(valid === true, valid === true || 'Validation failed!');
   };
 
   fs.readFile(filename, function(err, data) {
@@ -121,7 +141,6 @@ function _GetPackages(language, filename, callback) {
     if ( err ) {
       callback(false, err);
     } else {
-      var packages = {};// result
       var pkgs = [];
 
       try {
@@ -130,12 +149,14 @@ function _GetPackages(language, filename, callback) {
         console.error('_GetPackages() JSON fail', filename);
       }
 
-      var list = {};
-
-      var i = 0, l = pkgs.length, iter;
-      for ( i; i < l; i++ ) {
-        iter  = pkgs[i];
-        packages[iter.packagename] = _parseMetadata(iter, language); // packagename is from _UpdatePackageMetadata()
+      var packages = {};// result
+      if ( pkgs.length ) {
+        var list = {};
+        var i = 0, l = pkgs.length, iter;
+        for ( i; i < l; i++ ) {
+          iter  = pkgs[i];
+          packages[iter.packagename] = _parseMetadata(iter, language); // packagename is from _UpdatePackageMetadata()
+        }
       }
 
       callback(true, packages);
@@ -396,13 +417,20 @@ module.exports =
     var metadata          = _path.join(destination, config.METADATA_FILENAME);
 
     var callback = function(success, result) {
-      /* FIXME: Cleanup
       if ( !success ) {
-        return;
+        _vfs.removeRecursive(destination, function(err) {
+          if ( err ) {
+            console.error("packages::installPackage()", 'callback()', 'removeRecursive', 'error', err);
+          }
+
+          fcallback(success, result);
+        });
       }
-      */
-      fcallback(success, result);
     };
+
+    console.info('packages::installPackage()', 'archive', archive_path);
+    console.info('packages::installPackage()', 'destination', destination);
+    console.info('packages::installPackage()', 'metadata', metadata);
 
     fs.stat(destination, function(err, stat) {
       if ( !err && stat ) {
@@ -410,31 +438,47 @@ module.exports =
         return;
       }
 
+      console.log('packages::installPackage()', '...creating target');
       fs.mkdir(destination, function installPackageMkdir(err) {
         if ( err ) {
+          console.error("packages::installPackage()", 'fs::mkdir()', 'err', err);
           callback(false, err);
         } else {
+          console.log('packages::installPackage()', '...checking archive');
           fs.stat(archive_path, function installPackageCheck(err, stat) {
             if ( err ) {
               callback(false, err);
             } else {
               try {
+                console.log('packages::installPackage()', '...extracting archive');
                 archive.extract(archive_path, destination, function installPackageArchive(success, result, errors) {
                   if ( success ) {
-                    validateMetadata(metadata, function installPackageValidate(validated, validate_result) {
-                      if ( validated ) {
-                        updateUserPackageMetadata(user, function installPackagePost(updated, message) {
-                          callback(updated, message);
-                        });
+                    console.log('packages::installPackage()', '...checking metadata');
+                    fs.stat(metadata, function checkMetadataExistance(err, stat) {
+                      if ( err ) {
+                        callback(false, 'Metadata file not found!');
                       } else {
-                        callback(false, validate_result);
+                        console.log('packages::installPackage()', '...validating metadata');
+                        validateMetadata(metadata, function installPackageValidate(validated, validate_result) {
+                          if ( validated ) {
+                            console.log('packages::installPackage()', '...updating user packages');
+                            updateUserPackageMetadata(user, function installPackagePost(updated, message) {
+                              callback(updated, message);
+                            });
+                          } else {
+                            console.error("packages::installPackage()", 'validateMetadata()', 'error', validate_result);
+                            callback(false, validate_result);
+                          }
+                        });
                       }
                     });
                   } else {
+                    console.error("packages::installPackage()", 'archive::extract()', 'error', result || errors.join(','));
                     callback(false, result || errors.join(',') );
                   }
                 });
               } catch ( err ) {
+                console.error("packages::installPackage()", 'archive::extract()', 'exception', err);
                 callback(false, err);
               }
             }
@@ -456,6 +500,9 @@ module.exports =
   uninstallPackage : function(user, pkg, callback) {
     if ( pkg && pkg.name ) {
       var destination = _path.join(sprintf(config.PATH_VFS_PACKAGES, user.username), pkg.name);
+
+      console.info('packages::uninstallPackage()', 'destination', destination);
+
       fs.exists(destination, function uninstallPackageCheck(ex) {
         if ( ex ) {
           var _vfs = require(config.PATH_SRC + '/vfs.js');

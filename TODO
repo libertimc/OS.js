@@ -11,9 +11,6 @@ NODE.JS:
 * Client
   - WebSocket client (src/client_socket.js)
   - file:// resources (last)
-* Packages
-  - Validate user package on install
-  - Clean up failed user package installs
 * Misc
   - Optimizations, foreach, path.join() and such
   - New error handling

@@ -619,29 +619,37 @@ function createInstance(web_port, web_user) {
 
       console.log('GET /VFS/resource/:package/:filename', pkg, filename, _config.ENV_SETUP == 'production' ? 'compressed' : 'normal');
 
-      _packages.isUserPackage(suser, pkg, function(is_userpkg) {
-        if ( is_userpkg ) {
-          if ( _config.ENV_SETUP == 'production' ) {
-            res.sendfile(_path.join(sprintf(_config.PATH_VFS_PACKAGES, suser.username), pkg, _config.COMPRESS_DIRNAME, filename));
+      if ( filename.match(/\.(js|css)$/) ) {
+        res.sendfile(_path.join(_config.PATH_PACKAGES, pkg, filename));
+      } else {
+        _packages.isUserPackage(suser, pkg, function(is_userpkg) {
+          if ( is_userpkg ) {
+            if ( _config.ENV_SETUP == 'production' ) {
+              res.sendfile(_path.join(sprintf(_config.PATH_VFS_PACKAGES, suser.username), pkg, _config.COMPRESS_DIRNAME, filename));
+            } else {
+              res.sendfile(_path.join(sprintf(_config.PATH_VFS_PACKAGES, suser.username), pkg, filename));
+            }
           } else {
-            res.sendfile(_path.join(sprintf(_config.PATH_VFS_PACKAGES, suser.username), pkg, filename));
+            if ( _config.ENV_SETUP == 'production' ) {
+              res.sendfile(_path.join(_config.PATH_PACKAGES, pkg, _config.COMPRESS_DIRNAME, filename));
+            } else {
+              res.sendfile(_path.join(_config.PATH_PACKAGES, pkg, filename));
+            }
           }
-        } else {
-          if ( _config.ENV_SETUP == 'production' ) {
-            res.sendfile(_path.join(_config.PATH_PACKAGES, pkg, _config.COMPRESS_DIRNAME, filename));
-          } else {
-            res.sendfile(_path.join(_config.PATH_PACKAGES, pkg, filename));
-          }
-        }
-      });
+        });
+      }
     });
 
     app.get('/VFS/resource/:filename', function getResource(req, res) {
       var filename = req.params.filename;
 
       console.log('GET /VFS/resource/:filename', filename, _config.ENV_SETUP == 'production' ? 'compressed' : 'normal');
-      if ( _config.ENV_SETUP == 'production' ) {
-        res.sendfile(_path.join(_config.PATH_JAVASCRIPT, _config.COMPRESS_DIRNAME, filename));
+      if ( filename.match(/\.(js|css)$/) ) {
+        if ( _config.ENV_SETUP == 'production' ) {
+          res.sendfile(_path.join(_config.PATH_JAVASCRIPT, _config.COMPRESS_DIRNAME, filename));
+        } else {
+          res.sendfile(_path.join(_config.PATH_JAVASCRIPT, filename));
+        }
       } else {
         res.sendfile(_path.join(_config.PATH_JAVASCRIPT, filename));
       }

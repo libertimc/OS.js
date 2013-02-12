@@ -885,6 +885,7 @@ VFS.prototype =
 
   /**
    * VFS::upload() -- Upload a file to a directory
+   * FIXME: Always overwrites file!
    * @param   Object    ref           HTTP Request File
    * @param   String    path          Destination path
    * @param   Function  callback      Callback function
@@ -896,9 +897,9 @@ VFS.prototype =
       var pdest = mkpath(this.user, path + '/' + ref.name);
 
       fs.exists(pdest, function(ex) {
-        if ( ex ) {
-          callback(false, "File already exists!");
-        } else {
+        //if ( ex ) {
+        //  callback(false, "File already exists!");
+        //} else {
           var is = fs.createReadStream(psrc);
           var os = fs.createWriteStream(pdest);
 
@@ -911,7 +912,7 @@ VFS.prototype =
               callback(true, true);
             }
           });
-        }
+        //}
       });
     } else {
       callback(false, 'Invalid upload!');
