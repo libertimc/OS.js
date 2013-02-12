@@ -11,6 +11,10 @@ NODE.JS:
 * Client
   - WebSocket client (src/client_socket.js)
   - file:// resources (last)
+* Optimizations
+  - Internal cache (aside fs) for package lists.
+    Currently every call checks fs in package resources
+    Use session!
 * Misc
   - New error handling
   - Optimizations
