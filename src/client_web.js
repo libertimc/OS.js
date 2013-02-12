@@ -53,7 +53,7 @@ var express = require('express'),
     sprintf = require('sprintf').sprintf,
     swig    = require('swig'),
     fs      = require('fs'),
-    _path   = require('path'); // FIXME Refactor with this
+    _path   = require('path');
 
 ///////////////////////////////////////////////////////////////////////////////
 // TEMPLATE HELPERS
@@ -601,10 +601,10 @@ function createInstance(web_port, web_user) {
 
       switch ( type ) {
         case 'sound' :
-          res.sendfile(sprintf('%s/Shared/Sounds/%s', _config.PATH_MEDIA, filename));
+          res.sendfile(_path.join(_config.PATH_PUBLIC, _config.URI_SOUND, filename));
         break;
         case 'icon' :
-          res.sendfile(sprintf('%s/Shared/Icons/%s', _config.PATH_MEDIA, filename));
+          res.sendfile(_path.join(_config.PATH_PUBLIC, _config.URI_ICON, filename));
         break;
         default :
           defaultResponse(req, res);
@@ -673,24 +673,24 @@ function createInstance(web_port, web_user) {
         case 'theme' :
           var theme = filename;//.replace(/[^a-zA-Z0-9_\-]/, '');
           if ( _config.ENV_SETUP == 'production' ) {
-            res.sendfile(sprintf('%s/%s/theme.%s.css', _config.PATH_JAVASCRIPT, _config.COMPRESS_DIRNAME , theme));
+            res.sendfile(_path.join(_config.PATH_JAVASCRIPT, _config.COMPRESS_DIRNAME, sprintf('theme.%s.css', theme)));
           } else {
-            res.sendfile(sprintf('%s/theme.%s.css', _config.PATH_JAVASCRIPT, theme));
+            res.sendfile(_path.join(_config.PATH_JAVASCRIPT, sprintf('theme.%s.css', theme)));
           }
 
           break;
 
         case 'cursor' :
           var cursor = filename;//.replace(/[^a-zA-Z0-9_\-]/, '');
-          res.sendfile(sprintf('%s/cursor.%s.css', _config.PATH_JAVASCRIPT, cursor));
+          res.sendfile(_path.join(_config.PATH_JAVASCRIPT, sprintf('cursor.%s.css', cursor)));
           break;
 
         case 'language' :
           var lang = filename.replace(/[^a-zA-Z0-9_\-]/, '');
           if ( _config.ENV_SETUP == 'production' ) {
-            res.sendfile(sprintf('%s/%s/%s.js', _config.PATH_JSLOCALE, _config.COMPRESS_DIRNAME, lang));
+            res.sendfile(_path.join(_config.PATH_JSLOCALE, _config.COMPRESS_DIRNAME, sprintf('%s.js', lang)));
           } else {
-            res.sendfile(sprintf('%s/%s.js', _config.PATH_JSLOCALE, lang));
+            res.sendfile(_path.join(_config.PATH_JSLOCALE, sprintf('%s.js', lang)));
           }
           break;
 

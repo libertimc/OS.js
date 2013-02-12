@@ -99,6 +99,8 @@ module.exports =
   // URIs
 
   URI_FONT                : '/media/System/Fonts',
+  URI_SOUND               : '/media/Shared/Sounds',
+  URI_ICON                : '/media/Shared/Icons',
 
   /////////////////////////////////////////////////////////////////////////////
   // Build, Cache and Compression

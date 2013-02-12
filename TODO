@@ -12,8 +12,8 @@ NODE.JS:
   - WebSocket client (src/client_socket.js)
   - file:// resources (last)
 * Misc
-  - Optimizations, foreach, path.join() and such
   - New error handling
+  - Optimizations
   - TODO and FIXME spread around the code
   - Fix crashes on non-existent user directories/files (.osjs etc)
   - Create utils.js and move functions spread around here
