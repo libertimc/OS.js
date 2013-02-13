@@ -49,60 +49,14 @@ var _config    = require('../config.js'),
     _session   = require(_config.PATH_SRC + '/session.js'),
     _ui        = require(_config.PATH_SRC + '/ui.js');
 
+// Libs
+var swig    = require(_config.PATH_LIB + '/swig.js');
+
 // External
 var express = require('express'),
     sprintf = require('sprintf').sprintf,
-    swig    = require('swig'),
     fs      = require('fs'),
     _path   = require('path');
-
-///////////////////////////////////////////////////////////////////////////////
-// TEMPLATE HELPERS
-///////////////////////////////////////////////////////////////////////////////
-
-swig._cache = {};
-swig.express3 = function (path, options, fn) {
-  swig._read(path, options, function (err, str) {
-    if ( err ) {
-      return fn(err);
-    }
-
-    try {
-      options.filename = path;
-      var tmpl = swig.compile(str, options);
-      fn(null, tmpl(options));
-    } catch (error) {
-      fn(error);
-      console.error(error);
-    }
-
-    return true;
-  });
-};
-
-swig._read = function (path, options, fn) {
-  var str = swig._cache[path];
-
-  // cached (only if cached is a string and not a compiled template function)
-  if (options.cache && str && typeof str === 'string') {
-    return fn(null, str);
-  }
-
-  // read
-  require('fs').readFile(path, 'utf8', function (err, str) {
-    if (err) {
-      return fn(err);
-    }
-    if (options.cache) {
-      swig._cache[path] = str;
-    }
-    fn(null, str);
-
-    return true;
-  });
-
-  return true;
-};
 
 ///////////////////////////////////////////////////////////////////////////////
 // HELPERS

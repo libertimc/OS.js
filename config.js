@@ -87,6 +87,7 @@ module.exports =
   PATH_VENDOR             : __dirname + '/vendor',
   PATH_BIN                : __dirname + '/bin',
   PATH_DOC                : __dirname + '/doc',
+  PATH_LIB                : __dirname + '/lib',
   PATH_SRC                : __dirname + '/src',
   PATH_LOCALE             : __dirname + '/src/locale',
   PATH_JAVASCRIPT         : __dirname + '/src/javascript',

@@ -35,12 +35,13 @@
 // IMPORTS
 ///////////////////////////////////////////////////////////////////////////////
 
-var fs        = require('fs'),
-    sprintf   = require('sprintf').sprintf,
-    _path     = require('path');
+var sprintf = require('sprintf').sprintf,
+    _path   = require('path');
 
 var config  = require('../config.js'),
     archive = require(config.PATH_SRC + '/archive.js');
+
+var fs      = require(config.PATH_LIB + '/fs.js');
 
 ///////////////////////////////////////////////////////////////////////////////
 // HELPERS
@@ -421,7 +422,7 @@ module.exports =
 
     var callback = function(success, result) {
       if ( !success ) {
-        _vfs.removeRecursive(destination, function(err) {
+        fs.removeRecursive(destination, function(err) {
           if ( err ) {
             console.error("packages::installPackage()", 'callback()', 'removeRecursive', 'error', err);
           }
@@ -510,9 +511,7 @@ module.exports =
 
       fs.exists(destination, function uninstallPackageCheck(ex) {
         if ( ex ) {
-          var _vfs = require(config.PATH_SRC + '/vfs.js');
-
-          _vfs.removeRecursive(destination, function uninstallPackageCleanup(err) {
+          fs.removeRecursive(destination, function uninstallPackageCleanup(err) {
             if ( err ) {
               callback(false, err);
             } else {
