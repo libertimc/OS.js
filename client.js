@@ -71,7 +71,7 @@ if ( __user === null ) {
   try {
     var t = fs.statSync(sprintf(_config.PATH_VFS_USER_DOT, __user));
     if ( t.isDirectory() ) {
-      console.info("User has .osjs directory");
+      console.info("<<< User has .osjs directory");
     } else {
       console.error("This user does not have a .osjs directory");
       console.info("Remove and run ./bin/update-user-template <username>");
@@ -90,9 +90,6 @@ if ( __user === null ) {
 // MAIN
 ///////////////////////////////////////////////////////////////////////////////
 
-syslog.init('OS.js client.js', syslog.LOG_PID | syslog.LOG_ODELAY, syslog.LOG_LOCAL0);
-syslog.log(syslog.LOG_INFO, 'Starting up ' + new Date());
-
 process.on('exit', function() {
   syslog.close();
 
@@ -104,10 +101,18 @@ process.on('uncaughtException', function (err) {
   console.error('Caught exception: ' + err); // FIXME
 });
 
-var app = _client(__port, __user);
-app.listen(__port);
-console.info('>>> Listening on port ' + __port, 'with user', __user);
+syslog.init('OS.js client.js', syslog.LOG_PID | syslog.LOG_ODELAY, syslog.LOG_LOCAL0);
+syslog.log(syslog.LOG_INFO, 'Starting up: ' + new Date());
+syslog.log(syslog.LOG_INFO, 'Username:    ' + __user);
+syslog.log(syslog.LOG_INFO, 'Port:        ' + __port);
 
-// Client lockfile
-fs.writeFileSync(sprintf(_config.PATH_VFS_SESSION_LOCK, __user));
+(function() {
+  // Client lockfile
+  fs.writeFileSync(sprintf(_config.PATH_VFS_SESSION_LOCK, __user));
+
+  // Start client
+  var app = _client(__port, __user);
+  app.listen(__port);
+  console.info('>>> Listening on port ' + __port, 'with user', __user);
+})();
 

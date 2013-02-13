@@ -105,7 +105,7 @@ function updateCache(req, packages) {
 ///////////////////////////////////////////////////////////////////////////////
 
 function request(action, jsn, pport, req, res) {
-  console.log('!API', action);
+  console.log('!API', 'action:', action);
 
   if ( action === null  ) {
     defaultJSONResponse(req, res);
