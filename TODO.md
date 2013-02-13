@@ -1,5 +1,4 @@
-NODE.JS:
--------------------------------------------------------------------------------
+# NODE.JS:
 * Glade parser and package compiler conversion from old codebase
   - Finish up create-project also
 * Translations (i18n)
@@ -18,14 +17,12 @@ NODE.JS:
   - Fix crashes on non-existent user directories/files (.osjs etc)
     also Update dirs on login
 
-NODE.JS PACKAGE CONVERSION (EVENT API):
--------------------------------------------------------------------------------
+## PACKAGE CONVERSION (EVENT API):
 * ApplicationIDE (Not done yet anyways)
 * ApplicationMail
 * ApplicationServerStatus (This is some old test stuff, but convert anyway)
 
-JS:
--------------------------------------------------------------------------------
+# JS:
 [HIG] Implement IconView in launch dialog
 [MED] Theme Packages - Use ui.js generateThemeCSS() css tuple to generate sheets
 [MED] Finish up adding/removing panels, etc
@@ -33,18 +30,15 @@ JS:
 [LOW] Richtext: Add custom contextmenu
 [LOW] Replace jQuery with a drop-in replacement somehow
 
-BACKEND:
--------------------------------------------------------------------------------
-* Finish archives in VFS
+# BACKEND:
+* Finish archives in VFS (more than zip)
 
-PACKAGES:
--------------------------------------------------------------------------------
+# PACKAGES:
 * ApplicationMusicPlayer - Needs some work
 * ApplicationArchiver - Not even close to done
 * ApplicationMail - Needs testing
 * ApplicationIRC - !?!?!?!
 * Add some more base packages
 
-MISC:
--------------------------------------------------------------------------------
+# MISC:
 * Rebuild repository

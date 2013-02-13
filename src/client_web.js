@@ -131,12 +131,11 @@ function request(action, jsn, pport, req, res) {
       suser = req.session.user;
     } else {
       if ( action != 'boot' && action != 'login' ) {
+        console.error('\u001b[31m Error: Action requires user session!\u001b[0m');
         _respond(RESPONSE_ERROR, {success: false, error: 'No running session found!'});
-        console.error('\u001b[31m!!! NO RUNNING SESSION !!!\u001b[0m');
         return;
       }
     }
-
 
     switch ( action ) {
       case 'login' :
