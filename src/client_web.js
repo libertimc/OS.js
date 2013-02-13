@@ -121,6 +121,44 @@ function defaultJSONResponse(req, res) {
   res.json(200, { url: req.url });
 }
 
+function updateCache(req, packages) {
+  var spkg = [];
+  var upkg = [];
+
+  var i;
+
+  for ( i in packages.System ) {
+    if ( packages.System.hasOwnProperty(i) ) {
+      spkg.push(i);
+    }
+  }
+
+  for ( i in packages.User ) {
+    if ( packages.User.hasOwnProperty(i) ) {
+      upkg.push(i);
+    }
+  }
+
+  req.session.cache.packages = {
+    system : spkg,
+    user   : upkg
+  };
+}
+
+function inArray(element, array, cmp) {
+  if (typeof cmp != "function") {
+    cmp = function (o1, o2) {
+      return o1 == o2;
+    };
+  }
+  for (var key in array) {
+    if (cmp(element, array[key])) {
+      return true;
+    }
+  }
+  return false;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // API REQUESTS
 ///////////////////////////////////////////////////////////////////////////////
@@ -161,6 +199,12 @@ function request(action, jsn, pport, req, res) {
           if ( success ) {
             req.session.user      = data;
             req.session.user.sid  = req.session.sessionID;
+            req.session.cache     = {
+              packages : {
+                system : [],
+                user   : []
+              }
+            };
 
             res.json(200, {'success': true, 'result': {redirect: '/', user: data}});
           } else {
@@ -171,6 +215,8 @@ function request(action, jsn, pport, req, res) {
 
       case 'boot' :
         var _success = function(packages, resume_registry, resume_session) {
+          updateCache(req, packages);
+
           response = {
             environment : {
               bugreporting : _config.BUGREPORT_ENABLE,
@@ -229,6 +275,7 @@ function request(action, jsn, pport, req, res) {
 
         var __done = function() {
           req.session.user = null;
+          req.session.cache = null;
           req.session.destroy();
 
           _respond(RESPONSE_OK, {success: true, result: true});
@@ -248,6 +295,8 @@ function request(action, jsn, pport, req, res) {
       case 'updateCache' :
         _packages.getInstalledPackages(suser, function(success, result) {
           if ( success ) {
+            updateCache(req, result);
+
             _respond(RESPONSE_OK, {success: true, result: {
               packages : result
             }});
@@ -297,62 +346,67 @@ function request(action, jsn, pport, req, res) {
         if ( ev_action === null || ev_instance === null || ev_name === null ) {
           _respond(RESPONSE_OK, { success: false, error: "Invalid event!", result: null });
         } else {
-          _packages.getInstalledSystemPackages(suser.language, function(success, result) {
-            if ( success ) {
-              var load_name  = false;
-              var load_class = false;
+          var load_name  = false;
+          var load_class = false;
 
-              for ( var pn in result ) {
-                if ( result.hasOwnProperty(pn) ) {
-                  if ( pn == ev_name ) {
-                    load_name  = ev_name;
-                    load_class = ev_name + '.node.js';
-                    break;
-                  }
-                }
-              }
-
-              if ( load_name === false || load_class === false ) {
-                _respond(RESPONSE_OK, { success: false, error: 'Cannot handle this event!', result: null });
-              } else {
-                var _cpath = _path.join(_config.PATH_PACKAGES, load_name, load_class);
-                var _class = null;
-                try {
-                  _class = require(_cpath);
-                } catch ( err ) {
-                  console.error('event', err);
-                  _respond(RESPONSE_OK, { success: false, error: err.message, result: null });
-                  return;
-                }
-
-                if ( _class !== null ) {
-                  try {
-                    var qreq = {
-                      action  : ev_action,
-                      args    : ev_args,
-                      method  : 'web',
-                      session : {
-                        user      : suser
-                      }
-                    };
-
-                    _class.Event(qreq, ev_action, ev_args, function(esuccess, eresult) {
-                      if ( esuccess ) {
-                        _respond(RESPONSE_OK, { success: true, result: eresult });
-                      } else {
-                        _respond(RESPONSE_OK, { success: false, error: eresult, result: null });
-                      }
-                    });
-                  } catch ( err ) {
-                    console.error('event', err);
-                    _respond(RESPONSE_OK, { success: false, error: err.message, result: null });
-                  }
-                }
-              }
-            } else {
-              _respond(RESPONSE_OK, { success: false, error: result, result: null });
+          var result = req.session.cache.packages.system;
+          var pn;
+          for ( pn = 0; pn < result.length; pn++ ) {
+            if ( result[pn] == ev_name ) {
+              load_name  = ev_name;
+              load_class = ev_name + '.node.js';
+              break;
             }
-          });
+          }
+
+          if ( load_name === false || load_class === false ) {
+            result = req.session.cache.packages.user;
+            for ( pn = 0; pn < result.length; pn++ ) {
+              if ( result[pn] == ev_name ) {
+                load_name  = ev_name;
+                load_class = ev_name + '.node.js';
+                break;
+              }
+            }
+          }
+
+          if ( load_name === false || load_class === false ) {
+            _respond(RESPONSE_OK, { success: false, error: 'Cannot handle this event!', result: null });
+          } else {
+            var _cpath = _path.join(_config.PATH_PACKAGES, load_name, load_class);
+            var _class = null;
+            try {
+              _class = require(_cpath);
+            } catch ( err ) {
+              console.error('event', err);
+              _respond(RESPONSE_OK, { success: false, error: err.message, result: null });
+              return;
+            }
+
+            if ( _class !== null ) {
+              try {
+                var qreq = {
+                  action  : ev_action,
+                  args    : ev_args,
+                  method  : 'web',
+                  session : {
+                    user      : suser
+                  }
+                };
+
+                _class.Event(qreq, ev_action, ev_args, function(esuccess, eresult) {
+                  if ( esuccess ) {
+                    _respond(RESPONSE_OK, { success: true, result: eresult });
+                  } else {
+                    _respond(RESPONSE_OK, { success: false, error: eresult, result: null });
+                  }
+                });
+              } catch ( err ) {
+                console.error('event', err);
+                _respond(RESPONSE_OK, { success: false, error: err.message, result: null });
+              }
+            }
+          }
         }
       break;
 
@@ -524,6 +578,7 @@ function createInstance(web_port, web_user) {
         req.session.user          = _user.defaultUser;
         req.session.user.username = web_user;
         req.session.user.sid      = req.session.sessionID;
+        req.session.cache         = {};
       }
 
       if ( !req.session.user || (typeof req.session.user !== 'object') ) {
@@ -619,25 +674,29 @@ function createInstance(web_port, web_user) {
 
       console.log('GET /VFS/resource/:package/:filename', pkg, filename, _config.ENV_SETUP == 'production' ? 'compressed' : 'normal');
 
-      _packages.isUserPackage(suser, pkg, function(is_userpkg) {
-        if ( filename.match(/\.(js|css)$/) ) {
-          if ( is_userpkg ) {
-            if ( _config.ENV_SETUP == 'production' ) {
-              res.sendfile(_path.join(sprintf(_config.PATH_VFS_PACKAGES, suser.username), pkg, _config.COMPRESS_DIRNAME, filename));
-            } else {
-              res.sendfile(_path.join(sprintf(_config.PATH_VFS_PACKAGES, suser.username), pkg, filename));
-            }
+      var is_userpkg = inArray(pkg, req.session.cache.packages.user);
+      if ( filename.match(/\.(js|css)$/) ) {
+        if ( is_userpkg ) {
+          if ( _config.ENV_SETUP == 'production' ) {
+            res.sendfile(_path.join(sprintf(_config.PATH_VFS_PACKAGES, suser.username), pkg, _config.COMPRESS_DIRNAME, filename));
           } else {
-            if ( _config.ENV_SETUP == 'production' ) {
-              res.sendfile(_path.join(_config.PATH_PACKAGES, pkg, _config.COMPRESS_DIRNAME, filename));
-            } else {
-              res.sendfile(_path.join(_config.PATH_PACKAGES, pkg, filename));
-            }
+            res.sendfile(_path.join(sprintf(_config.PATH_VFS_PACKAGES, suser.username), pkg, filename));
           }
+          return;
         } else {
-          res.sendfile(_path.join(_config.PATH_PACKAGES, pkg, filename));
+          if ( _config.ENV_SETUP == 'production' ) {
+            res.sendfile(_path.join(_config.PATH_PACKAGES, pkg, _config.COMPRESS_DIRNAME, filename));
+          } else {
+            res.sendfile(_path.join(_config.PATH_PACKAGES, pkg, filename));
+          }
+          return;
         }
-      });
+      } else {
+        res.sendfile(_path.join(_config.PATH_PACKAGES, pkg, filename));
+        return;
+      }
+
+      defaultResponse(req, res);
     });
 
     app.get('/VFS/resource/:filename', function getResource(req, res) {
