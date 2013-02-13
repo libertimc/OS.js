@@ -1125,8 +1125,6 @@ module.exports =
    * @return  void
    */
   call    : function(user, method, args, callback) {
-    console.log('  \u001b[35m~VFS\u001b[0m', user.username, '->', method);
-
     var v = new VFS(user);
 
     switch ( method ) {

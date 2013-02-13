@@ -66,6 +66,9 @@ var RESPONSE_OK     = 200;
 var RESPONSE_ERROR  = 500;
 
 function defaultResponse(req, res) {
+  console.info('\u001b[33m    Warning: Blank HTML response was given for (' + req.url + ')\u001b[0m');
+  console.info('\u001b[33m             Is user logged in?\u001b[0m');
+
   var body = req.url;
   res.setHeader('Content-Type', 'text/plain');
   res.setHeader('Content-Length', body.length);
@@ -73,6 +76,9 @@ function defaultResponse(req, res) {
 }
 
 function defaultJSONResponse(req, res) {
+  console.info('\u001b[33m    Warning: Blank HTML response was given for (' + req.url + ')\u001b[0m');
+  console.info('\u001b[33m             Is user logged in?\u001b[0m');
+
   res.json(200, { url: req.url });
 }
 
@@ -219,6 +225,8 @@ function request(action, jsn, pport, req, res) {
           req.session.user = null;
           req.session.cache = null;
           req.session.destroy();
+
+          console.info('\u001b[31mSession lasted for: ' + duration + '\u001b[0m');
 
           _respond(RESPONSE_OK, {success: true, result: true});
         };
@@ -389,6 +397,7 @@ function request(action, jsn, pport, req, res) {
 
       case 'call' :
         if ( (jsn.method && jsn.args) ) {
+          console.log('  \u001b[35m~VFS\u001b[0m', req.session.user.username, '->', jsn.method);
           try {
             var ok = _vfs.call(suser, jsn.method, (jsn.args || []), function(vfssuccess, vfsresult) {
               if ( vfssuccess ) {
@@ -569,6 +578,11 @@ function createInstance(web_port, web_user) {
     app.post('/API/upload', function postAPIUpload(req, res) {
       console.log('\u001b[34mPOST\u001b[0m /API/upload');
 
+      if ( !req.session.user ) {
+        defaultResponse(req, res);
+        return;
+      }
+
       var ok = _vfs.call(req.session.user, 'upload', {'file': req.files.upload, 'path': req.body.path}, function(vfssuccess, vfsresult) {
         if ( vfssuccess ) {
           res.json(200, { success: true, result: vfsresult });
@@ -609,10 +623,15 @@ function createInstance(web_port, web_user) {
     app.get('/VFS/resource/:package/:filename', function getPackageResource(req, res) {
       var filename = req.params.filename;
       var pkg = req.params['package'];
-      var suser = req.session.user;
 
       console.log('\u001b[32mGET\u001b[0m /VFS/resource/:package/:filename', pkg, filename, _config.ENV_SETUP == 'production' ? 'compressed' : 'normal');
 
+      if ( !req.session.user ) {
+        defaultResponse(req, res);
+        return;
+      }
+
+      var suser = req.session.user;
       var is_userpkg = _utils.inArray(pkg, req.session.cache.packages.user);
       if ( filename.match(/\.(js|css)$/) ) {
         if ( is_userpkg ) {
@@ -704,31 +723,29 @@ function createInstance(web_port, web_user) {
 
     //app.get('/media/User/:filename', function(req, res) {
     app.get(/^\/media\/*User\/(.*)/, function getUserMedia(req, res) {
+      var filename = req.params[0].replace(/^\//, '');
+
+      console.log('\u001b[32mGET\u001b[0m /media', filename);
       if ( !req.session.user ) {
         defaultResponse(req, res);
         return;
       }
 
-      var filename = req.params[0].replace(/^\//, '');
       var path = _vfs.mkpath(req.session.user, '/User/' + filename);
-
-      console.log('\u001b[32mGET\u001b[0m /media', filename);
-
       res.sendfile(path);
     });
 
     //app.get('/media-download/User/:filename', function(req, res) {
     app.get(/^\/media-download\/*User\/(.*)/, function getUserMediaDownload(req, res) {
+      var filename = req.params[0].replace(/^\//, '');
+
+      console.log('\u001b[32mGET\u001b[0m /media-download', filename);
       if ( !req.session.user ) {
         defaultResponse(req, res);
         return;
       }
 
-      var filename = req.params[0].replace(/^\//, '');
       var path = _vfs.mkpath(req.session.user, '/User/' + filename);
-
-      console.log('\u001b[32mGET\u001b[0m /media-download', filename);
-
       res.download(path);
     });
 
