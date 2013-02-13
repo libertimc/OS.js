@@ -115,7 +115,7 @@ function request(action, jsn, pport, req, res) {
       res.json(http_code, http_data);
     };
 
-    console.log('\u001b[33m!API\u001b[0m', 'action:', action);
+    console.log('\u001b[33m !API\u001b[0m', 'action:', action);
 
     //
     // Calls
