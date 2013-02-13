@@ -6,7 +6,7 @@
  * @licence Simplified BSD License
  * @class
  */
-OSjs.Packages.{{ package }} = (function($, undefined) {
+OSjs.Packages.{{ package|e }} = (function($, undefined) {
 
   var _LINGUAS = {{ linguas }};
 
@@ -20,7 +20,7 @@ OSjs.Packages.{{ package }} = (function($, undefined) {
    */
   return function(PanelItem, panel, API, argv) {
 
-    var LABELS = _LINGUAS[API.system.language()] || _LINGUAS["{{ default_language }}"];
+    var LABELS = _LINGUAS[API.system.language()] || _LINGUAS["{{ default_language|e }}"];
 
     ///////////////////////////////////////////////////////////////////////////
     // MAIN CLASS
@@ -33,7 +33,7 @@ OSjs.Packages.{{ package }} = (function($, undefined) {
     var __{{ package }} = PanelItem.extend({
 
       init : function() {
-        this._super("{{ package }}");
+        this._super("{{ package|e }}");
       },
 
       destroy : function() {
@@ -48,7 +48,7 @@ OSjs.Packages.{{ package }} = (function($, undefined) {
       }
     });
 
-    return new __{{ package }}();
+    return new __{{ package|e }}();
   };
 
 {%- else if type == "Application" -%}
@@ -62,7 +62,7 @@ OSjs.Packages.{{ package }} = (function($, undefined) {
    */
   return function(GtkWindow, Application, API, argv, windows) {
 
-    var LABELS = _LINGUAS[API.system.language()] || _LINGUAS["{{ default_language }}"];
+    var LABELS = _LINGUAS[API.system.language()] || _LINGUAS["{{ default_language|e }}"];
     var MIMES  = {{ mimes }};
 
     ///////////////////////////////////////////////////////////////////////////
@@ -78,8 +78,8 @@ OSjs.Packages.{{ package }} = (function($, undefined) {
     var Window_{{ w.name }} = GtkWindow.extend({
 
       init : function(app) {
-        this._super("Window_{{ w.name }}", {{ w.is_dialog }}, app, windows);
-        this._content = $("{{ w.html }}");
+        this._super("Window_{{ w.name|e }}", {{ w.is_dialog }}, app, windows);
+        this._content = $("{{ w.html|e }}");
 {{ w.code_init }}
       },
 
@@ -114,10 +114,10 @@ OSjs.Packages.{{ package }} = (function($, undefined) {
      * Main Application Class
      * @class
      */
-    var __{{ package }} = Application.extend({
+    var __{{ package|e }} = Application.extend({
 
       init : function() {
-        this._super("{{ package }}", argv);
+        this._super("{{ package|e }}", argv);
         this._compability = {{ compability }};
       },
 
@@ -150,7 +150,7 @@ OSjs.Packages.{{ package }} = (function($, undefined) {
    */
   return function(Service, API, argv) {
 
-    var LABELS = _LINGUAS[API.system.language()] || _LINGUAS["{{ default_language }}"];
+    var LABELS = _LINGUAS[API.system.language()] || _LINGUAS["{{ default_language|e }}"];
 
     ///////////////////////////////////////////////////////////////////////////
     // MAIN CLASS
@@ -160,10 +160,10 @@ OSjs.Packages.{{ package }} = (function($, undefined) {
      * Main Service Class
      * @class
      */
-    var __{{ package }} = Service.extend({
+    var __{{ package|e }} = Service.extend({
 
       init : function() {
-        this._super("{{ package }}", "{{ icon }}");
+        this._super("{{ package|e }}", "{{ icon|e }}");
       },
 
       destroy : function() {
@@ -175,7 +175,7 @@ OSjs.Packages.{{ package }} = (function($, undefined) {
       }
     });
 
-    return new __{{ package }}();
+    return new __{{ package|e }}();
   };
 
 {%- endif %}

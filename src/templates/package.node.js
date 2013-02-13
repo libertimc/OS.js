@@ -55,7 +55,7 @@ function DefaultEvent(req, action, args, callback) {
 
   switch ( action ) {
     default :
-      callback(false, action + ' is not implemented in {{ package }}!');
+      callback(false, action + ' is not implemented in {{ package|e }}!');
     break;
   }
 }
@@ -71,7 +71,7 @@ module.exports = {
    * @see DefaultEvent()
    */
   Event : function(req, action, args, callback) {
-    console.log('{{ package }}::Event()', req, action, args);
+    console.log('{{ package|e }}::Event()', req, action, args);
 
     DefaultEvent(req, action, args, callback);
   }

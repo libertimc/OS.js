@@ -55,6 +55,8 @@ var config  = require('../config.js'),
  */
 function _parseMetadata(iter, language, is_new) {
   iter.title = iter.title || {};
+  iter.system = iter.system === 'true' || iter.system === true;
+
   if ( !iter.title[language] )
     iter.title[language] = iter.name;
 
@@ -82,7 +84,7 @@ function _parseMetadata(iter, language, is_new) {
 
   if ( is_new ) {
     pinfo.compability = iter.compability || [];
-    pinfo.packagename = iter.type + iter.name;
+    pinfo.packagename = (iter.system ? 'System' : iter.type) + iter.name;
   }
 
   return pinfo;

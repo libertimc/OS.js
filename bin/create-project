@@ -15,7 +15,7 @@ var tpl_css   = _config.PATH_TEMPLATES + '/package.main.css';
 
 swig.init({
   allowErrors : false,
-  autoescape  : true,
+  autoescape  : false,
   cache       : false,
   encoding    : 'utf8',
   filters     : {},
