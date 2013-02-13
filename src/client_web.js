@@ -105,6 +105,8 @@ function updateCache(req, packages) {
 ///////////////////////////////////////////////////////////////////////////////
 
 function request(action, jsn, pport, req, res) {
+  console.log('!API', action);
+
   if ( action === null  ) {
     defaultJSONResponse(req, res);
   } else {
@@ -129,7 +131,6 @@ function request(action, jsn, pport, req, res) {
       }
     }
 
-    console.log('!API', action, suser ? '(' + suser.username + ')' : '(no session created)');
 
     switch ( action ) {
       case 'login' :
@@ -496,7 +497,6 @@ function createInstance(web_port, web_user) {
   app.configure(function() {
 
     // Setup
-    console.info('>>> Configuring Express');
     app.use(express.bodyParser());
     app.use(express.cookieParser());
     app.use(express.session({ secret:'yodawgyo', cookie: { path: '/', httpOnly: true, maxAge: null} })); // FIXME
@@ -507,8 +507,6 @@ function createInstance(web_port, web_user) {
     app.set('views',        _config.PATH_TEMPLATES);
     app.set('view options', { layout: false });
     app.set('view cache',   false);
-
-    console.info('>>> Configuring Routes');
 
     //
     // INDEX

@@ -90,30 +90,6 @@ if ( __user === null ) {
 // MAIN
 ///////////////////////////////////////////////////////////////////////////////
 
-console.info('>>> Starting up...');
-console.info('port', __port);
-console.info('user', __user);
-
-/*
-console.info('>>> Configuring DBUS');
-var dbus_server = _services.dbus.createSession();
-dbus_server.connection.on('message', function(msg) {
-  if ( msg.destination === name && msg['interface'] === 'com.github.andersevenrud.OSjs' && msg.path === '/0/1' ) {
-    var reply = {
-      type        : dbus.messageType.methodReturn,
-      destination : msg.sender,
-      replySerial : msg.serial,
-      sender      : name,
-      signature   : 's',
-      body        : [msg.body[0].split('').reverse().join('')]
-    };
-    bus.invoke(reply);
-  }
-});
-
-dbus_server.requestName('com.github.andersevenrud', 0);
-*/
-
 syslog.init('OS.js client.js', syslog.LOG_PID | syslog.LOG_ODELAY, syslog.LOG_LOCAL0);
 syslog.log(syslog.LOG_INFO, 'Starting up ' + new Date());
 
@@ -130,7 +106,7 @@ process.on('uncaughtException', function (err) {
 
 var app = _client(__port, __user);
 app.listen(__port);
-console.info('>>> Listening on port ' + __port);
+console.info('>>> Listening on port ' + __port, 'with user', __user);
 
 // Client lockfile
 fs.writeFileSync(sprintf(_config.PATH_VFS_SESSION_LOCK, __user));

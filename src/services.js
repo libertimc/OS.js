@@ -37,21 +37,9 @@
 
 var _config   = require('../config.js');
 
-var dbus      = require('dbus-native');
-
 ///////////////////////////////////////////////////////////////////////////////
 // HELPERS
 ///////////////////////////////////////////////////////////////////////////////
-
-var _dbus = {
-  createSession : function() {
-    return dbus.sessionBus();
-  },
-
-  createClient : function(opts) {
-    return dbus.createClient(opts);
-  }
-};
 
 ///////////////////////////////////////////////////////////////////////////////
 // EXPORTS
@@ -59,6 +47,5 @@ var _dbus = {
 
 module.exports =
 {
-  dbus : _dbus
 };
 

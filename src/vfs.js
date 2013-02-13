@@ -39,8 +39,7 @@ var http      = require('http'),
     sanitize  = require('validator').sanitize,
     mime      = require('mime'),
     util      = require('util'),
-    _path     = require('path'),
-    ncp       = require('ncp').ncp;
+    _path     = require('path');
 
     // Also uses: exif, imagemagick, child_process (in code)
 
@@ -611,7 +610,7 @@ VFS.prototype =
         });
         */
 
-        ncp(src, dst, function(err) {
+        fs.copyRecursive(src, dst, function(err) {
           if ( err ) {
             callback(false, err);
           } else {
