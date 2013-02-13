@@ -1,0 +1,19 @@
+{
+  "type"    : "{{ type }}",
+  "name"    : "{{ name }}",
+  "schema"  : "{{ schema }}",
+  "category": "{{ category }}",
+  "enabled" : {{ enabled }},"
+  "system"  : {{ is_system }},
+  "icon"    : {{ icon }},
+  "title"   : {
+    "en_US"     : {{ name }}
+  },
+  "mime"    : [
+  ],
+  "resource" : [
+    "main.css",
+    "main.js"
+  ],
+  "compability" : []
+}

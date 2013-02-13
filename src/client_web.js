@@ -37,6 +37,7 @@
 
 // Internal
 var _config    = require('../config.js'),
+    _utils     = require(_config.PATH_SRC + '/utils.js'),
     _registry  = require(_config.PATH_SRC + '/registry.js'),
     _settings  = require(_config.PATH_SRC + '/settings.js'),
     _resources = require(_config.PATH_SRC + '/resources.js'),
@@ -143,20 +144,6 @@ function updateCache(req, packages) {
     system : spkg,
     user   : upkg
   };
-}
-
-function inArray(element, array, cmp) {
-  if (typeof cmp != "function") {
-    cmp = function (o1, o2) {
-      return o1 == o2;
-    };
-  }
-  for (var key in array) {
-    if (cmp(element, array[key])) {
-      return true;
-    }
-  }
-  return false;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -674,7 +661,7 @@ function createInstance(web_port, web_user) {
 
       console.log('GET /VFS/resource/:package/:filename', pkg, filename, _config.ENV_SETUP == 'production' ? 'compressed' : 'normal');
 
-      var is_userpkg = inArray(pkg, req.session.cache.packages.user);
+      var is_userpkg = _utils.inArray(pkg, req.session.cache.packages.user);
       if ( filename.match(/\.(js|css)$/) ) {
         if ( is_userpkg ) {
           if ( _config.ENV_SETUP == 'production' ) {

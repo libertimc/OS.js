@@ -46,6 +46,7 @@ var fs        = require('fs'),
     // Also uses: exif, imagemagick, child_process (in code)
 
 var _config   = require('../config.js'),
+    _utils    = require(_config.PATH_SRC + '/utils.js'),
     _packages = require(_config.PATH_SRC + '/packages.js'),
     _archive  = require(_config.PATH_SRC + '/archive.js');
 
@@ -270,28 +271,6 @@ fs.removeRecursive = function(path,cb){
 };
 
 /**
- * Sort a dict
- * @return  Object
- */
-function sortObj(object, sortFunc) {
-  if ( !sortFunc ) {
-    sortFunc = function(a, b) {
-      if (a > b) return 1;
-      if (a < b) return -1;
-      return 0;
-    };
-  }
-  var rv = [];
-  for (var k in object) {
-    if (object.hasOwnProperty(k)) rv.push({key: k, value:  object[k]});
-  }
-  rv.sort(function(o1, o2) {
-    return sortFunc(o1.key, o2.key);
-  });
-  return rv;
-}
-
-/**
  * Check if given VFS path is protected [from user actions]
  * @return  bool
  */
@@ -369,24 +348,6 @@ function getIcon(filename, mimetype) {
 }
 
 /**
- * Check if given element is in an array
- * @return  bool
- */
-function inArray(element, array, cmp) {
-  if (typeof cmp != "function") {
-    cmp = function (o1, o2) {
-      return o1 == o2;
-    };
-  }
-  for (var key in array) {
-    if (cmp(element, array[key])) {
-      return true;
-    }
-  }
-  return false;
-}
-
-/**
  * Check if MIME is matched in an array
  * @return  bool
  */
@@ -404,14 +365,6 @@ function checkMIME(needle, haystack) {
     }
   }
   return false;
-}
-
-/**
- * Escape an argument for shell
- * @return  String
- */
-function escapeshell(cmd) {
-  return ('' + cmd).replace(/(["\s'$`\\])/g,'\\$1');
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -468,8 +421,8 @@ VFS.prototype =
 
     var __callback = function() {
       var i, result = {};
-      var dirs = sortObj(tree.dirs);
-      var files = sortObj(tree.files);
+      var dirs  = _utils.sortObj(tree.dirs);
+      var files = _utils.sortObj(tree.files);
 
       for ( i = 0; i < dirs.length; i++ ) {
         result[dirs[i].key] = dirs[i].value;
@@ -522,7 +475,7 @@ VFS.prototype =
         if ( list.length ) {
           var iter  = list.pop();
 
-          if ( inArray(iter, ignore_files) ) {
+          if ( _utils.inArray(iter, ignore_files) ) {
             __next();
           } else {
             var fname = (path + '/' + iter).replace(/\/$/, '');
@@ -1102,7 +1055,7 @@ VFS.prototype =
 function readPDFInfo(user, name, callback) {
   var filename = mkpath(user, name);
   var cmd = _config.EXTERN_PATHS.exiftool;
-  var args = ['-ee', '-j', escapeshell(filename)];
+  var args = ['-ee', '-j', _utils.escapeshell(filename)];
 
   var _cp = require('child_process');
   var stdout = "", stderr = "";
@@ -1186,7 +1139,7 @@ function readPDF(user, name, callback) {
     if ( success ) {
       var filename  = mkpath(user, name);
       var tmpfile   = '/tmp/_pdf2svg_' + _path.basename(name)  + '_' + (new Date()).getTime() + '.svg';
-      var cmd       = [_config.EXTERN_PATHS.pdf2svg, escapeshell(filename), escapeshell(tmpfile)];
+      var cmd       = [_config.EXTERN_PATHS.pdf2svg, _utils.escapeshell(filename), _utils.escapeshell(tmpfile)];
 
       if ( page > 0 ) {
         cmd.push(page);
