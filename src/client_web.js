@@ -105,8 +105,6 @@ function updateCache(req, packages) {
 ///////////////////////////////////////////////////////////////////////////////
 
 function request(action, jsn, pport, req, res) {
-  console.log('!API', 'action:', action);
-
   if ( action === null  ) {
     defaultJSONResponse(req, res);
   } else {
@@ -117,6 +115,8 @@ function request(action, jsn, pport, req, res) {
       res.json(http_code, http_data);
     };
 
+    console.log('\u001b[33m!API\u001b[0m', 'action:', action);
+
     //
     // Calls
     //
@@ -126,7 +126,7 @@ function request(action, jsn, pport, req, res) {
     } else {
       if ( action != 'boot' && action != 'login' ) {
         _respond(RESPONSE_ERROR, {success: false, error: 'No running session found!'});
-        console.error('!!! NO RUNNING SESSION !!!');
+        console.error('\u001b[31m!!! NO RUNNING SESSION !!!\u001b[0m');
         return;
       }
     }
@@ -554,7 +554,7 @@ function createInstance(web_port, web_user) {
     //
 
     app.post('/API', function postAPI(req, res) {
-      console.log('POST /API');
+      console.log('\u001b[34mPOST\u001b[0m /API');
 
       try {
         var jsn     = req.body || {};//.objectData;
@@ -567,7 +567,7 @@ function createInstance(web_port, web_user) {
     });
 
     app.post('/API/upload', function postAPIUpload(req, res) {
-      console.log('POST /API/upload');
+      console.log('\u001b[34mPOST\u001b[0m /API/upload');
 
       var ok = _vfs.call(req.session.user, 'upload', {'file': req.files.upload, 'path': req.body.path}, function(vfssuccess, vfsresult) {
         if ( vfssuccess ) {
@@ -591,7 +591,7 @@ function createInstance(web_port, web_user) {
       var type      = req.params[0];//.replace(/[^a-zA-Z0-9]/, '');
       var filename  = req.params[1];//.replace(/[^a-zA-Z0-9-\_\/\.]/, '');
 
-      console.log('GET /UI/:type/:filename', type, filename);
+      console.log('\u001b[32mGET\u001b[0m /UI/:type/:filename', type, filename);
 
       switch ( type ) {
         case 'sound' :
@@ -611,7 +611,7 @@ function createInstance(web_port, web_user) {
       var pkg = req.params['package'];
       var suser = req.session.user;
 
-      console.log('GET /VFS/resource/:package/:filename', pkg, filename, _config.ENV_SETUP == 'production' ? 'compressed' : 'normal');
+      console.log('\u001b[32mGET\u001b[0m /VFS/resource/:package/:filename', pkg, filename, _config.ENV_SETUP == 'production' ? 'compressed' : 'normal');
 
       var is_userpkg = _utils.inArray(pkg, req.session.cache.packages.user);
       if ( filename.match(/\.(js|css)$/) ) {
@@ -641,7 +641,7 @@ function createInstance(web_port, web_user) {
     app.get('/VFS/resource/:filename', function getResource(req, res) {
       var filename = req.params.filename;
 
-      console.log('GET /VFS/resource/:filename', filename, _config.ENV_SETUP == 'production' ? 'compressed' : 'normal');
+      console.log('\u001b[32mGET\u001b[0m /VFS/resource/:filename', filename, _config.ENV_SETUP == 'production' ? 'compressed' : 'normal');
       if ( filename.match(/\.(js|css)$/) ) {
         if ( _config.ENV_SETUP == 'production' ) {
           res.sendfile(_path.join(_config.PATH_JAVASCRIPT, _config.COMPRESS_DIRNAME, filename));
@@ -657,7 +657,7 @@ function createInstance(web_port, web_user) {
       var filename  = req.params.filename;
       var type      = req.params.resource;
 
-      console.log('GET /VFS/:resource/:filename', filename, type);
+      console.log('\u001b[32mGET\u001b[0m /VFS/:resource/:filename', filename, type);
 
       switch ( type ) {
         case 'font' :
@@ -712,7 +712,7 @@ function createInstance(web_port, web_user) {
       var filename = req.params[0].replace(/^\//, '');
       var path = _vfs.mkpath(req.session.user, '/User/' + filename);
 
-      console.log('GET /media', filename);
+      console.log('\u001b[32mGET\u001b[0m /media', filename);
 
       res.sendfile(path);
     });
@@ -727,7 +727,7 @@ function createInstance(web_port, web_user) {
       var filename = req.params[0].replace(/^\//, '');
       var path = _vfs.mkpath(req.session.user, '/User/' + filename);
 
-      console.log('GET /media-download', filename);
+      console.log('\u001b[32mGET\u001b[0m /media-download', filename);
 
       res.download(path);
     });
