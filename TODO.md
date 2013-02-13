@@ -1,4 +1,4 @@
-# NODE.JS:
+# Node.js
 * Glade parser and package compiler conversion from old codebase
   - Finish up create-project also
 * Translations (i18n)
@@ -16,29 +16,24 @@
   - TODO and FIXME spread around the code
   - Fix crashes on non-existent user directories/files (.osjs etc)
     also Update dirs on login
+* Archive
+  - bzip
+  - tar
+  - jar
+  - rar
 
-## PACKAGE CONVERSION (EVENT API):
-* ApplicationIDE (Not done yet anyways)
-* ApplicationMail
-* ApplicationServerStatus (This is some old test stuff, but convert anyway)
+# Frontend
+* Implement IconView in launch dialog
+* Theme Packages - Use ui.js generateThemeCSS() css tuple to generate sheets
+* Finish up adding/removing panels, etc
+* Implement new flexbox model
+* Richtext: Add custom contextmenu
+* Replace jQuery with a drop-in replacement somehow
 
-# JS:
-[HIG] Implement IconView in launch dialog
-[MED] Theme Packages - Use ui.js generateThemeCSS() css tuple to generate sheets
-[MED] Finish up adding/removing panels, etc
-[MED] Implement new flexbox model
-[LOW] Richtext: Add custom contextmenu
-[LOW] Replace jQuery with a drop-in replacement somehow
-
-# BACKEND:
-* Finish archives in VFS (more than zip)
-
-# PACKAGES:
+# Packages
 * ApplicationMusicPlayer - Needs some work
 * ApplicationArchiver - Not even close to done
-* ApplicationMail - Needs testing
-* ApplicationIRC - !?!?!?!
+* ApplicationMail - Needs testing (Also: Convert to node.js)
+* ApplicationIRC - !?!?!?! (Also: Convert to node.js)
+* ApplicationIDE
 * Add some more base packages
-
-# MISC:
-* Rebuild repository
