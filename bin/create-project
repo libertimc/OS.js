@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+var ENABLE_GLADE = false;
+
 var _config     = require('../config'),
     _packages   = require(_config.PATH_SRC + '/packages.js');
 
@@ -82,7 +84,20 @@ try {
   opts['type']          = info.type;
   opts['linguas']       = JSON.stringify(linguas || {});
 
-  // TODO: Parse schema
+  if ( ENABLE_GLADE ) {
+    if ( opts['type'] == 'Application' && opts['schema'] ) {
+      console.log('>>>', 'Parsing Glade XML');
+      try {
+        var schemapath = _path.join(outdir, opts['schema']);
+        var xmldoc     = fs.readFileSync(schemapath).toString());
+
+        console.log('<<<', schemapath);
+        opts.windows = require(_config.PATH_SRC + '/glade.js').parser(xmldoc);
+      } catch ( err ) {
+        console.error('Failed to glade document', schemapath, err);
+      }
+    }
+  }
 
   console.log('Package', opts);
 

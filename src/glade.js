@@ -31,6 +31,13 @@
  */
 "use strict";
 
+/*
+ * TODO:
+ * - Object containers
+ * - Stock objects
+ * - Packing
+ */
+
 ///////////////////////////////////////////////////////////////////////////////
 // IMPORTS
 ///////////////////////////////////////////////////////////////////////////////
@@ -56,40 +63,67 @@ var stockItems = {};
  * @return  void
  */
 function GladeParser(xmlData) {
-  var targetDoc = libxmljs.Document();
-  targetDoc.node('div');
-  var targetRoot = targetDoc.root();
-  var windowSignals = [];
+  var windowSignals = {};
 
   /**
    * Create stock element for node
    */
-  var stock = function(xmlNode) {
+  var stock = function(targetDoc, xmlNode) {
   };
 
   /**
    * Scan node properties and signals
    */
-  var scan = function(xmlNode) {
+  var scan = function(windowId, targetDoc, xmlNode) {
+    var className   = xmlNode.attr('class').value();
+    var id          = xmlNode.attr('id').value();
     var node        = null;
     var styles      = [];
     var properties  = [];
-    var signals     = [];
 
-    var p = xmlNode.find('property');
-    var i = 0;
-    var l = p.length;
+    var p, i, l, iter, ev_name, ev_handler;
 
-    var iter;
+    // Properties
+    i = 0; p = xmlNode.find('property'); l = p.length;
     for ( i; i < l; i++ ) {
       iter = p[i];
       properties[iter.attr('name').value()] = iter.text();
     }
 
-    // TODO: Signals
+    // Signals
+    i = 0; p = xmlNode.find('signal'); l = p.length;
+    for ( i; i < l; i++ ) {
+      iter        = p[i];
+      ev_name     = iter.attr('name').value();
+      ev_handler  = iter.attr('handler').value();
 
-    var id = xmlNode.attr('id').value();
-    var className = xmlNode.attr('class').value();
+      switch ( ev_name ) {
+        case 'item-activated' :
+        case 'group-changed' :
+        case 'select' :
+        case 'clicked' :
+          ev_name = 'click';
+        break;
+
+        case 'activate' :
+          if ( className == 'GtkEntry' ) {
+            ev_name = 'input-activate';
+          } else {
+            ev_name = 'click';
+          }
+        break;
+
+        default:
+          break;
+      }
+
+      if ( !windowSignals[windowId][id] ) {
+        windowSignals[windowId][id] = {};
+      }
+      windowSignals[windowId][id][ev_name] = ev_handler;
+    }
+
+    // Styles
     if ( !_utils.inArray(className, ["GtkWindow", "GtkDialog"]) ) {
       if ( typeof properties['width'] !== 'undefined'  ) {
         styles.push('width:' + properties['width'] + 'px');
@@ -111,6 +145,9 @@ function GladeParser(xmlData) {
           styles.push('display:none');
         }
       }
+      if ( typeof properties['layout_style'] !== 'undefined'  ) {
+        styles.push('text-align:' + properties['layout_style']);
+      }
       // FIXME FROM OLD CODEBASE: Move to packing ?!
       if ( typeof properties['x'] !== 'undefined'  ) {
         styles.push('left:' + properties['x'] + 'px');
@@ -120,6 +157,7 @@ function GladeParser(xmlData) {
       }
     }
 
+    // Container
     switch ( className ) {
       // FIXME
       default :
@@ -142,7 +180,7 @@ function GladeParser(xmlData) {
    * Traverse nodes
    * TODO Packing
    */
-  var traverse = function(htmlNode, xmlNode, parentHtmlNode) {
+  var traverse = function(windowId, targetDoc, htmlNode, xmlNode, parentHtmlNode) {
     if ( !xmlNode.length )
       return;
 
@@ -161,10 +199,10 @@ function GladeParser(xmlData) {
           continue;
         }
 
-        data = scan(iter);
+        data = scan(windowId, targetDoc, iter);
         node = data[0];
 
-        traverse(node, iter.find('child'));
+        traverse(windowId, targetDoc, node, iter.find('child'));
         if ( !node.childNodes().length && !_utils.inArray(iter.attr('class').value(), shortTags) ) {
           node.text(' ');
         }
@@ -184,39 +222,123 @@ function GladeParser(xmlData) {
    * Parse document
    */
   var parseSchema = function(xml) {
-    var xmlDoc = libxmljs.parseXml(xml);
+    var result = {};
 
+    var xmlDoc = libxmljs.parseXml(xml);
     var root = xmlDoc.root();
     var els = root.childNodes();
 
     var i = 0;
     var l = els.length;
-    var node, iter;
+    var node, iter, id, className;
+    var targetDoc, targetRoot, props, styles;
+    var wprops, wpiter, wpval, j, k;
 
     for ( i; i < l; i++ ) {
       iter = els[i];
       if ( iter.name() != 'object' )
         continue;
 
+      targetDoc   = libxmljs.Document();
+      targetRoot  = targetDoc.node('div');
+      wprops      = iter.find('property');
+      id          = iter.attr('id').value();
+      className   = iter.attr('class').value();
+
+      windowSignals[id] = {};
+      styles = [];
+      props = {
+        "type"            : className == "GtkWindow" ? "window" : "dialog",
+        "title"           : "",
+        "icon"            : "",
+        "is_draggable"    : true,
+        "is_resizable"    : true,
+        "is_scrollable"   : false,
+        "is_sessionable"  : true,
+        "is_minimizable"  : true,
+        "is_maximizable"  : true,
+        "is_closable"     : true,
+        "is_orphan"       : false,
+        "skip_taskbar"    : false,
+        "skip_pager"      : false,
+        "width"           : 500,
+        "height"          : 300,
+        "gravity"         : ""
+      };
+
+
+      j = 0; k = wprops.length;
+      for ( j; j < k; j++ ) {
+        wpiter = wprops[j];
+        wpval = wpiter.text();
+
+        switch ( wpiter.attr('name').value() ) {
+          case 'resizable' :
+            if ( wpval == "False" ) {
+              props['is_resizable'] = false;
+            }
+            break;
+          case 'title' :
+            if ( wpval ) {
+              props['title'] = wpval;
+            }
+          break;
+          case 'icon' :
+            if ( wpval ) {
+              $properties['icon'] = wpval;
+            }
+          break;
+          case 'default_width' :
+            props['width'] = parseInt(wpval, 10);
+          break;
+          case 'default_height' :
+            props['height'] = parseInt(wpval, 10);
+          break;
+          case 'window_position' :
+            props['gravity'] = wpval;
+          break;
+          case 'skip_taskbar_hint' :
+            if ( wpval == "True" ) {
+              props['skip_taskbar'] = true;
+            }
+          break;
+          case 'skip_pager_hint' :
+            if ( wpval == "True" ) {
+              props['skip_pager'] = true;
+            }
+          break;
+
+          case "border_width" :
+            if ( parseInt(wpval, 10) > 0 ) {
+              styles.push('padding:' + wpval + 'px');
+            }
+          break;
+
+          default:
+          break;
+        }
+      }
+
       node = libxmljs.Element(targetDoc, 'div');
       node.attr({
-        'class' : 'GtkWindow'
+        'class' : 'GtkWindow ' + id,
+        'style' : styles.length ? styles.join('; ') : ''
       });
 
-      // TODO Window attributes
-
       targetRoot.addChild(node);
-      traverse(node, iter.find('child'));
+      traverse(id, targetDoc, node, iter.find('child'));
+
+      result[id] = {
+        attributes  : props,
+        html        : targetDoc.toString(),
+        signals     : windowSignals[id] || {}
+      };
     }
 
-    return {
-      html    : targetDoc.toString(),
-      signals : windowSignals
-    };
+    return result;
   };
 
   return parseSchema(xmlData);
-
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -224,13 +346,18 @@ function GladeParser(xmlData) {
 ///////////////////////////////////////////////////////////////////////////////
 
 module.exports = {
-  parser : function(src, callback) {
+  parser : GladeParser,
+  parse : function(src, callback) {
+    var data;
     try {
-      callback(true, GladeParser(fs.readFileSync(src).toString()));
+      data = fs.readFileSync(src).toString();
     } catch ( err ) {
       console.error('Failed to load document', err);
       callback(false, err);
+      return;
     }
+
+    callback(true, GladeParser(data));
   }
 };
 
