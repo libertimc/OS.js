@@ -55,6 +55,11 @@ var fs        = require('fs');
 var shortTags = ["GtkImage", "GtkEntry", "GtkSeparator", "GtkSeparatorToolItem"];
 var stockItems = {};
 
+function ucfirst(str) {
+  str = str || '';
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
 /**
  * GladeParser - Parse a Glade XML document
  *
@@ -72,6 +77,40 @@ function GladeParser(xmlData) {
   };
 
   /**
+   * Pack elements in a container (liquid layout)
+   */
+  var pack = function(targetDoc, xmlNode, htmlNode) {
+    var classes = ['GtkBoxPackage'];
+    var props   = {};
+
+    var els = xmlNode.find('packing/property');
+    var i = 0;
+    var l = els.length;
+    for ( i; i < l; i++ ) {
+      props[els[i].attr('name').value()] = els[i].text();
+    }
+
+    if ( props['position'] && (parseInt(props['position'], 10) >= 0) ) {
+      classes.push('Position_' + props['position']);
+    }
+    if ( props['expand'] && (props['expand'] == 'True') ) {
+      classes.push('Expand');
+    }
+    //if ( props['fill'] && (props['fill'] == 'True') ) {
+    if ( props['expand'] && (props['expand'] == 'True') ) { // FIXME ?!
+      classes.push('fill');
+    }
+
+    var node = libxmljs.Element(targetDoc, 'div');
+    node.attrs({
+      'class' : classes.join(' ')
+    });
+
+    node.addChild(htmlNode);
+    return node;
+  };
+
+  /**
    * Scan node properties and signals
    */
   var scan = function(windowId, targetDoc, xmlNode) {
@@ -80,6 +119,8 @@ function GladeParser(xmlData) {
     var node        = null;
     var styles      = [];
     var properties  = [];
+    var packed      = false;
+    var classes     = [className, id];
 
     var p, i, l, iter, ev_name, ev_handler;
 
@@ -158,36 +199,202 @@ function GladeParser(xmlData) {
     }
 
     // Container
+    var inner;
     switch ( className ) {
-      // FIXME
+
+      //
+      // INPUTS
+      //
+      case "GtkTextView" :
+        node = libxmljs.Element(targetDoc, 'textarea');
+      break;
+
+      case "GtkEntry" :
+        node = libxmljs.Element(targetDoc, 'input');
+        node.attr('type', 'text');
+      break;
+
+      case "GtkComboBox" :
+        node = libxmljs.Element(targetDoc, 'select');
+      break;
+
+      case "GtkCellRendererText" :
+        node = libxmljs.Element(targetDoc, 'option');
+      break;
+
+      case "GtkCheckButton" :
+      case "GtkToggleButton" :
+        node = libxmljs.Element(targetDoc, 'input');
+        node.attr('type', 'button');
+
+        if ( properties['active'] && properties['active'] === 'True' ) {
+          node.attr('checked', 'checked');
+        }
+      break;
+
+      case "GtkDrawingArea"   :
+        node = libxmljs.Element(targetDoc, 'div');
+        classes.push('Canvas');
+      break;
+
+      case "GtkFileChooserButton"   :
+        // TODO
+        node = libxmljs.Element(targetDoc, 'div');
+      break;
+
+      //
+      // MISC
+      //
+
+      case "GtkLabel"   :
+        node = libxmljs.Element(targetDoc, 'div');
+
+        inner = libxmljs.Element(targetDoc, 'span');
+
+        if ( properties['label'] ) {
+          inner.text(properties['label']); // FIXME: Escape
+        } else {
+          inner.text('&nbsp;');
+        }
+
+        // TODO: Stock
+        node.addChild(inner);
+      break;
+
+      case "GtkImage" :
+        node = libxmljs.Element(targetDoc, 'img');
+      break;
+
+      case "GtkSeparator" :
+        node = libxmljs.Element(targetDoc, 'hr');
+      break;
+
+      case "GtkIconView"   :
+        node = libxmljs.Element(targetDoc, 'div');
+      break;
+
+      case "GtkScale"   :
+        node = libxmljs.Element(targetDoc, 'div');
+        inner = libxmljs.Element(targetDoc, 'div');
+        inner.text('');
+        node.addChild(inner);
+      break;
+
+      case "GtkButton"   :
+        node = libxmljs.Element(targetDoc, 'button'); // FIXME: Stock
+        node.text('todo');
+      break;
+
+      case "GtkColorButton" :
+        node = libxmljs.Element(targetDoc, 'button');
+        inner = libxmljs.Element(targetDoc, 'span');
+        inner.attr('class', className + 'Color');
+        inner.text('');
+        node.addChild(inner);
+      break;
+
+      //
+      // TOOLBARS
+      //
+
+      case "GtkToolbar"     :
+        node = libxmljs.Element(targetDoc, 'ul');
+      break;
+
+      case "GtkButtonBox"   :
+        node = libxmljs.Element(targetDoc, 'div');
+      break;
+
+      case "GtkToolItem" :
+        node = libxmljs.Element(targetDoc, 'li');
+      break;
+
+      case "GtkSeparatorToolItem" :
+        node = libxmljs.Element(targetDoc, 'hr');
+      break;
+
+      case "GtkToolButton" :
+      case "GtkToggleToolButton" :
+      case "GtkToolItemGroup" :
+        node = libxmljs.Element(targetDoc, 'button'); // TODO Stock
+      break;
+
+      case "GtkImageMenuItem" :
+      case "GtkRadioMenuItem" :
+      case "GtkMenuItem" :
+        node = libxmljs.Element(targetDoc, 'li');
+        inner = libxmljs.Element(targetDoc, 'div');
+        inner.attr('class', 'GtkMenuItemInner');
+        inner.text('todo'); // FIXME: Stock
+        node.addChild(inner);
+      break;
+
+      //
+      // MENUS
+      //
+      case "GtkMenu"        :
+      case "GtkMenuBar"     :
+      case "GtkNodebook"    :
+        node = libxmljs.Element(targetDoc, 'ul');
+      break;
+
+      //
+      // CONTAINERS
+      //
+      case "GtkGrid" :
+        node = libxmljs.Element(targetDoc, 'div');
+        packed = true;
+      break;
+
+      case "GtkBox"  :
+      case "GtkHBox" :
+      case "GtkVBox" :
+        node = libxmljs.Element(targetDoc, 'div');
+        packed = true;
+
+        var orientation = "horizontal";
+        if ( className == "GtkBox" ) {
+          if ( properties['orientation'] ) {
+            orientation = properties['orientation'];
+          }
+        } else if ( $class == "GtkVBox" ) {
+          orientation = "vertical";
+        }
+
+        classes.push('GtkBox' + ucfirst(orientation));
+      break;
+
       default :
         node = libxmljs.Element(targetDoc, 'div');
       break;
-    }
+    } // switch
 
     node.attr({
-      'class' : [className, id].join(' ')
+      'class' : classes.join(' ')
     });
 
     if ( styles.length ) {
       node.attr('style', styles.join(';'));
     }
 
-    return [node];
+    return [node, packed];
   };
 
   /**
    * Traverse nodes
    * TODO Packing
    */
-  var traverse = function(windowId, targetDoc, htmlNode, xmlNode, parentHtmlNode) {
+  var traverse = function(windowId, targetDoc, htmlNode, xmlNode, parentHtmlNode, is_packed) {
+    is_packed = is_packed === true;
+    parentHtmlNode = parentHtmlNode || htmlNode;
+
     if ( !xmlNode.length )
       return;
 
     var j = 0;
     var y = xmlNode.length;
 
-    var els, i, l, node, iter, data, tmpnode;
+    var els, i, l, node, iter, data, addnode, packed;
     for ( j; j < y; j++ ) {
       els = xmlNode[j].childNodes();
       i = 0;
@@ -199,20 +406,26 @@ function GladeParser(xmlData) {
           continue;
         }
 
-        data = scan(windowId, targetDoc, iter);
-        node = data[0];
+        data    = scan(windowId, targetDoc, iter);
+        node    = data[0];
+        packed  = data[1];
 
-        traverse(windowId, targetDoc, node, iter.find('child'));
+        traverse(windowId, targetDoc, node, iter.find('child'), parentHtmlNode, packed);
         if ( !node.childNodes().length && !_utils.inArray(iter.attr('class').value(), shortTags) ) {
           node.text(' ');
         }
 
         if ( parentHtmlNode && (node.name() != 'li' && parentHtmlNode.name() == 'ul') ) { // FIXME
-          tmpnode = libxmljs.Element(targetDoc, 'li');
-          tmpnode.addChild(node);
-          htmlNode.addChild(tmpnode);
+          addnode = libxmljs.Element(targetDoc, 'li');
+          addnode.addChild(node);
         } else {
-          htmlNode.addChild(node);
+          addnode = node;
+        }
+
+        if ( is_packed ) {
+          htmlNode.addChild(pack(targetDoc, iter, addnode));
+        } else {
+          htmlNode.addChild(addnode);
         }
       }
     }
