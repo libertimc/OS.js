@@ -35,6 +35,15 @@ module.exports = {
 
 
   /**
+   * Upper-case first letter of string
+   * @return String
+   */
+  ucfirst : function(str) {
+    str = str || '';
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  },
+
+  /**
    * Escape an argument for shell
    * @return  String
    */

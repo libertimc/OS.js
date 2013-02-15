@@ -31,13 +31,6 @@
  */
 "use strict";
 
-/*
- * TODO:
- * - Object containers
- * - Stock objects
- * - Packing
- */
-
 ///////////////////////////////////////////////////////////////////////////////
 // IMPORTS
 ///////////////////////////////////////////////////////////////////////////////
@@ -47,18 +40,173 @@ var _utils    = require(_config.PATH_SRC + '/utils.js');
 
 var libxmljs  = require('libxmljs');
 var fs        = require('fs');
+var sanitize  = require('validator').sanitize;
 
 ///////////////////////////////////////////////////////////////////////////////
 // MAIN
 ///////////////////////////////////////////////////////////////////////////////
 
 var shortTags = ["GtkImage", "GtkEntry", "GtkSeparator", "GtkSeparatorToolItem"];
-var stockItems = {};
+var stockItems = {
+  'gtk-apply' : {
+    'label' : 'Apply',
+    'icon' : 'actions/gtk-save.png'
+  },
+  'gtk-cancel' : {
+    'label' : 'Cancel',
+    'icon' : 'actions/gtk-cancel.png'
+  },
+  'gtk-new' : {
+    'label' : 'New',
+    'icon' : 'actions/gtk-new.png'
+  },
+  'gtk-close' : {
+    'label' : 'Close',
+    'icon' : 'actions/gtk-close.png'
+  },
+  'gtk-home' : {
+    'label' : 'Home',
+    'icon' : 'actions/gtk-home.png'
+  },
+  'gtk-refresh' : {
+    'label' : 'Refresh',
+    'icon' : 'actions/gtk-refresh.png'
+  },
+  'gtk-open' : {
+    'label' : 'Open',
+    'icon' : 'actions/gtk-open.png'
+  },
+  'gtk-save' : {
+    'label' : 'Save',
+    'icon' : 'actions/gtk-save.png'
+  },
+  'gtk-save-as' : {
+    'label' : 'Save as...',
+    'icon' : 'actions/gtk-save-as.png'
+  },
+  'gtk-cut' : {
+    'label' : 'Cut',
+    'icon' : 'actions/gtk-cut.png'
+  },
+  'gtk-copy' : {
+    'label' : 'Copy',
+    'icon' : 'actions/gtk-copy.png'
+  },
+  'gtk-paste' : {
+    'label' : 'Paste',
+    'icon' : 'actions/gtk-paste.png'
+  },
+  'gtk-delete' : {
+    'label' : 'Delete',
+    'icon' : 'actions/gtk-delete.png'
+  },
+  'gtk-about' : {
+    'label' : 'About',
+    'icon' : 'actions/gtk-about.png'
+  },
+  'gtk-quit' : {
+    'label' : 'Quit',
+    'icon' : 'actions/gtk-quit.png'
+  },
+  'gtk-connect' : {
+    'label' : 'Connect',
+    'icon' : 'actions/stock_media-play.png'
+  },
+  'gtk-disconnect' : {
+    'label' : 'Disconnect',
+    'icon' : 'actions/gtk-stop.png'
+  },
+  'gtk-preferences' : {
+    'label' : 'Preferences',
+    'icon' : 'categories/gtk-preferences.png'
+  },
+  'gtk-ok' : {
+    'label' : 'Ok',
+    'icon' : 'actions/gtk-save.png'
+  },
+  'gtk-add' : {
+    'label' : 'Add',
+    'icon' : 'actions/gtk-add.png'
+  },
+  'gtk-remove' : {
+    'label' : 'Remove',
+    'icon' : 'actions/gtk-remove.png'
+  },
+  'gtk-execute' : {
+    'label' : 'Execute',
+    'icon' : 'actions/gtk-execute.png'
+  },
 
-function ucfirst(str) {
-  str = str || '';
-  return str.charAt(0).toUpperCase() + str.slice(1);
-}
+  'gtk-media-previous' : {
+    'label' : 'Prev',
+    'icon' : 'actions/media-skip-backward.png'
+  },
+  'gtk-media-stop' : {
+    'label' : 'Stop',
+    'icon' : 'actions/media-playback-stop.png'
+  },
+  'gtk-media-play' : {
+    'label' : 'Play',
+    'icon' : 'actions/media-playback-start.png'
+  },
+  'gtk-media-pause' : {
+    'label' : 'Pause',
+    'icon' : 'actions/media-playback-pause.png'
+  },
+  'gtk-media-next' : {
+    'label' : 'Next',
+    'icon' : 'actions/media-skip-forward.png'
+  },
+
+  'gtk-bold' : {
+    'label' : 'Bold',
+    'icon' : 'actions/gtk-bold.png'
+  },
+  'gtk-underline' : {
+    'label' : 'Underline',
+    'icon' : 'actions/gtk-underline.png'
+  },
+  'gtk-italic' : {
+    'label' : 'Italic',
+    'icon' : 'actions/gtk-italic.png'
+  },
+  'gtk-strikethrough' : {
+    'label' : 'Strikethrough',
+    'icon' : 'actions/gtk-strikethrough.png'
+  },
+  'gtk-select-color' : {
+    'label' : 'Color Selection',
+    'icon' : 'apps/preferences-desktop-theme.png'
+  },
+  'gtk-select-font' : {
+    'label' : 'Font Selection',
+    'icon' : 'apps/fonts.png'
+  },
+  'format-justify-left' : {
+    'label' : 'Align Left',
+    'icon' : 'actions/format-justify-left.png'
+  },
+  'format-justify-center' : {
+    'label' : 'Align Center',
+    'icon' : 'actions/format-justify-center.png'
+  },
+  'format-justify-right' : {
+    'label' : 'Align Right',
+    'icon' : 'actions/format-justify-right.png'
+  },
+  'gtk-justify-left' : {
+    'label' : 'Align Left',
+    'icon' : 'actions/format-justify-left.png'
+  },
+  'gtk-justify-center' : {
+    'label' : 'Align Center',
+    'icon' : 'actions/format-justify-center.png'
+  },
+  'gtk-justify-right' : {
+    'label' : 'Align Right',
+    'icon' : 'actions/format-justify-right.png'
+  }
+};
 
 /**
  * GladeParser - Parse a Glade XML document
@@ -71,9 +219,71 @@ function GladeParser(xmlData) {
   var windowSignals = {};
 
   /**
+   * Create a hinted string
+   */
+  var createLabel = function(targetDoc, htmlNode, str) {
+    var hinted = str.match(/^_/);
+    if ( hinted ) {
+      var node = libxmljs.Element(targetDoc, 'span');
+
+      var el = libxmljs.Element(targetDoc, 'u');
+      el.text(sanitize(str.substr(1, 1)).entityEncode());
+
+      var txt = libxmljs.Element(targetDoc, 'span');
+      txt.text(sanitize(str.substr(2)).entityEncode());
+
+      node.addChild(el);
+      node.addChild(txt);
+
+      htmlNode.addChild(node);
+    } else {
+      htmlNode.text(sanitize(str).entityEncode());
+    }
+  };
+
+  /**
    * Create stock element for node
    */
-  var stock = function(targetDoc, xmlNode) {
+  var stock = function(targetDoc, xmlNode, htmlNode, properties, simple) {
+    // FIXME: simple from old codebase ?!
+    if ( htmlNode.text() ) {
+      return;
+    }
+
+    if ( properties['label'] ) {
+      var lbl = properties['label'];
+
+      if ( properties['stock_id'] || (properties['use_stock'] === 'True') ) {
+        var stock_id = properties['stock_id'] || lbl;
+
+        if ( stockItems[stock_id] ) {
+          var iter = stockItems[stock_id];
+          //var img = '/img/icons/16x16/' + iter.icon;
+          var img = _config.URI_ICON + '/Default/16x16/'  + iter.icon;
+
+          var nimg = libxmljs.Element(targetDoc, 'img');
+          nimg.attr({
+            'src' : img,
+            'alt' : sanitize(iter.label).entityEncode()
+          });
+
+          var nlbl = libxmljs.Element(targetDoc, 'span');
+          createLabel(targetDoc, nlbl, iter.label);
+
+          htmlNode.addChild(nimg);
+          htmlNode.addChild(nlbl);
+
+          return;
+        }
+      }
+
+      if ( lbl ) {
+        createLabel(targetDoc, htmlNode, lbl);
+        return;
+      }
+    }
+
+    htmlNode.text('&nbsp;');
   };
 
   /**
@@ -102,11 +312,10 @@ function GladeParser(xmlData) {
     }
 
     var node = libxmljs.Element(targetDoc, 'div');
-    node.attrs({
-      'class' : classes.join(' ')
-    });
+    node.attr('class', classes.join(' '));
 
     node.addChild(htmlNode);
+
     return node;
   };
 
@@ -120,7 +329,7 @@ function GladeParser(xmlData) {
     var styles      = [];
     var properties  = [];
     var packed      = false;
-    var classes     = [className, id];
+    var classes     = [className];
 
     var p, i, l, iter, ev_name, ev_handler;
 
@@ -251,14 +460,9 @@ function GladeParser(xmlData) {
 
         inner = libxmljs.Element(targetDoc, 'span');
 
-        if ( properties['label'] ) {
-          inner.text(properties['label']); // FIXME: Escape
-        } else {
-          inner.text('&nbsp;');
-        }
-
-        // TODO: Stock
         node.addChild(inner);
+
+        stock(targetDoc, xmlNode, inner, properties, true);
       break;
 
       case "GtkImage" :
@@ -281,8 +485,8 @@ function GladeParser(xmlData) {
       break;
 
       case "GtkButton"   :
-        node = libxmljs.Element(targetDoc, 'button'); // FIXME: Stock
-        node.text('todo');
+        node = libxmljs.Element(targetDoc, 'button');
+        stock(targetDoc, xmlNode, node, properties, true);
       break;
 
       case "GtkColorButton" :
@@ -316,7 +520,8 @@ function GladeParser(xmlData) {
       case "GtkToolButton" :
       case "GtkToggleToolButton" :
       case "GtkToolItemGroup" :
-        node = libxmljs.Element(targetDoc, 'button'); // TODO Stock
+        node = libxmljs.Element(targetDoc, 'button');
+        stock(targetDoc, xmlNode, node, properties, false);
       break;
 
       case "GtkImageMenuItem" :
@@ -325,8 +530,9 @@ function GladeParser(xmlData) {
         node = libxmljs.Element(targetDoc, 'li');
         inner = libxmljs.Element(targetDoc, 'div');
         inner.attr('class', 'GtkMenuItemInner');
-        inner.text('todo'); // FIXME: Stock
         node.addChild(inner);
+
+        stock(targetDoc, xmlNode, inner, properties, false);
       break;
 
       //
@@ -361,13 +567,15 @@ function GladeParser(xmlData) {
           orientation = "vertical";
         }
 
-        classes.push('GtkBox' + ucfirst(orientation));
+        classes.push('GtkBox' + _utils.ucfirst(orientation));
       break;
 
       default :
         node = libxmljs.Element(targetDoc, 'div');
       break;
     } // switch
+
+    classes.push(id);
 
     node.attr({
       'class' : classes.join(' ')
@@ -382,7 +590,6 @@ function GladeParser(xmlData) {
 
   /**
    * Traverse nodes
-   * TODO Packing
    */
   var traverse = function(windowId, targetDoc, htmlNode, xmlNode, parentHtmlNode, is_packed) {
     is_packed = is_packed === true;
@@ -394,7 +601,7 @@ function GladeParser(xmlData) {
     var j = 0;
     var y = xmlNode.length;
 
-    var els, i, l, node, iter, data, addnode, packed;
+    var els, i, l, node, iter, data, addnode, packed, tmpnode;
     for ( j; j < y; j++ ) {
       els = xmlNode[j].childNodes();
       i = 0;
@@ -423,7 +630,9 @@ function GladeParser(xmlData) {
         }
 
         if ( is_packed ) {
-          htmlNode.addChild(pack(targetDoc, iter, addnode));
+          tmpnode = pack(targetDoc, iter.parent(), addnode);
+
+          htmlNode.addChild(tmpnode);
         } else {
           htmlNode.addChild(addnode);
         }
