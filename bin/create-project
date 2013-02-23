@@ -38,7 +38,7 @@
 // SETTINGS
 ///////////////////////////////////////////////////////////////////////////////
 
-var ENABLE_GLADE = false;
+var ENABLE_GLADE = true;
 
 var language = 'en_US'; // FIXME
 var opts = {
@@ -144,7 +144,7 @@ try {
         console.log('<<<', schemapath);
         var parsed = require(_config.PATH_SRC + '/glade.js').parser(xmldoc);
         var windows = [];
-        var w, a, s, piter, witer, val;
+        var w, a, s, ss, piter, witer, siter, val, sname, handler, tpl;
 
         for ( w in parsed ) {
           if ( parsed.hasOwnProperty(w) ) {
@@ -154,15 +154,63 @@ try {
               html        : piter.html.replace(/^(.*)$/m, '').replace(/\r?\n/g, '').replace(/\s+/g, ' '),
               is_dialog   : piter.type == "dialog",
               code_init   : '',
-              code_class  : '',
-              code_create : ''
+              signals     : []
             };
 
-            // TODO: Signals
-            /*for ( s in piter.signals ) {
+            for ( s in piter.signals ) {
               if ( piter.signals.hasOwnProperty(s) ) {
+                siter = piter.signals[s];
+                for ( ss in siter ) {
+                  if ( siter.hasOwnProperty(ss) ) {
+                    tpl = null;
+                    handler = siter[ss].match(/^Event/) ? ssiter[ss] : ('Event' + siter[ss]);
+
+                    switch ( handler ) {
+                      case 'EventMenuOpen' :
+                        tpl = 'DefaultFileOpen';
+                      break;
+                      case 'EventMenuSave' :
+                        tpl = 'DefaultFileSave';
+                      break;
+                      case 'EventMenuSaveAs' :
+                        tpl = 'DefaultFileSaveAs';
+                      break;
+                      case 'EventMenuClose' :
+                      case 'EventMenuQuit' :
+                      case 'EventQuit' :
+                      case 'EventClose' :
+                        tpl = 'DefaultClose';
+                      break;
+                      case 'EventMenuTextCopy' :
+                        tpl = 'DefaultClipboardCopy';
+                      break;
+                      case 'EventMenuTextPaste' :
+                        tpl = 'DefaultClipboardPaste';
+                      break;
+                      case 'EventMenuTextCut' :
+                        tpl = 'DefaultClipboardCut';
+                      break;
+                      case 'EventMenuTextSelectAll' :
+                        tpl = 'DefaultClipboardSelectAll';
+                      break;
+                      case 'EventMenuTextDelete' :
+                        tpl = 'DefaultClipboardDelete';
+                      break;
+                      default :
+                        tpl = 'NotImplemented';
+                      break;
+                    }
+
+                    witer.signals.push({
+                      id      : s,
+                      signal  : ss,
+                      template: tpl,
+                      handler : handler
+                    });
+                  }
+                }
               }
-            }*/
+            }
 
             for ( a in piter.attributes ) {
               if ( piter.attributes.hasOwnProperty(a) ) {
