@@ -1,6 +1,5 @@
 # Node.js
-* Glade parser and package compiler conversion from old codebase
-  - Finish up create-project also
+* Improve Glade parser
 * Translations (i18n)
 * Syslog messages in API etc.
 * System Server/Client
