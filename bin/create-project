@@ -1,31 +1,44 @@
 #!/usr/bin/env node
+/*!
+ * @file
+ * OS.js - JavaScript Operating System - create-project
+ *
+ * Create a new package from a metadata file. Also handles parsing
+ * of Glade schemes.
+ *
+ * Copyright (c) 2011-2012, Anders Evenrud <andersevenrud@gmail.com>
+ * All rights reserved.
+ * 
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met: 
+ * 
+ * 1. Redistributions of source code must retain the above copyright notice, this
+ *    list of conditions and the following disclaimer. 
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution. 
+ * 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
+ * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * @author Anders Evenrud <andersevenrud@gmail.com>
+ * @licence Simplified BSD License
+ * @created 2012-01-04
+ */
+
+///////////////////////////////////////////////////////////////////////////////
+// SETTINGS
+///////////////////////////////////////////////////////////////////////////////
 
 var ENABLE_GLADE = false;
-
-var _config     = require('../config'),
-    _packages   = require(_config.PATH_SRC + '/packages.js');
-
-var _path     = require('path'),
-    _fs       = require('fs'),
-    _cp       = require('child_process');
-
-var swig      = require('swig');
-
-var tpl_node  = _config.PATH_TEMPLATES + '/package.node.js';
-var tpl_js    = _config.PATH_TEMPLATES + '/package.main.js';
-var tpl_css   = _config.PATH_TEMPLATES + '/package.main.css';
-
-swig.init({
-  allowErrors : false,
-  autoescape  : false,
-  cache       : false,
-  encoding    : 'utf8',
-  filters     : {},
-  root        : _config.PATH_TEMPLATES,
-  tags        : {},
-  extensions  : {},
-  tzOffset    : 0
-});
 
 var language = 'en_US'; // FIXME
 var opts = {
@@ -44,10 +57,47 @@ var opts = {
   'code_append'       : ''
 };
 
+///////////////////////////////////////////////////////////////////////////////
+// IMPORTS
+///////////////////////////////////////////////////////////////////////////////
+
+var _config     = require('../config'),
+    _packages   = require(_config.PATH_SRC + '/packages.js');
+
+var _path     = require('path'),
+    _fs       = require('fs'),
+    _cp       = require('child_process');
+
+var swig      = require('swig');
+
+var tpl_node  = _config.PATH_TEMPLATES + '/package.node.js';
+var tpl_js    = _config.PATH_TEMPLATES + '/package.main.js';
+var tpl_css   = _config.PATH_TEMPLATES + '/package.main.css';
+
+///////////////////////////////////////////////////////////////////////////////
+// INIT
+///////////////////////////////////////////////////////////////////////////////
+
+swig.init({
+  allowErrors : false,
+  autoescape  : false,
+  cache       : false,
+  encoding    : 'utf8',
+  filters     : {},
+  root        : _config.PATH_TEMPLATES,
+  tags        : {},
+  extensions  : {},
+  tzOffset    : 0
+});
+
 if ( process.argv.length < 3 ) {
   console.error('Usage: ./bin/create-project <metadata.json>');
   process.exit(0);
 }
+
+///////////////////////////////////////////////////////////////////////////////
+// MAIN
+///////////////////////////////////////////////////////////////////////////////
 
 var metafile = process.argv[2]
 var outdir   = _path.dirname(metafile);
@@ -94,17 +144,36 @@ try {
         console.log('<<<', schemapath);
         var parsed = require(_config.PATH_SRC + '/glade.js').parser(xmldoc);
         var windows = [];
+        var w, a, s, piter, witer, val;
 
-        for ( var w in parsed ) {
+        for ( w in parsed ) {
           if ( parsed.hasOwnProperty(w) ) {
-            windows.push({
-              name: w,
-              attributes: parsed[w].attributes,
-              html: parsed[w].html.replace(/\r?\n/g, '').replace(/\s+/g, ' '),
-              signals: parsed[w].signals,
-              is_dialog : parsed[w].type == "dialog"
-            });
+            piter = parsed[w];
+            witer = {
+              name        : w,
+              html        : piter.html.replace(/^(.*)$/m, '').replace(/\r?\n/g, '').replace(/\s+/g, ' '),
+              is_dialog   : piter.type == "dialog",
+              code_init   : '',
+              code_class  : '',
+              code_create : ''
+            };
+
             // TODO: Signals
+            /*for ( s in piter.signals ) {
+              if ( piter.signals.hasOwnProperty(s) ) {
+              }
+            }*/
+
+            for ( a in piter.attributes ) {
+              if ( piter.attributes.hasOwnProperty(a) ) {
+                val = piter.attributes[a] || null;
+                if ( (val !== null) && (typeof val !== 'boolean') && (typeof val !== 'number') ) {
+                  val = "'" + val + "'";
+                }
+
+                witer.code_init += '        this._' + a + ' = ' + val + ";\n";
+              }
+            }
 
             // Initial window (FIXME: check in schema ?!)
             if ( !opts['glade_window'] ) {
@@ -112,8 +181,11 @@ try {
               opts['glade_window'] = 'root_window';
               opts['code_append']  = 'root_window.show();';
             }
+
+            windows.push(witer);
           }
         }
+
         opts.windows = windows;
       } catch ( err ) {
         console.error('Failed to glade document', schemapath, err);

@@ -77,7 +77,8 @@ OSjs.Packages.{{ package|e }} = (function($, undefined) {
 
       init : function(app) {
         this._super("Window_{{ w.name|e }}", {{ w.is_dialog }}, app, windows);
-        this._content = $("{{ w.html|addslashes }}");
+        this._content = $("{{ w.html|addslashes }}").html();
+
 {{ w.code_init }}
       },
 
