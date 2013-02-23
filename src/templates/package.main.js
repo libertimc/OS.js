@@ -9,8 +9,7 @@
 OSjs.Packages.{{ package|e }} = (function($, undefined) {
 
   var _LINGUAS = {{ linguas }};
-
-{% if type == "PanelItem" -%}
+{%- if type == "PanelItem" %}
 
   /**
    * @param PanelItem     PanelItem           PanelItem API Reference
@@ -51,7 +50,7 @@ OSjs.Packages.{{ package|e }} = (function($, undefined) {
     return new __{{ package|e }}();
   };
 
-{%- else if type == "Application" -%}
+{%- else if type == "Application" %}
 
   /**
    * @param GtkWindow     GtkWindow            GtkWindow API Reference
@@ -68,8 +67,7 @@ OSjs.Packages.{{ package|e }} = (function($, undefined) {
     ///////////////////////////////////////////////////////////////////////////
     // WINDOWS
     ///////////////////////////////////////////////////////////////////////////
-
-{% for w in windows -%}
+{%- for w in windows %}
 
     /**
      * GtkWindow Class
@@ -79,7 +77,7 @@ OSjs.Packages.{{ package|e }} = (function($, undefined) {
 
       init : function(app) {
         this._super("Window_{{ w.name|e }}", {{ w.is_dialog }}, app, windows);
-        this._content = $("{{ w.html|e }}");
+        this._content = $("{{ w.html|addslashes }}");
 {{ w.code_init }}
       },
 
@@ -126,13 +124,11 @@ OSjs.Packages.{{ package|e }} = (function($, undefined) {
       },
 
       run : function() {
-        var self = this;
-
-{{ code_prepend }}
+        {{ code_prepend }}
 
         this._super({{ glade_window }});
 
-{{ code_append }}
+        {{ code_append }}
 
         // Do your stuff here
       }
