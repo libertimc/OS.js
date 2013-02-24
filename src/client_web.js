@@ -175,6 +175,10 @@ function request(action, jsn, pport, req, res) {
               }
             },
 
+            settings : {
+              barebone        : _config.BAREBONE_MODE
+            },
+
             session : {
               user          : suser,
               registry      : {
@@ -501,6 +505,14 @@ function request(action, jsn, pport, req, res) {
  */
 function createInstance(web_port, web_user) {
   var app = express();
+
+  console.log('\u001b[1m::\u001b[0m \u001b[31mOS.js version ' + _config.PROJECT_VERSION + ' (' + _config.PROJECT_CODENAME + ')\u001b[0m \u001b[1m::\u001b[0m');
+  console.log('\nCopyright (c) Anders Evenrud 2013 [ \u001b[35mhttp://andersevenrud.github.com/OS.js/\u001b[0m ]\n');
+  console.log('\u001b[1mEnvironment:\u001b[0m ', _config.ENV_SETUP);
+  console.log('\u001b[1mBarebone:\u001b[0m    ', _config.BAREBONE_MODE);
+  console.log('\u001b[1mWebSockets:\u001b[0m  ', _config.ENV_WEBSOCKETS);
+  console.log('\u001b[1mLanguage:\u001b[0m    ', _config.DEFAULT_LANGUAGE);
+  console.log('');
 
   app.configure(function() {
 

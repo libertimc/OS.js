@@ -696,3 +696,19 @@ function checkMIME(needle, haystack) {
   }
   return false;
 }
+
+/**
+ * getParameterByName() -- Get Query string parameter
+ * @link    http://stackoverflow.com/questions/901115/how-can-i-get-query-string-values
+ * @return  String
+ */
+function getParameterByName(name) {
+  name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
+  var regexS = "[\\?&]" + name + "=([^&#]*)";
+  var regex = new RegExp(regexS);
+  var results = regex.exec(window.location.search);
+  if ( results !== null )
+    return decodeURIComponent(results[1].replace(/\+/g, " "));
+
+  return "";
+}

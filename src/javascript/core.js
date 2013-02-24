@@ -58,6 +58,7 @@
   var ENV_SETUP              = 'development';       //!< Server-side environment
   var ENV_BUGREPORT          = false;               //!< Enable posting of errors (reporting, server-side mailing)
   var STORAGE_ENABLE         = false;               //!< Enable WebStorage for files
+  var BAREBONE_ENABLE        = false;
   // @endconstants
 
   /**
@@ -2611,6 +2612,7 @@
         ENV_BUGREPORT   = env.bugreporting;
         ENV_SETUP       = env.setup;
         WEBSOCKET_URI   = env.hosts.server;
+        BAREBONE_ENABLE = data.settings.barebone;
 
         if ( env.websockets ) {
           _Connection = new CoreConnection(function(result) {
@@ -2774,6 +2776,13 @@
      * @return  void
      */
     complete : function() {
+      if ( BAREBONE_ENABLE ) {
+        var autostart = getParameterByName('launch');
+        if ( autostart ) {
+          API.system.launch(autostart);
+        }
+      }
+
       setTimeout(function() {
         $("#LoadingBarContainer").hide();
       }, 300);
@@ -2812,6 +2821,12 @@
      * @return void
      */
     _initializeDesktop : function(callback) {
+      if ( BAREBONE_ENABLE ) {
+        console.warn('Desktop was not enabled, not initialized!');
+        callback();
+        return;
+      }
+
       _Desktop = new Desktop();
 
       try {
@@ -2839,6 +2854,9 @@
      * @return void
      */
     _initializeSession : function(session) {
+      if ( BAREBONE_ENABLE )
+        return;
+
       // Run user-defined processes
       var autostarters = _Settings._get("user.autorun", true);
       if ( autostarters ) {

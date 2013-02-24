@@ -70,6 +70,7 @@ module.exports =
 
   SETTINGS_REVISION       : 2,                // Used in frontend
   BUGREPORT_ENABLE        : false,            // TODO: Reporting not yet avail
+  BAREBONE_MODE           : false,            // Do not load desktop and session(s) etc.
 
   // Locale
 
