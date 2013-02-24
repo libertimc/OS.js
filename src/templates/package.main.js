@@ -1,18 +1,23 @@
 
 /*!
- * {{ type }}: {{ package }}
+ * {{ type }}: {{ package }} -- Wrapper for package
  *
- * @package OSjs.Packages
- * @author Anders Evenrud <andersevenrud@gmail.com>
- * @licence Simplified BSD License
- * @class
+ * @package     OSjs.Packages
+ * @generator   OS.js create-project
+ * @author      Anders Evenrud <andersevenrud@gmail.com>
+ * @licence     Simplified BSD License
  */
 OSjs.Packages.{{ package|e }} = (function($, undefined) {
 
+  /**
+   * @desc Translation Table
+   */
   var _LINGUAS = {{ linguas }};
 {%- if type == "PanelItem" %}
 
   /**
+   * {{ package }} -- PanelItem Package Namespace
+   *
    * @param PanelItem     PanelItem           PanelItem API Reference
    * @param Panel         panel               Panel Instance Reference
    * @param API           API                 Public API Reference
@@ -27,24 +32,35 @@ OSjs.Packages.{{ package|e }} = (function($, undefined) {
     ///////////////////////////////////////////////////////////////////////////
 
     /**
-     * Main PanelItem Class
+     * {{ package }} -- Main PanelItem Class
      * @class
      */
     var __{{ package }} = PanelItem.extend({
 
+      /**
+       * [PanelItem]{{ package }}::init() -- Constructor
+       */
       init : function() {
         this._super("{{ package|e }}");
       },
 
+      /**
+       * {{ package }}::destroy() -- Destruction method
+       */
       destroy : function() {
         this._super();
       },
 
+      /**
+       * {{ package }}::run() -- Called when created/started
+       * @return  bool
+       */
       create : function(pos) {
-        var ret = this._super(pos);
-        // Do your stuff here
+        var _ret = this._super(pos);
 
-        return ret;
+        // NOTE: Do your stuff here
+
+        return _ret;
       }
     });
 
@@ -54,6 +70,8 @@ OSjs.Packages.{{ package|e }} = (function($, undefined) {
 {%- else if type == "Application" %}
 
   /**
+   * {{ package }} -- Application Package Namespace
+   *
    * @param GtkWindow     GtkWindow            GtkWindow API Reference
    * @param Application   Application          Application API Reference
    * @param API           API                  Public API Reference
@@ -62,7 +80,14 @@ OSjs.Packages.{{ package|e }} = (function($, undefined) {
    */
   return function(GtkWindow, Application, API, argv, windows) {
 
+    /**
+     * @desc Localized Translations
+     */
     var LABELS = _LINGUAS[API.system.language()] || _LINGUAS["{{ default_language|e }}"];
+
+    /**
+     * @desc Accepted MIME type(s)
+     */
     var MIMES  = {{ mimes }};
 
     ///////////////////////////////////////////////////////////////////////////
@@ -76,6 +101,10 @@ OSjs.Packages.{{ package|e }} = (function($, undefined) {
      */
     var Window_{{ w.name }} = GtkWindow.extend({
 
+      /**
+       * Window_{{ w.name }}::init() -- Constructor
+       * @param   Application     app     Application reference
+       */
       init : function(app) {
         this._super("Window_{{ w.name|e }}", {{ w.is_dialog }}, app, windows);
         this._content = $("{{ w.html|addslashes }}").html();
@@ -83,43 +112,49 @@ OSjs.Packages.{{ package|e }} = (function($, undefined) {
 {{ w.code_init }}
       },
 
+      /**
+       * Window_{{ w.name }}::destroy() -- Destruction method
+       */
       destroy : function() {
         this._super();
       },
 {% for s in w.signals %}
       /**
-       * Signal: [{{ s.id }}]::{{ s.signal }}()
+       * Window_{{ w.name }}::{{ s.handler }}()
+       * @signal  {{ s.id }} > {{ s.signal }}
+       * @return  void
        */
       {{ s.handler }} : function(el, ev) {
-        var self = this;
-
   {%- if s.template == "DefaultFileOpen" %}
-        var my_callback = function(fname) {}; // FIXME
-        var cur         = (argv && argv['path'] ? argv['path'] : null);
+        // TODO: Create callback here
+        var my_callback = function(fname) {};
 
+        var my_filename = this.app._getArgv('path');
         this.app.defaultFileOpen(function(fname) {
           my_callback(fname);
-        }, MIMES, null, cur);
+        }, MIMES, null, my_filename);
   {%- else if s.template == "DefaultFileSave" %}
-        var my_filename = (argv && argv['path'] ? argv['path'] : null);
-        var my_content  = ""; // FIXME
-        var my_callback = function(fname) {}; // FIXME
+        // TODO: Fill contents, and create callback here
+        var my_content  = "";
+        var my_callback = function(fname) {};
 
+        var my_filename = this.app._getArgv('path');
         if ( my_filename ) {
           this.app.defaultFileSave(my_filename, my_content, function(fname) {
             my_callback(fname);
           }, MIMES, undefined, false);
         }
   {%- else if s.template == "DefaultFileSaveAs" %}
-        var my_filename = (argv && argv['path'] ? argv['path'] : null);
-        var my_content  = ""; // FIXME
-        var my_callback = function(fname, fmime) {}; // FIXME
+        // TODO: Fill contents, and create callback here
+        var my_content  = "";
+        var my_callback = function(fname, fmime) {};
 
+        var my_filename = this.app._getArgv('path');
         this.app.defaultFileSave(my_filename, my_content, function(fname) {
           my_callback(fname);
         }, MIMES, undefined, true);
   {%- else if s.template == "DefaultClose" %}
-        this.$element.find(".ActionClose").click();
+        this.close();
   {%- else if s.template == "DefaultClipboardCopy" %}
         this.app._clipboard("copy");
   {%- else if s.template == "DefaultClipboardPaste" %}
@@ -132,19 +167,27 @@ OSjs.Packages.{{ package|e }} = (function($, undefined) {
         this.app._clipboard("select");
   {%- else %}
     {%- if s.signal == "file-set" %}
+        var self = this;
+
         var my_path     = this.$element.find(".{{ s.id }} input[type=text]").val();
         this.app.createFileDialog(function(fname) {
-          self.$element.find(".{{ s.id }} input[type=text]").val(fname);
-          self.$element.find(".{{ s.id }} input}type=hidden]").val(fname);
+          self.$element.find(".{{ s.id|e }} input[type=text]").val(fname);
+          self.$element.find(".{{ s.id|e }} input}type=hidden]").val(fname);
         }, MIMES, "open", dirname(my_path));
     {%- else if s.signal == "input-activate" %}
         // do nothing
     {%- else %}
-        // TODO
+        // TODO: Implement your event here
     {%- endif %}
   {%- endif %}
       },
 {% endfor %}
+      /**
+       * Window_{{ w.name }}::create() -- Called when created/started
+       * @param   String    id            Window ID
+       * @param   Function  mcallback     Callback when created
+       * @return  bool
+       */
       create : function(id, mcallback) {
         var el = this._super(id, mcallback);
         var self = this;
@@ -170,7 +213,7 @@ OSjs.Packages.{{ package|e }} = (function($, undefined) {
   {%- endif %}
 {% endfor %}
 
-          // Do your stuff here
+          // NOTE: Do your stuff here
 
           return true;
         }
@@ -186,20 +229,30 @@ OSjs.Packages.{{ package|e }} = (function($, undefined) {
     ///////////////////////////////////////////////////////////////////////////
 
     /**
-     * Main Application Class
+     * {{ package }} -- Main Application Class
      * @class
      */
     var __{{ package|e }} = Application.extend({
 
+      /**
+       * {{ package }}::init() -- Constructor
+       */
       init : function() {
         this._super("{{ package|e }}", argv);
         this._compability = {{ compability }};
       },
 
+      /**
+       * {{ package }}::destroy() -- Destruction method
+       */
       destroy : function() {
         this._super();
       },
 
+      /**
+       * {{ package }}::run() -- Called when started
+       * @return  void
+       */
       run : function() {
         {{ code_prepend }}
 
@@ -207,7 +260,7 @@ OSjs.Packages.{{ package|e }} = (function($, undefined) {
 
         {{ code_append }}
 
-        // Do your stuff here
+        // NOTE: Do your stuff here
       }
     });
 
@@ -217,6 +270,8 @@ OSjs.Packages.{{ package|e }} = (function($, undefined) {
 {% else -%}
 
   /**
+   * {{ package }} -- BackgroundService Package Namespace
+   *
    * @param Service       Service             Service API Reference
    * @param API           API                 Public API Reference
    * @param Object        argv                Launch arguments (like cmd)
@@ -230,19 +285,29 @@ OSjs.Packages.{{ package|e }} = (function($, undefined) {
     ///////////////////////////////////////////////////////////////////////////
 
     /**
-     * Main Service Class
+     * {{ package }} -- Main Application/Service Class
      * @class
      */
     var __{{ package|e }} = Service.extend({
 
+      /**
+       * {{ package }}::init() -- Constructor
+       */
       init : function() {
         this._super("{{ package|e }}", "{{ icon|e }}");
       },
 
+      /**
+       * {{ package }}::destroy() -- Destruction method
+       */
       destroy : function() {
         this._super();
       },
 
+      /**
+       * {{ package }}::run() -- Called when started
+       * @return  void
+       */
       run : function() {
         this._super();
       }

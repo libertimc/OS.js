@@ -38,8 +38,6 @@
 // SETTINGS
 ///////////////////////////////////////////////////////////////////////////////
 
-var ENABLE_GLADE = true;
-
 var language = 'en_US'; // FIXME
 var opts = {
   'package'           : 'FooBar',
@@ -134,114 +132,118 @@ try {
   opts['type']          = info.type;
   opts['linguas']       = JSON.stringify(linguas || {});
 
-  if ( ENABLE_GLADE ) {
-    if ( opts['type'] == 'Application' && info['schema'] ) {
-      console.log('>>>', 'Parsing Glade XML', info['schema']);
-      try {
-        var schemapath = _path.join(outdir, info['schema']);
-        var xmldoc     = _fs.readFileSync(schemapath).toString();
+  if ( opts['type'] == 'Application' && info['schema'] ) {
+    console.log('>>>', 'Parsing Glade XML', info['schema']);
+    try {
+      var schemapath = _path.join(outdir, info['schema']);
+      var xmldoc     = _fs.readFileSync(schemapath).toString();
 
-        console.log('<<<', schemapath);
-        var parsed = require(_config.PATH_SRC + '/glade.js').parser(xmldoc);
-        var windows = [];
-        var w, a, s, ss, piter, witer, siter, val, sname, handler, tpl;
+      console.log('<<<', schemapath);
+      var parsed = require(_config.PATH_SRC + '/glade.js').parser(xmldoc);
+      var windows = [];
+      var w, a, s, ss, piter, witer, siter, val, sname, handler, tpl;
 
-        for ( w in parsed ) {
-          if ( parsed.hasOwnProperty(w) ) {
-            piter = parsed[w];
-            witer = {
-              name        : w,
-              html        : piter.html.replace(/^(.*)$/m, '').replace(/\r?\n/g, '').replace(/\s+/g, ' '),
-              is_dialog   : piter.type == "dialog",
-              code_init   : '',
-              signals     : []
-            };
+      for ( w in parsed ) {
+        if ( parsed.hasOwnProperty(w) ) {
+          piter = parsed[w];
+          witer = {
+            name        : w,
+            html        : piter.html.replace(/^(.*)$/m, '').replace(/\r?\n/g, '').replace(/\s+/g, ' '),
+            is_dialog   : piter.type == "dialog",
+            code_init   : '',
+            signals     : []
+          };
 
-            for ( s in piter.signals ) {
-              if ( piter.signals.hasOwnProperty(s) ) {
-                siter = piter.signals[s];
-                for ( ss in siter ) {
-                  if ( siter.hasOwnProperty(ss) ) {
-                    tpl = null;
-                    handler = siter[ss].match(/^Event/) ? ssiter[ss] : ('Event' + siter[ss]);
+          for ( s in piter.signals ) {
+            if ( piter.signals.hasOwnProperty(s) ) {
+              siter = piter.signals[s];
+              for ( ss in siter ) {
+                if ( siter.hasOwnProperty(ss) ) {
+                  tpl = null;
+                  handler = siter[ss].match(/^Event/) ? ssiter[ss] : ('Event' + siter[ss]);
 
-                    switch ( handler ) {
-                      case 'EventMenuOpen' :
-                        tpl = 'DefaultFileOpen';
-                      break;
-                      case 'EventMenuSave' :
-                        tpl = 'DefaultFileSave';
-                      break;
-                      case 'EventMenuSaveAs' :
-                        tpl = 'DefaultFileSaveAs';
-                      break;
-                      case 'EventMenuClose' :
-                      case 'EventMenuQuit' :
-                      case 'EventQuit' :
-                      case 'EventClose' :
-                        tpl = 'DefaultClose';
-                      break;
-                      case 'EventMenuTextCopy' :
-                        tpl = 'DefaultClipboardCopy';
-                      break;
-                      case 'EventMenuTextPaste' :
-                        tpl = 'DefaultClipboardPaste';
-                      break;
-                      case 'EventMenuTextCut' :
-                        tpl = 'DefaultClipboardCut';
-                      break;
-                      case 'EventMenuTextSelectAll' :
-                        tpl = 'DefaultClipboardSelectAll';
-                      break;
-                      case 'EventMenuTextDelete' :
-                        tpl = 'DefaultClipboardDelete';
-                      break;
-                      default :
-                        tpl = 'NotImplemented';
-                      break;
-                    }
-
-                    witer.signals.push({
-                      id      : s,
-                      signal  : ss,
-                      template: tpl,
-                      handler : handler
-                    });
+                  switch ( handler ) {
+                    case 'EventMenuOpen' :
+                      tpl = 'DefaultFileOpen';
+                    break;
+                    case 'EventMenuSave' :
+                      tpl = 'DefaultFileSave';
+                    break;
+                    case 'EventMenuSaveAs' :
+                      tpl = 'DefaultFileSaveAs';
+                    break;
+                    case 'EventMenuClose' :
+                    case 'EventMenuQuit' :
+                    case 'EventQuit' :
+                    case 'EventClose' :
+                      tpl = 'DefaultClose';
+                    break;
+                    case 'EventMenuTextCopy' :
+                      tpl = 'DefaultClipboardCopy';
+                    break;
+                    case 'EventMenuTextPaste' :
+                      tpl = 'DefaultClipboardPaste';
+                    break;
+                    case 'EventMenuTextCut' :
+                      tpl = 'DefaultClipboardCut';
+                    break;
+                    case 'EventMenuTextSelectAll' :
+                      tpl = 'DefaultClipboardSelectAll';
+                    break;
+                    case 'EventMenuTextDelete' :
+                      tpl = 'DefaultClipboardDelete';
+                    break;
+                    default :
+                      tpl = 'NotImplemented';
+                    break;
                   }
+
+                  witer.signals.push({
+                    id      : s,
+                    signal  : ss,
+                    template: tpl,
+                    handler : handler
+                  });
                 }
               }
             }
-
-            for ( a in piter.attributes ) {
-              if ( piter.attributes.hasOwnProperty(a) ) {
-                val = piter.attributes[a] || null;
-                if ( (val !== null) && (typeof val !== 'boolean') && (typeof val !== 'number') ) {
-                  val = "'" + val + "'";
-                }
-
-                witer.code_init += '        this._' + a + ' = ' + val + ";\n";
-              }
-            }
-
-            // Initial window (FIXME: check in schema ?!)
-            if ( !opts['glade_window'] ) {
-              opts['code_prepend'] = 'var root_window = new Window_' + w + '(this);';
-              opts['glade_window'] = 'root_window';
-              opts['code_append']  = 'root_window.show();';
-            }
-
-            windows.push(witer);
           }
-        }
 
-        opts.windows = windows;
-      } catch ( err ) {
-        console.error('Failed to glade document', schemapath, err);
+          for ( a in piter.attributes ) {
+            if ( piter.attributes.hasOwnProperty(a) ) {
+              val = piter.attributes[a] || null;
+              if ( (val !== null) && (typeof val !== 'boolean') && (typeof val !== 'number') ) {
+                val = "'" + val + "'";
+              }
+
+              if ( a == 'title' ) {
+                val = '_LABELS[\'title\'] || ' + val;
+              } else if ( a == 'icon' ) {
+                if ( val === null ) {
+                  val = opts['icon'] ? '\'' + opts['icon'] + '\'' : '\'/apps/terminal.png\''; // FIXME
+                }
+              }
+
+              witer.code_init += '        this._' + a + ' = ' + val + ";\n";
+            }
+          }
+
+          // Initial window (FIXME: check in schema ?!)
+          if ( !opts['glade_window'] ) {
+            opts['code_prepend'] = 'var root_window = new Window_' + w + '(this);';
+            opts['glade_window'] = 'root_window';
+            opts['code_append']  = 'root_window.show();';
+          }
+
+          windows.push(witer);
+        }
       }
+
+      opts.windows = windows;
+    } catch ( err ) {
+      console.error('Failed to glade document', schemapath, err);
     }
   }
-
-  console.log('Package', opts);
 
   var out_node = _path.join(outdir, opts['package'] + '.node.js');
   try {
