@@ -154,6 +154,8 @@ try {
             signals     : []
           };
 
+          linguas[w + '_title'] = {};
+
           for ( s in piter.signals ) {
             if ( piter.signals.hasOwnProperty(s) ) {
               siter = piter.signals[s];
@@ -217,13 +219,8 @@ try {
               }
 
               if ( a == 'title' ) {
-                if ( val !== null ) {
-                  linguas[w + '_title'] = {};
-                  linguas[w + '_title'][language] = piter.attributes[a];
-                  val = '_LABELS[\'' + w + '_title\'] || ' + val;
-                } else {
-                  val = '_LABELS[\'title\']';
-                }
+                linguas[w + '_title'][language] = (val === null ? 'Unknown window' : piter.attributes[a]);
+                val = '_LABELS[\'' + w + '_title\'] || _LABELS[\'title\']';
               } else if ( a == 'icon' ) {
                 if ( val === null ) {
                   val = opts['icon'] ? '\'' + opts['icon'] + '\'' : '\'emblems/emblem-unreadable.png\'';
