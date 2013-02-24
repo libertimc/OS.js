@@ -67,7 +67,7 @@ OSjs.Packages.{{ package|e }} = (function($, undefined) {
      * {{ package }} -- Main PanelItem Class
      * @class
      */
-    var {{ package }} = PanelItem.extend({
+    var {{ package|e }} = PanelItem.extend({
 
       /**
        * {{ package }}::init() -- Constructor
@@ -131,7 +131,7 @@ OSjs.Packages.{{ package|e }} = (function($, undefined) {
      * Window_{{ w.name }} -- GtkWindow Class for {{ w.name }}
      * @class
      */
-    var Window_{{ w.name }} = GtkWindow.extend({
+    var Window_{{ w.name|escape }} = GtkWindow.extend({
 
       /**
        * Window_{{ w.name }}::init() -- Constructor
@@ -297,7 +297,7 @@ OSjs.Packages.{{ package|e }} = (function($, undefined) {
       }
     });
 
-    return new {{ package }}();
+    return new {{ package|e }}();
   };
 
 {% else -%}
