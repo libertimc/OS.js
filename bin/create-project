@@ -220,7 +220,7 @@ try {
 
               if ( a == 'title' ) {
                 linguas[w + '_title'][language] = (val === null ? 'Unknown window' : piter.attributes[a]);
-                val = '_LABELS[\'' + w + '_title\'] || _LABELS[\'title\']';
+                val = 'LABELS[\'' + w + '_title\'] || LABELS[\'title\']';
               } else if ( a == 'icon' ) {
                 if ( val === null ) {
                   val = opts['icon'] ? '\'' + opts['icon'] + '\'' : '\'emblems/emblem-unreadable.png\'';
