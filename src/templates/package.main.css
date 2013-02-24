@@ -7,7 +7,11 @@
  * @licence Simplified BSD License
  */
 
-.{{ classname|e }} {
+.{{ package|e }} {
 
 }
 
+{% for e in elements %}
+.{{ package|e }} .{{ e.window|e }} .{{ e.name|e }} { /* {{ e.class }} */
+}
+{% endfor %}

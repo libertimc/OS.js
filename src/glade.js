@@ -217,6 +217,7 @@ var stockItems = {
  */
 function GladeParser(xmlData) {
   var windowSignals = {};
+  var windowElements = {};
 
   /**
    * Create a hinted string
@@ -372,6 +373,11 @@ function GladeParser(xmlData) {
       }
       windowSignals[windowId][id][ev_name] = ev_handler;
     }
+
+    if ( !windowElements[windowId][id] ) {
+      windowElements[windowId][id] = [];
+    }
+    windowElements[windowId][id].push(className);
 
     // Styles
     if ( !_utils.inArray(className, ["GtkWindow", "GtkDialog"]) ) {
@@ -668,6 +674,7 @@ function GladeParser(xmlData) {
       className   = iter.attr('class').value();
 
       windowSignals[id] = {};
+      windowElements[id] = [];
       styles = [];
       props = {
         "type"            : className == "GtkWindow" ? "window" : "dialog",
@@ -753,6 +760,7 @@ function GladeParser(xmlData) {
       result[id] = {
         attributes  : props,
         html        : targetDoc.toString(),
+        elements    : windowElements[id] || {},
         signals     : windowSignals[id] || {}
       };
     }

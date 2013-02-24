@@ -63,6 +63,7 @@ var opts = {
   'icon'              : 'emblems/emblem-unreadable.png',
   'type'              : 'Application',
   'linguas'           : JSON.stringify({}),
+  'elements'          : [],
 
   // Application Specific
   'mimes'             : JSON.stringify([]),
@@ -100,6 +101,8 @@ if ( process.argv.length < 3 ) {
 
 var metafile = process.argv[2]
 var outdir   = _path.dirname(metafile);
+
+var cssclasses = [];
 
 try {
   var data = _fs.readFileSync(metafile, 'utf-8').toString();
@@ -141,7 +144,7 @@ try {
       console.log('<<<', schemapath);
       var parsed = require(_config.PATH_SRC + '/glade.js').parser(xmldoc);
       var windows = [];
-      var w, a, s, ss, piter, witer, siter, val, sname, handler, tpl;
+      var w, a, s, ss, e, piter, witer, siter, val, sname, handler, tpl;
 
       for ( w in parsed ) {
         if ( parsed.hasOwnProperty(w) ) {
@@ -155,6 +158,15 @@ try {
           };
 
           linguas[w + '_title'] = {};
+          for ( e in piter.elements ) {
+            if ( piter.elements.hasOwnProperty(e) ) {
+              opts.elements.push({
+                'window' : w,
+                'name'   : e,
+                'class'  : piter.elements[e]
+              });
+            }
+          }
 
           for ( s in piter.signals ) {
             if ( piter.signals.hasOwnProperty(s) ) {
