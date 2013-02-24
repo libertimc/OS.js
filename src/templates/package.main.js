@@ -35,7 +35,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * @package     OSjs.Packages
+ * @package     OSjs.Packages.{{ package }}.scripts
  * @author      Anders Evenrud <andersevenrud@gmail.com>
  * @licence     Simplified BSD License
  */
