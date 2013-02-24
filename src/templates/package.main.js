@@ -1,6 +1,6 @@
 
 /*!
- * {{ type }} Package container for {{ package }}
+ * {{ type }} JavaScript for {{ package }} Package
  *
  * ----------------------------------------------------------------------------
  *
