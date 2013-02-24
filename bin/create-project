@@ -35,27 +35,6 @@
  */
 
 ///////////////////////////////////////////////////////////////////////////////
-// SETTINGS
-///////////////////////////////////////////////////////////////////////////////
-
-var language = 'en_US'; // FIXME
-var opts = {
-  'package'           : 'FooBar',
-  'default_language'  : language,
-  'icon'              : '/apps/terminal.png',
-  'type'              : 'Application',
-  'linguas'           : JSON.stringify({}),
-
-  // Application Specific
-  'mimes'             : JSON.stringify([]),
-  'compability'       : JSON.stringify([]),
-  'windows'           : [],
-  'glade_window'      : '',
-  'code_prepend'      : '',
-  'code_append'       : ''
-};
-
-///////////////////////////////////////////////////////////////////////////////
 // IMPORTS
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -71,6 +50,28 @@ var swig      = require('swig');
 var tpl_node  = _config.PATH_TEMPLATES + '/package.node.js';
 var tpl_js    = _config.PATH_TEMPLATES + '/package.main.js';
 var tpl_css   = _config.PATH_TEMPLATES + '/package.main.css';
+
+///////////////////////////////////////////////////////////////////////////////
+// SETTINGS
+///////////////////////////////////////////////////////////////////////////////
+
+var language = _config.DEFAULT_LANGUAGE || 'en_US';
+
+var opts = {
+  'package'           : 'FooBar',
+  'default_language'  : language,
+  'icon'              : 'emblems/emblem-unreadable.png',
+  'type'              : 'Application',
+  'linguas'           : JSON.stringify({}),
+
+  // Application Specific
+  'mimes'             : JSON.stringify([]),
+  'compability'       : JSON.stringify([]),
+  'windows'           : [],
+  'glade_window'      : '',
+  'code_prepend'      : '',
+  'code_append'       : ''
+};
 
 ///////////////////////////////////////////////////////////////////////////////
 // INIT
@@ -130,7 +131,6 @@ try {
   opts['mimes']         = JSON.stringify(info.mimes || []);
   opts['compability']   = JSON.stringify(info.compability || []);
   opts['type']          = info.type;
-  opts['linguas']       = JSON.stringify(linguas || {});
 
   if ( opts['type'] == 'Application' && info['schema'] ) {
     console.log('>>>', 'Parsing Glade XML', info['schema']);
@@ -160,7 +160,7 @@ try {
               for ( ss in siter ) {
                 if ( siter.hasOwnProperty(ss) ) {
                   tpl = null;
-                  handler = siter[ss].match(/^Event/) ? ssiter[ss] : ('Event' + siter[ss]);
+                  handler = siter[ss].match(/^Event/) ? siter[ss] : ('Event' + siter[ss]);
 
                   switch ( handler ) {
                     case 'EventMenuOpen' :
@@ -217,10 +217,16 @@ try {
               }
 
               if ( a == 'title' ) {
-                val = '_LABELS[\'title\'] || ' + val;
+                if ( val !== null ) {
+                  linguas[w + '_title'] = {};
+                  linguas[w + '_title'][language] = piter.attributes[a];
+                  val = '_LABELS[\'' + w + '_title\'] || ' + val;
+                } else {
+                  val = '_LABELS[\'title\']';
+                }
               } else if ( a == 'icon' ) {
                 if ( val === null ) {
-                  val = opts['icon'] ? '\'' + opts['icon'] + '\'' : '\'/apps/terminal.png\''; // FIXME
+                  val = opts['icon'] ? '\'' + opts['icon'] + '\'' : '\'emblems/emblem-unreadable.png\'';
                 }
               }
 
@@ -228,8 +234,8 @@ try {
             }
           }
 
-          // Initial window (FIXME: check in schema ?!)
-          if ( !opts['glade_window'] ) {
+          if ( !opts['glade_window'] || ( w == 'window_main') ) {
+            console.info('!', w, 'selected as main window');
             opts['code_prepend'] = 'var root_window = new Window_' + w + '(this);';
             opts['glade_window'] = 'root_window';
             opts['code_append']  = 'root_window.show();';
@@ -244,6 +250,8 @@ try {
       console.error('Failed to glade document', schemapath, err);
     }
   }
+
+  opts['linguas']       = JSON.stringify(linguas || {}, null, '    ');
 
   var out_node = _path.join(outdir, opts['package'] + '.node.js');
   try {
