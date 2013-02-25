@@ -216,22 +216,20 @@ function request(action, jsn, pport, req, res) {
             },
 
             settings : {
-              barebone        : _config.BAREBONE_MODE
+              revision        : _config.SETTINGS_REVISION,
+              barebone        : _config.BAREBONE_MODE,
+              preload         : getPreloadFiles()
             },
 
             session : {
               user          : suser,
-              registry      : {
-                revision      : _config.SETTINGS_REVISION,
-                settings      : _settings.getDefaultSettings(_registry.defaults),
-                packages      : packages,
-                preload       : getPreloadFiles()
-              },
-              restore      : {
+              packages      : packages,
+              registry      : _settings.getDefaultSettings(_registry.defaults),
+              restore       : {
                 registry      : resume_registry,
                 session       : resume_session
               },
-              locale       : {
+              locale        : {
                 system        : _config.DEFAULT_LANGUAGE,
                 browser       : suser.language
               }

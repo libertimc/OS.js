@@ -2583,12 +2583,12 @@
         $("#LoadingBarContainer").show();
 
         // Globals
-        _UserObject       = response.user;
-        _DefaultLanguage  = response.locale.system;
-        _BrowserLanguage  = response.locale.browser;
+        _UserObject       = response.session.user;
+        _DefaultLanguage  = response.session.locale.system;
+        _BrowserLanguage  = response.session.locale.browser;
 
         // Initialize base classes
-        _Settings   = new SettingsManager(response.registry.settings);
+        _Settings   = new SettingsManager(response.session.registry);
         _Resources  = new ResourceManager();
         _PackMan    = new PackageManager();
         _VFS        = new CoreVFS();
@@ -2597,10 +2597,10 @@
 
         // Now fire them up
         _VFS.run(function() {
-          _Settings.run(response.restore.registry, response.registry.revision);
-          _PackMan.run(response.registry.packages);
-          _Resources.run(response.registry.preload, function() {
-            self.run(response.restore.session);
+          _Settings.run(response.session.restore.registry, response.settings.revision);
+          _PackMan.run(response.session.packages);
+          _Resources.run(response.settings.preload, function() {
+            self.run(response.session.restore.session);
           });
         });
       };
@@ -2624,7 +2624,7 @@
             }
           });
         } else {
-          _run(data.session);
+          _run(data);
         }
       }, function(xhr, ajaxOptions, thrownError) {
         alert("A network error occured while booting OS.js: " + thrownError);
@@ -3542,10 +3542,14 @@
 
       // This restores the settings from database, see init() when flag is set
       if ( !((user_registry.REVISION === undefined) || (parseInt(user_registry.REVISION, 10) < revision)) ) {
-        var j;
-        for ( j in user_registry ) {
-          if ( user_registry.hasOwnProperty(j) ) {
-            this._set(j, user_registry[j]);
+        if ( BAREBONE_ENABLE ) {
+          console.warn('BAREBONE MODE', 'Settings not loaded!');
+        } else {
+          var j;
+          for ( j in user_registry ) {
+            if ( user_registry.hasOwnProperty(j) ) {
+              this._set(j, user_registry[j]);
+            }
           }
         }
       }
