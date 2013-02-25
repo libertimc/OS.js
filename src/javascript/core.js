@@ -2780,6 +2780,12 @@
      * @return  void
      */
     complete : function() {
+      var duration  = ((new Date()).getTime()) - _StartStamp;
+      console.group("Core::complete()");
+      console.log("Started up in", duration ? (duration / 1000) : 'unknown', "second(s)");
+      console.log(_Processes.length + " process(es) was started");
+      console.groupEnd();
+
       if ( BAREBONE_ENABLE ) {
         var autostart = getParameterByName('launch');
         if ( autostart ) {
