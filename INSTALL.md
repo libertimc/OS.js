@@ -37,6 +37,13 @@ Tested on these Linux distributions:
 * Launch browser in [http://localhost:3000](http://localhost:3000)
 - You will be logged in with your user
 
+### Barebones mode
+You can enable this mode to launch OS.js without enabling features
+like the desktop and sessions/registry etc. Usefull for developing apps
+because of the fast initial loding time.
+
+Enable `BAREBONE_MODE` and launch with [http://localhost:3000?launch=MyApplication](http://localhost:3000?launch=MyApplication)
+
 ## As web server
 * Start using `node server-web.js` using `forever`, `screen` or similar
 * Launch browser in [http://localhost:3000](http://localhost:3000)
