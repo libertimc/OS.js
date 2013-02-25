@@ -66,8 +66,8 @@ function enumCoreResources(callback) {
 
   for ( i in _resources.dialogResources ) {
     if ( _resources.dialogResources.hasOwnProperty(i) ) {
-      for ( j = 0; j < _resources.dialogResources[i].resources.length; j++ ) {
-        list.push(_path.join(_config.PATH_JAVASCRIPT, _resources.dialogResources[i].resources[j]));
+      for ( j = 0; j < _resources.dialogResources[i].length; j++ ) {
+        list.push(_path.join(_config.PATH_JAVASCRIPT, _resources.dialogResources[i][j]));
       }
     }
   }

@@ -106,6 +106,46 @@ function updateCache(req, packages) {
   };
 }
 
+function getPreloadFiles() {
+  var files = _resources.getPreloadFiles();
+  if ( _config.BAREBONE_MODE ) {
+    files.resources = [];
+  }
+  return files;
+}
+
+function getVendorResources() {
+  var preloads = [];
+  var ps = _resources.vendorDependencies;
+  var i = 0, l = ps.length;
+  for ( i; i < l; i++ ) {
+    if ( ps[i].match(/\.js$/) ) {
+      preloads.push({ script: ps[i] });
+    } else {
+      preloads.push({ style: ps[i] });
+    }
+  }
+  return preloads;
+}
+
+function getPreloadResources() {
+  var preloads = [];
+
+  if ( _config.BAREBONE_MODE ) {
+    var ds = _resources.dialogResources;
+    for ( var pn in ds ) {
+      if ( ds.hasOwnProperty(pn) ) {
+        var iter = ds[pn];
+        for ( var i = 0; i < iter.length; i++ ) {
+          preloads.push({ script: iter[i] });
+        }
+      }
+    }
+  }
+
+  return preloads;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // API REQUESTS
 ///////////////////////////////////////////////////////////////////////////////
@@ -185,7 +225,7 @@ function request(action, jsn, pport, req, res) {
                 revision      : _config.SETTINGS_REVISION,
                 settings      : _settings.getDefaultSettings(_registry.defaults),
                 packages      : packages,
-                preload       : _resources.getPreloadFiles()
+                preload       : getPreloadFiles()
               },
               restore      : {
                 registry      : resume_registry,
@@ -550,9 +590,10 @@ function createInstance(web_port, web_user) {
       var opts     = _config;
       var language = _locale.getLanguage(req);
 
-      opts.locale   = language;
-      opts.language = language.split('_').shift();
-      opts.preloads = _resources.vendorDependencies;
+      opts.locale     = language;
+      opts.language   = language.split('_').shift();
+      opts.vendordeps = getVendorResources();
+      opts.preload    = getPreloadResources();
 
       res.render('index', opts);
     });

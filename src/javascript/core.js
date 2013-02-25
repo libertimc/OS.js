@@ -164,23 +164,24 @@
     callback        = callback        || function() {};
     callback_error  = callback_error  || function() {};
 
+    if ( !BAREBONE_ENABLE ) {
+      if ( !_OnLine ) {
+        callback({
+          error     : OSjs.Labels.DoPostOffline,
+          success   : false,
+          result    : false
+        });
+        return;
+      }
 
-    if ( !_OnLine ) {
-      callback({
-        error     : OSjs.Labels.DoPostOffline,
-        success   : false,
-        result    : false
-      });
-      return;
-    }
-
-    if ( _HasCrashed || !_SessionValid ) {
-      callback({
-        error     : OSjs.Labels.DoPostInvalid,
-        success   : false,
-        result    : false
-      });
-      return;
+      if ( _HasCrashed || !_SessionValid ) {
+        callback({
+          error     : OSjs.Labels.DoPostInvalid,
+          success   : false,
+          result    : false
+        });
+        return;
+      }
     }
 
     var ajax_args = {'ajax' : true};
@@ -824,7 +825,7 @@
    * @return void
    */
   function PlaySound(type) {
-    if ( !_Core || !_Core.running )
+    if ( !_Core || !_Core.running || BAREBONE_ENABLE )
       return;
 
     var se = (_Settings._get("system.sounds.enable") === true);
@@ -2724,19 +2725,22 @@
       $(document).on("contextmenu", this.global_contextmenu);
 
       // FIXME TODO: Error dialog ?!
-      this.ichecker = setInterval(function() {
-        var __aliveSuccess = function(result) {
-          if ( !result.success ) {
+
+      if ( !BAREBONE_ENABLE ) {
+        this.ichecker = setInterval(function() {
+          var __aliveSuccess = function(result) {
+            if ( !result.success ) {
+              _SessionValid = false;
+            }
+          };
+
+          var __aliveFailure = function() {
             _SessionValid = false;
-          }
-        };
+          };
 
-        var __aliveFailure = function() {
-          _SessionValid = false;
-        };
-
-        DoPost({action: 'alive', user: _UserObject}, __aliveSuccess, __aliveFailure);
-      }, ALIVE_INTERVAL);
+          DoPost({action: 'alive', user: _UserObject}, __aliveSuccess, __aliveFailure);
+        }, ALIVE_INTERVAL);
+      }
 
       OSjs.Classes.ProgressBar($("#LoadingBar"), 50);
 
@@ -2822,7 +2826,7 @@
      */
     _initializeDesktop : function(callback) {
       if ( BAREBONE_ENABLE ) {
-        console.warn('Desktop was not enabled, not initialized!');
+        console.warn('BAREBONE MODE', 'Desktop was not enabled, not initialized!');
         callback();
         return;
       }
@@ -2854,8 +2858,10 @@
      * @return void
      */
     _initializeSession : function(session) {
-      if ( BAREBONE_ENABLE )
+      if ( BAREBONE_ENABLE ) {
+        console.warn('BAREBONE MODE', 'Session not loaded!');
         return;
+      }
 
       // Run user-defined processes
       var autostarters = _Settings._get("user.autorun", true);

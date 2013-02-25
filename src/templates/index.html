@@ -44,12 +44,12 @@
   <link rel="icon" type="image/png" href="/favicon.png" />
 
   <!-- Vendor -->
-{% for preload in preloads %}
-  {% if preload.script %}
+{%- for preload in vendordeps %}
+  {%- if preload.script %}
   <script charset="utf-8" type="text/javascript" src="/vendor/{{ preload.script }}"></script>
-  {% else %}
+  {%- else %}
   <link rel="stylesheet" type="text/css" href="/vendor/{{ preload.style }}" />
-  {% endif %}
+  {% endif -%}
 {% endfor %}
 
   <!-- OS.js -->
@@ -67,6 +67,13 @@
   <script charset="utf-8" type="text/javascript" src="/VFS/resource/core.js"></script>
 
   <!-- OS.js Async -->
+{%- for preload in preload %}
+  {%- if preload.script %}
+  <script charset="utf-8" type="text/javascript" src="/VFS/resource/{{ preload.script }}"></script>
+  {%- else %}
+  <link rel="stylesheet" type="text/css" href="/VFS/resource/{{ preload.style }}" />
+  {% endif -%}
+{% endfor %}
 
 </head>
 <body>

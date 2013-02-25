@@ -52,68 +52,32 @@ var _defaults = {
       '/img/theme.default/prelight.png',
       '/img/theme.default/prelight_unfocused.png',
       '/img/theme.default/pressed.png'
-      /*
-      'categories/applications-development.png', 'categories/applications-games.png', 'categories/applications-graphics.png', 'categories/applications-office.png', 'categories/applications-internet.png', 'categories/applications-multimedia.png', 'categories/applications-system.png', 'categories/applications-utilities.png', 'categories/gnome-other.png',
-      'actions/window_fullscreen.png', 'actions/zoom-original.png', 'actions/window_nofullscreen.png', 'actions/window-close.png',
-      'actions/gtk-execute.png', 'mimetypes/exec.png', 'devices/network-wireless.png', 'status/computer-fail.png','apps/system-software-install.png', 'apps/system-software-update.png', 'apps/xfwm4.png', 'places/desktop.png',
-      'status/gtk-dialog-error.png', 'status/gtk-dialog-info.png', 'status/gtk-dialog-question.png', 'status/gtk-dialog-warning.png',
-      'status/error.png', 'emblems/emblem-unreadable.png'*/
     ],
-    resources : [
-      // Other core resources
-    ]
+    resources : []
 };
 
 var _dialogResources = {
-  'ColorOperationDialog' : {
-    'resources' : ['dialog.color.js']
-  },
-  'FontOperationDialog' : {
-    'resources' : ['dialog.font.js']
-  },
-  'CopyOperationDialog' : {
-    'resources' : ['dialog.copy.js']
-  },
-  'FileOperationDialog' : {
-    'resources' : ['dialog.file.js']
-  },
-  'InputOperationDialog' : {
-    'resources' : ['dialog.input.js']
-  },
-  'LaunchOperationDialog' : {
-    'resources' : ['dialog.launch.js']
-  },
-  'PanelItemOperationDialog' : {
-    'resources' : ['dialog.panelitem.js']
-  },
-  'PanelPreferencesOperationDialog' : {
-    'resources' : ['dialog.panel.js']
-  },
-  'PanelAddItemOperationDialog' : {
-    'resources' : ['dialog.panel.additem.js']
-  },
-  'RenameOperationDialog' : {
-    'resources' : ['dialog.rename.js']
-  },
-  'UploadOperationDialog' : {
-    'resources' : ['dialog.upload.js']
-  },
-  'FilePropertyOperationDialog' : {
-    'resources' : ['dialog.properties.js']
-  },
-  'CompabilityDialog' : {
-    'resources' : ['dialog.compability.js']
-  },
-  'CrashDialog' : {
-    'resources' : ['dialog.crash.js']
-  }
+  'ColorOperationDialog'            : ['dialog.color.js'],
+  'FontOperationDialog'             : ['dialog.font.js'],
+  'CopyOperationDialog'             : ['dialog.copy.js'],
+  'FileOperationDialog'             : ['dialog.file.js'],
+  'InputOperationDialog'            : ['dialog.input.js'],
+  'LaunchOperationDialog'           : ['dialog.launch.js'],
+  'PanelItemOperationDialog'        : ['dialog.panelitem.js'],
+  'PanelPreferencesOperationDialog' : ['dialog.panel.js'],
+  'PanelAddItemOperationDialog'     : ['dialog.panel.additem.js'],
+  'RenameOperationDialog'           : ['dialog.rename.js'],
+  'UploadOperationDialog'           : ['dialog.upload.js'],
+  'FilePropertyOperationDialog'     : ['dialog.properties.js'],
+  'CompabilityDialog'               : ['dialog.compability.js'],
+  'CrashDialog'                     : ['dialog.crash.js']
 };
 
 var _vendorResources = [
-  {'script' : 'sprintf.js'},
-  {'script' : 'jquery.js'},
-  {'script' : 'jquery-ui.js'},
-  {'style'  : 'jquery-ui-theme.css'}
+  'sprintf.js',
+  'jquery.js',
+  'jquery-ui.js',
+  'jquery-ui-theme.css'
 ];
 
 var _coreResources = [
@@ -146,8 +110,8 @@ module.exports =
   coreResources       : _coreResources,
 
   /**
-   * preload::getPreloadFiles() -- Get preload resource list
-   * @return  Objet
+   * preload::getPreloadFiles() -- Get preload files list
+   * @return  Dict
    */
   getPreloadFiles : function() {
     var preloads = _defaults;
@@ -155,8 +119,8 @@ module.exports =
     for ( var pn in _dialogResources ) {
       if ( _dialogResources.hasOwnProperty(pn) ) {
         var iter = _dialogResources[pn];
-        for ( var i = 0; i < iter.resources.length; i++ ) {
-          preloads.resources.push(iter.resources[i]);
+        for ( var i = 0; i < iter.length; i++ ) {
+          preloads.resources.push(iter[i]);
         }
       }
     }
