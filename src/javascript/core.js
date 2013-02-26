@@ -5360,7 +5360,7 @@
     getWindowSpace : function() {
       var w      = parseInt($(document).width(), 10);
       var h      = parseInt($(document).height(), 10);
-      var margin = 10;
+      var margin = parseInt(_Settings._get('w @desc Registy Datam.margin'), 10) || 0;
       var result = {
         'y' : margin,
         'x' : margin,
@@ -5385,7 +5385,7 @@
         }
       }
 
-      console.log("WindowManager::getWindowSpace()", result);
+      console.log("WindowManager::getWindowSpace()", result, 'margin: ' + margin);
 
       return result;
     },
