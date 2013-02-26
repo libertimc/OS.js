@@ -38,7 +38,6 @@
 // Internal
 var _config    = require('../config.js'),
     _registry  = require(_config.PATH_SRC + '/registry.js'),
-    _settings  = require(_config.PATH_SRC + '/settings.js'),
     _resources = require(_config.PATH_SRC + '/resources.js'),
     _packages  = require(_config.PATH_SRC + '/packages.js'),
     _vfs       = require(_config.PATH_SRC + '/vfs.js'),

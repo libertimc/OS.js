@@ -39,7 +39,6 @@
 var _config    = require('../config.js'),
     _utils     = require(_config.PATH_SRC + '/utils.js'),
     _registry  = require(_config.PATH_SRC + '/registry.js'),
-    _settings  = require(_config.PATH_SRC + '/settings.js'),
     _resources = require(_config.PATH_SRC + '/resources.js'),
     _packages  = require(_config.PATH_SRC + '/packages.js'),
     _vfs       = require(_config.PATH_SRC + '/vfs.js'),
@@ -224,7 +223,7 @@ function request(action, jsn, pport, req, res) {
             session : {
               user          : suser,
               packages      : packages,
-              registry      : _settings.getDefaultSettings(_registry.defaults),
+              registry      : _registry.getDefaultSettings(),
               restore       : {
                 registry      : resume_registry,
                 session       : resume_session
