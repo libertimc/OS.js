@@ -421,10 +421,10 @@ var _data = {
 module.exports =
 {
   /**
-   * registry::getDefaultSettings() -- Get the default settings list
+   * registry::getDefaultRegistry() -- Get the default registry
    * @return  Object
    */
-  getDefaultSettings : function() {
+  getDefaultRegistry : function() {
     var settings = _data.defaults;
     var registry = _data.registry;
 
@@ -448,3 +448,4 @@ module.exports =
   }
 
 };
+

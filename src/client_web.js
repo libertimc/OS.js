@@ -223,7 +223,7 @@ function request(action, jsn, pport, req, res) {
             session : {
               user          : suser,
               packages      : packages,
-              registry      : _registry.getDefaultSettings(),
+              registry      : _registry.getDefaultRegistry(),
               restore       : {
                 registry      : resume_registry,
                 session       : resume_session
