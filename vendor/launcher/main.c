@@ -1,4 +1,5 @@
 #include <gtk/gtk.h>
+#include <gdk/gdk.h>
 #include <webkit/webkit.h>
 #include <X11/Xlib.h>
 #include <stdio.h>
@@ -28,13 +29,16 @@ main (int argc, gchar *argv[])
 
 #endif
 
-  char          *uri = "http://OSjs.local";
+  char          *uri = "http://localhost:3000";
 
   // Initialize GTK+
   if ( !g_thread_supported() )
     g_thread_init (NULL);
 
   gtk_init_check (&argc, &argv);
+
+  GdkDisplay *display = gdk_display_get_default();
+  GdkScreen *screen = gdk_display_get_screen(display, 0);
 
   // Create WebKit view
   WebKitWebView *web_view;
@@ -48,10 +52,19 @@ main (int argc, gchar *argv[])
 
   gtk_container_add (GTK_CONTAINER (window), GTK_WIDGET(web_view));
 
-  // Run
-  gtk_widget_show_all (window);
+  // Fullscreen stuff
+  gint swidth = gdk_screen_get_width(screen);
+  gint sheight = gdk_screen_get_height(screen);
+
+  gtk_window_set_default_size(window, swidth, sheight);
+  gtk_window_move(window, 0, 0);
+  gtk_window_resize(window, swidth, sheight);
+  //gtk_window_resize(window, 800, 600);
   gtk_window_fullscreen (GTK_WINDOW(window));
 
+  // Run
+  gtk_widget_show_all(window);
+  gtk_window_set_resizable(window, false);
   gtk_main();
 
 #ifndef NOX11

@@ -1,0 +1,5 @@
+#!/bin/sh
+#
+# Example X initialization script
+#
+exec ~/OS.js/vendor/launcher/session-launch
