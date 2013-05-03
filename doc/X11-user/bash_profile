@@ -1,6 +1,0 @@
-#
-# Example startup profile after login
-#
-nohup node ~/OS.js/client.js 3000 $(whoami) >/dev/null 2>&1 &
-sleep 3
-exec startx
