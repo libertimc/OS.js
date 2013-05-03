@@ -7,6 +7,3 @@
 [submodule "vendor/osjs-sound-theme"]
 	path = vendor/osjs-sound-theme
 	url = git@github.com:andersevenrud/osjs-sound-theme.git
-[submodule "vendor/js-sprintf"]
-	path = vendor/js-sprintf
-	url = git@github.com:andersevenrud/js-sprintf.git
