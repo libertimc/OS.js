@@ -2,6 +2,7 @@
 Tested on these Linux distributions:
 * Gentoo Linux
 * Ubuntu Linux (Help: https://gist.github.com/andersevenrud/4723377)
+* Ubuntu Linux (Help for X11 client: https://gist.github.com/andersevenrud/5510925)
 
 # Dependencies:
 * _bash_
