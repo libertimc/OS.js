@@ -43,6 +43,15 @@ main (int argc, gchar *argv[])
   // Create WebKit view
   WebKitWebView *web_view;
   web_view = WEBKIT_WEB_VIEW (webkit_web_view_new ());
+
+  WebKitWebSettings *settings = webkit_web_settings_new ();
+  g_object_set (G_OBJECT(settings), "enable-scripts", TRUE, NULL);
+  g_object_set (G_OBJECT(settings), "enable-webgl", TRUE, NULL);
+  g_object_set (G_OBJECT(settings), "enable-fullscreen", TRUE, NULL);
+  g_object_set (G_OBJECT(settings), "enable-webaudio", TRUE, NULL);
+  g_object_set (G_OBJECT(settings), "enable-html5-database", TRUE, NULL);
+  webkit_web_view_set_settings (WEBKIT_WEB_VIEW(web_view), settings);
+
   webkit_web_view_load_uri (web_view, uri);
 
   // Create Window

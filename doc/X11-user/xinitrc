@@ -1,0 +1,8 @@
+#!/bin/sh
+#
+# Example X initialization script
+#
+xsetroot -cursor /usr/share/icons/whiteglass
+xsetroot -cursor_name left_ptr
+/usr/bin/start-pulseaudio-x11
+exec ~/OS.js/vendor/launcher/session-launch
