@@ -53,7 +53,6 @@ Enable `BAREBONE_MODE` and launch with [http://localhost:3000?launch=MyApplicati
 **Not done in this branch**
 
 * Set `ENV_LOCALHOST` in `config.js`
-* Compile `vendor/launcher`
 * Follow documentation in `vendor/linux-standalone/README.md`
 
 # Running with compressed (and cached) resources:
