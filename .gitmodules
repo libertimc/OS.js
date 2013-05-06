@@ -1,6 +1,3 @@
-[submodule "vendor/packages"]
-	path = vendor/packages
-	url = git@github.com:andersevenrud/OS.js-Packages.git
 [submodule "vendor/osjs-icon-theme"]
 	path = vendor/osjs-icon-theme
 	url = git@github.com:andersevenrud/osjs-icon-theme.git
