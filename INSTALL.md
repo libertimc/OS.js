@@ -2,7 +2,6 @@
 Tested on these Linux distributions:
 * Gentoo Linux
 * Ubuntu Linux (Help: https://gist.github.com/andersevenrud/4723377)
-* Ubuntu Linux (Help for X11 client: https://gist.github.com/andersevenrud/5510925)
 
 # Dependencies:
 * _bash_
@@ -54,11 +53,8 @@ Enable `BAREBONE_MODE` and launch with [http://localhost:3000?launch=MyApplicati
 **Not done in this branch**
 
 * Set `ENV_LOCALHOST` in `config.js`
-* Install system services
-  - Located in `doc/rc.d`
-* Start server service
-* Start client service
-- Or launch client on [http://localhost:3000](http://localhost:3000)
+* Compile `vendor/launcher`
+* Follow documentation in `vendor/linux-standalone/README.md`
 
 # Running with compressed (and cached) resources:
 This also disables debugging messages and performs some optimizaions.

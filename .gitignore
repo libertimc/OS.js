@@ -1,6 +1,7 @@
 # Common
 .git-old
 _work/
+*.swp
 *.*.sw*
 .vimerr
 vim.session

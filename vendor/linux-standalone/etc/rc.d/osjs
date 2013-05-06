@@ -3,8 +3,8 @@
 # Released under the 2-clause BSD license.
 
 pidfile="/var/run/osjs"
-cwd="/opt/OSjs"
-command="node server.js"
+cwd="/usr/local/bin"
+command="osjs-server"
 user="osjs"
 
 depend()
