@@ -94,7 +94,7 @@ module.exports =
   PATH_JAVASCRIPT         : __dirname + '/src/javascript',
   PATH_JSLOCALE           : __dirname + '/src/javascript/locale',
   PATH_TEMPLATES          : __dirname + '/src/templates',
-  PATH_PACKAGES           : __dirname + '/vendor/packages',
+  PATH_PACKAGES           : __dirname + '/vendor/osjs-core-packages',
   PATH_PUBLIC             : __dirname + '/public_html',
   PATH_MEDIA              : __dirname + '/public_html/media',
 
