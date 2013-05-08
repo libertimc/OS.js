@@ -54,9 +54,6 @@ Enable `BAREBONE_MODE` and launch with [http://localhost:3000?launch=MyApplicati
 
 See the `osjs-standalone-sources` repository for Linux distro package(s).
 
-* Set `ENV_LOCALHOST` in `config.js`
-* Follow documentation in `vendor/linux-standalone/README.md`
-
 # Running with compressed (and cached) resources:
 This also disables debugging messages and performs some optimizaions.
 Runs a bit faster than normal, but harder to track down bugs.
