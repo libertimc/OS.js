@@ -52,6 +52,8 @@ Enable `BAREBONE_MODE` and launch with [http://localhost:3000?launch=MyApplicati
 ## As system service
 **Not done in this branch**
 
+See the `osjs-standalone-sources` repository for Linux distro package(s).
+
 * Set `ENV_LOCALHOST` in `config.js`
 * Follow documentation in `vendor/linux-standalone/README.md`
 
