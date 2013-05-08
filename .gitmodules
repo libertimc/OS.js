@@ -4,9 +4,6 @@
 [submodule "vendor/osjs-sound-theme"]
 	path = vendor/osjs-sound-theme
 	url = git@github.com:andersevenrud/osjs-sound-theme.git
-[submodule "vendor/linux-standalone"]
-	path = vendor/linux-standalone
-	url = git@github.com:andersevenrud/osjs-standalone-sources.git
 [submodule "vendor/osjs-core-packages"]
 	path = vendor/osjs-core-packages
 	url = git@github.com:andersevenrud/osjs-core-packages.git
