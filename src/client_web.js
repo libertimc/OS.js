@@ -149,7 +149,7 @@ function getPreloadResources() {
 // API REQUESTS
 ///////////////////////////////////////////////////////////////////////////////
 
-function request(action, jsn, pport, req, res) {
+function request(action, jsn, pport, isx11, req, res) {
   if ( action === null  ) {
     defaultJSONResponse(req, res);
   } else {
@@ -209,6 +209,8 @@ function request(action, jsn, pport, req, res) {
               setup        : _config.ENV_SETUP,
               websockets   : _config.ENV_WEBSOCKETS,
               localhost    : _config.ENV_LOCALHOST,
+              x11          : isx11 === true,
+
               hosts        : {
                 frontend      : 'localhost' + pport
               }
@@ -538,9 +540,10 @@ function request(action, jsn, pport, req, res) {
  *
  * @param   int       web_port        Start on this port
  * @param   String    web_user        Start as given user
+ * @param   bool      is_x11          Is X11 Client ?
  * @return  Express
  */
-function createInstance(web_port, web_user) {
+function createInstance(web_port, web_user, is_x11) {
   var app = express();
 
   console.log('\u001b[1m::\u001b[0m \u001b[31mOS.js version ' + _config.PROJECT_VERSION + ' (' + _config.PROJECT_CODENAME + ')\u001b[0m \u001b[1m::\u001b[0m');
@@ -617,7 +620,7 @@ function createInstance(web_port, web_user) {
       try {
         var jsn     = req.body || {};//.objectData;
         var action  = jsn.action || null;
-        request(action, jsn, web_port, req, res);
+        request(action, jsn, web_port, is_x11, req, res);
       } catch ( err ) {
         console.error('POST /API error', err);
         res.json(200, {success: false, error: err, node_exception: true});

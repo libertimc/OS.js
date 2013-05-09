@@ -58,11 +58,19 @@ var fs         = require('fs');
   }
 })();
 
+// FIXME: Temporary replacement for 'server-sys.js'
+var __x11 = false;
+if ( process.argv && process.argv.length > 2 ) {
+  if ( process.argv[2] == "x11" ) {
+    __x11 = true;
+  }
+}
+
 process.on('uncaughtException', function (err) {
   console.error('Caught exception: ' + err); // FIXME
 });
 
-var app = _client(_config.SERVER_PORT, null);
+var app = _client(_config.SERVER_PORT, null, __x11);
 app.listen(_config.SERVER_PORT);
 console.info('>>> Listening on port ' + _config.SERVER_PORT);
 
