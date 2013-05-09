@@ -9,6 +9,7 @@ doc/
 public_html/.htpasswd
 public_html/media/Public/*
 *.php
+node_modules
 
 # Build files
 .compress
