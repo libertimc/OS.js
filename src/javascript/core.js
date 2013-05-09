@@ -59,7 +59,7 @@
   var ENV_BUGREPORT          = false;               //!< Enable posting of errors (reporting, server-side mailing)
   var STORAGE_ENABLE         = false;               //!< Enable WebStorage for files
   var BAREBONE_ENABLE        = false;
-  var X11_MODE               = false;
+  var X11_ENABLED            = false;
   // @endconstants
 
   /**
@@ -2614,7 +2614,7 @@
         ENV_BUGREPORT   = env.bugreporting;
         ENV_SETUP       = env.setup;
         WEBSOCKET_URI   = env.hosts.server;
-        X11_MODE        = env.x11;
+        X11_ENABLED     = env.x11;
         BAREBONE_ENABLE = data.settings.barebone;
 
         if ( env.websockets ) {
@@ -9156,7 +9156,7 @@
       window.onbeforeunload = null;
       $(window).off("beforeunload"); // NOTE: Required!
 
-      if ( MODE_X11 ) {
+      if ( X11_ENABLED ) {
         try {
           window.close();
           //$(window).on("close");
