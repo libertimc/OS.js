@@ -115,7 +115,7 @@ OSjs.Dialogs.CompabilityDialog = (function($, undefined) {
           items.push(sprintf("<div class=\"Item\"><span>%s</span><p>%s</p></div>", "Video", "Your browser does not support Video playback."));
         }
         if ( !OSjs.Compability.SUPPORT_AUDIO ) {
-          items.push(sprintf("<div class=\"Item\"><span>%s</span><p>%s</p></div>", "Video", "Your browser does not support Audio playback."));
+          items.push(sprintf("<div class=\"Item\"><span>%s</span><p>%s</p></div>", "Audio", "Your browser does not support Audio playback."));
         }
         if ( !OSjs.Compability.SUPPORT_RICHTEXT ) {
           items.push(sprintf("<div class=\"Item\"><span>%s</span><p>%s</p></div>", "Richtext Editing", "Found no support for Richtext."));
