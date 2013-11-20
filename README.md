@@ -9,6 +9,8 @@ CSS features.
 
 OS.js can also be deployed standalone, either running in a browser or on top of X11 as a complete Graphical Environment.
 
+**NOTE:** I have started working on OS.js Version 2. Completely rewritten from scratch. More info here https://github.com/andersevenrud/OS.js-v2
+
 ## This is the new Node.js branch
 
 This version runs purely on JavaScript. It can be deployed as a system-wide service or be run as a normal web application.
