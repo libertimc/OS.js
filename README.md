@@ -1,3 +1,5 @@
+**This version is no longer in active development. Please check out version 2 in my other Github project page: https://github.com/andersevenrud/OS.js-v2**
+
 # About OS.js:
 OS.js is a simple, yet powerful JavaScript Cloud/Web Desktop Platform.
 
@@ -8,8 +10,6 @@ Only WebKit and Gecko based browsers fully support Glade/Gtk+ due to incomplete 
 CSS features.
 
 OS.js can also be deployed standalone, either running in a browser or on top of X11 as a complete Graphical Environment.
-
-**NOTE:** I have started working on OS.js Version 2. Completely rewritten from scratch. More info here https://github.com/andersevenrud/OS.js-v2
 
 ## This is the new Node.js branch
 
