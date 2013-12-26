@@ -1,4 +1,4 @@
-**This version is no longer in active development. Please check out version 2 in my other Github project page: https://github.com/andersevenrud/OS.js-v2**
+**This version is no longer in active development. Please check out version 2 in my other Github project page: http://andersevenrud.github.io/OS.js-v2**
 
 # About OS.js:
 OS.js is a simple, yet powerful JavaScript Cloud/Web Desktop Platform.
